@@ -10,6 +10,7 @@ target/
 !.env.example
 *.log
 node_modules/
+out/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
