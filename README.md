@@ -2,7 +2,7 @@
 
 Java web assignment project. Current stage: Maven and Jakarta REST foundation.
 
-Verification (6 November 2026): `mvn -B -ntp package` succeeded with Java release 21. The WAR contains both REST classes and the setup page. No automated tests have been added for this minimal foundation. Server deployment and HTTP/database checks are still pending.
+Verification (6 November 2026): `mvn -B -ntp package` succeeded with Java release 21. The WAR deployed successfully on Payara Community 7.2026.10. The setup page and REST endpoint both returned HTTP 200; the endpoint returned the expected JSON with `application/json` content type. No automated tests have been added for this minimal foundation. Database connectivity remains pending.
 
 ## Requirements
 
@@ -20,14 +20,14 @@ Output: `target/smartcity360.war`.
 
 ## First deployment check
 
-Deploy the WAR on Payara 7 with application context `/smartcity360`. For a local server configured on HTTP port 8080:
+Follow [Local development in IntelliJ](docs/LOCAL_DEVELOPMENT.md) to configure and run Payara 7. Our separate `smartcity360` domain uses HTTP port 9080 and administration port 9048. Deploy the WAR with application context `/smartcity360`:
 
-- Setup page: `http://localhost:8080/smartcity360/`
-- REST check: `http://localhost:8080/smartcity360/api/health`
+- Setup page: `http://localhost:9080/smartcity360/`
+- REST check: `http://localhost:9080/smartcity360/api/health`
 
 Expected REST response: `{"application":"SmartCity360","status":"UP"}`.
 
-The REST check confirms the Java endpoint responds; it does not verify a database connection. Building the WAR alone does not establish that deployment works. Payara setup and deployment verification are the next learning step.
+The REST check confirms the Java endpoint responds; it does not verify a database connection. PostgreSQL/JPA integration is the next learning step.
 
 ## Understand these files
 
