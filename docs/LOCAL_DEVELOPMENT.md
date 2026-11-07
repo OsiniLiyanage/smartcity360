@@ -60,7 +60,7 @@ Open http://localhost:9080/smartcity360/ and follow the check link. Expected JSO
 {"application":"SmartCity360","status":"UP"}
 ```
 
-This confirms Jakarta REST responds. Database readiness is a separate future check.
+This confirms Jakarta REST responds. Fetch `/api/cities` to check the database path too; see [database setup](DATABASE.md).
 
 After editing Java or web files, build again and deploy again. The deploy action replaces this application's previous deployment. It does not recreate the domain or touch other applications.
 
@@ -97,4 +97,10 @@ Save a separate commit for each meaningful working change. Review the diff, run 
 
 During setup, PowerShell's default XML save inserted a UTF-8 byte-order mark that Payara's startup parser rejected. The helper now writes UTF-8 without that mark. No old Payara 6 settings were changed.
 
-This initial checkpoint was followed by PostgreSQL/JPA integration on 7 November; see [verification evidence](VERIFICATION.md). Tailwind and assignment feature behavior remain later milestones.
+This initial checkpoint was followed by PostgreSQL/JPA integration and the Composite hierarchy workspace on 7 November; see [verification evidence](VERIFICATION.md).
+
+## Updating the hierarchy workspace
+
+For an existing database, run the database helper with `-Action Setup` to apply the additive zone table before deploying the hierarchy update. Existing city records are preserved.
+
+The Tailwind output is checked into source control. When editing UI classes or `src/main/frontend/app.css`, run `npm ci` once and then `npm run build:css`. Build with `mvn package` and deploy again with the server helper. A Maven-only build works when using the already compiled CSS. Report source files in `docs/report` are not included in the WAR.
