@@ -4,7 +4,7 @@
 
 This project uses PostgreSQL 18.6 Windows binaries from the distributor linked by postgresql.org. On this computer the binaries are in `D:\OODP2\tools\pgsql`. The database runs on **127.0.0.1:5433**, separately from other database installations.
 
-The helper creates a database named `smartcity360`, a separate application login `smartcity360_app`, and the `city`, `zone`, `complaint`, `complaint_event`, `meter`, `meter_reading`, `lamp_specification` and `streetlight` tables. Admin and app passwords are generated locally in `.local/database.json`. That entire directory is ignored by Git and includes the database's actual data files. Do not delete it to clean the project: it contains saved data. Back it up privately when needed.
+The helper creates a database named `smartcity360`, a separate application login `smartcity360_app`, and the `city`, `zone`, `complaint`, `complaint_event`, `meter`, `meter_reading`, `lamp_specification`, `streetlight`, `policy` and `policy_evaluation` tables. Admin and app passwords are generated locally in `.local/database.json`. That entire directory is ignored by Git and includes the database's actual data files. Do not delete it to clean the project: it contains saved data. Back it up privately when needed.
 
 The application account has permission to read/change city and zone records and use their ID sequences. It is not the PostgreSQL superuser. Payara stores its connection settings in its local domain configuration, outside the repository.
 
@@ -24,7 +24,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Ac
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Deploy
 ```
 
-Setup runs the numbered files in `database/` in filename order, each inside a transaction. The current scripts `001_city.sql` through `005_streetlights.sql` can safely run again and preserve existing records. There is no migration-history table: future scripts must remain safe to rerun or the runner must be upgraded before introducing one-time data transformations. Do not recreate the database to apply this update.
+Setup runs the numbered files in `database/` in filename order, each inside a transaction. The current scripts `001_city.sql` through `006_policies.sql` can safely run again and preserve existing records. There is no migration-history table: future scripts must remain safe to rerun or the runner must be upgraded before introducing one-time data transformations. Do not recreate the database to apply this update.
 
 For later sessions, start PostgreSQL before Payara:
 
@@ -71,6 +71,8 @@ Complaint records use the same datasource. The app can read/insert/update compla
 Meters also use this datasource. The app can read/insert/update meter registrations and read/insert reading history. Accepted readings update the linked building within the same transaction. Meter credentials are stored as hashes; the payload encryption key is a separate private file in the Payara domain. Back up that key privately with the database to preserve historical recovery. See [meter storage and key details](METERS.md).
 
 Streetlights use `lamp_specification` for immutable model/watts/colour configurations and `streetlight` for individual placement, power, faults and edit versions. The application role can read/insert specifications and read/insert/update lights; it cannot update shared specifications or delete these records. A unique configuration constraint deduplicates concurrent creation. A city/street foreign key prevents cross-city links, while the service checks that the zone is a street. Per-city transactional locks and version checks prevent stale writes. See [streetlight workflow and limits](STREETLIGHTS.md). Database normalization and the Java Flyweight pool are separate parts of this implementation.
+
+Policies use `policy` for the current rule and `policy_evaluation` for immutable result snapshots. History retains the original expression, meaning, policy version and observed values when later edits change the policy. The application role can read/insert/update policies and read/insert evaluations; it cannot edit or delete evaluation history. Per-city locks and version checks serialize policy changes and reject stale evaluations. Cross-city links are prevented by composite foreign keys. See [policy language and workflow](POLICIES.md).
 
 ## Source references
 

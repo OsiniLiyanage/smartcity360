@@ -225,3 +225,44 @@ The HTTP script retains two demo cities, three lights and test configurations pe
 ### Limits and remaining work
 
 Rated load is a simulation based on nameplate watts, commanded power and fault status; it is not measured consumption. The inventory has no bulk operation, deletion or maintenance-history feature. The pool retains unique requested configurations until restart/redeployment. No production load, hardware integration or heap-memory benchmark was performed. Part E, application access controls, final consolidated report/PDF and recorded video remain pending.
+
+## Part E checkpoint — 8 November 2026
+
+Part E now supports saved city policy rules, syntax validation, zone-linked observations, explicit result meaning and immutable evaluation history. This supersedes the earlier pending-Part-E status. All five assessed pattern features are implemented; the final integrated acceptance audit and submission artifacts remain pending.
+
+| Check | Observed result |
+|---|---|
+| Maven package | Passed; 57 Java source files compiled and WAR produced |
+| Full JUnit suite | 33 passed: 5 Composite, 6 Chain, 7 Decorator, 6 Flyweight, 9 Interpreter; zero failures/errors |
+| JavaScript syntax and Tailwind build | Passed; compiled local CSS included |
+| Database setup | `006_policies.sql` applied without recreating existing tables/data |
+| Live policy API | 84 HTTP checks passed |
+| Browser rule workflow | Created a rule, checked syntax, saved/evaluated it, edited its threshold and retained both results |
+| Error handling in browser | `noise >` produced “Expected a decimal number at character 8.”; dirty draft disabled evaluation |
+| Restart persistence | Exact comparison passed for 4 policies and 10 saved evaluations after PostgreSQL/Payara restart |
+
+### Covered behavior
+
+Unit tests verify overnight rules and boundaries, all six decimal comparison operators, boolean precedence, parentheses, negation, parking rules, runtime threshold changes, missing fields even on short-circuited branches, malformed/unsupported text, source/token/nesting/literal limits, observation ranges/precision and immutable contexts.
+
+The HTTP script additionally checks saved creation/editing, explicit violation/permission outcomes, required fields and grouping, policy/history pagination, unchanged earlier snapshots after rule edits, disabled rules, duplicate names, cross-city records/zones, invalid JSON/types/values, stale updates/evaluations and two concurrent edits (one succeeds, the other receives 409). Rejected evaluations do not add history.
+
+An initial API run stopped because its test assumed a new JPA version would be zero. Payara assigned version 1. The test now accepts the valid server-provided non-negative version, and the UI displays that stored revision directly. The successful rerun completed all 84 checks. The earlier partial demo dataset was retained; no user data was deleted.
+
+### Browser evidence
+
+In city 18, the browser created **Browser overnight noise check** with `noise > 65 AND (hour >= 22 OR hour < 6)` and true meaning violation. For Library Street, 70 dB at hour 23 produced a violation at revision 1. Editing the threshold to 75, saving and evaluating the same observations produced no violation at revision 2. Expanded history displayed both original rules and their outcomes. The screen required saving the draft before another evaluation.
+
+The browser also checked a malformed rule and reloaded the saved valid rule without creating an invalid revision. [History evidence](report/evidence/policy-history.png) shows both saved versions. The browser check covered the noise workflow; permission outcomes and parking boundaries were separately exercised by API/unit tests.
+
+### Restart and reproduction
+
+Before restart, the complete current policy list and each policy's history for city 18 were saved in ignored `.local/policy-restart.json`. Payara and PostgreSQL were stopped, PostgreSQL was started first, then Payara. Exact JSON comparisons passed for all four policies and ten historical evaluations, including rule text, versions, observations, results, notes and timestamps.
+
+To reproduce the feature checks, apply numbered database scripts, build/deploy, run `mvn test`, then run `node scripts/verify-policies.mjs` with both servers running. A successful HTTP run retains two demo cities, three policies and eight evaluations. Browser verification added a fourth policy and two evaluations to its demo city. For restart verification, snapshot the complete list/history, restart in the documented order and compare again.
+
+The full unit suite passed with Part E included. Earlier live API checkpoints for A–D were not all rerun in this milestone; their original evidence remains above. Packaging after the revision-label-only JavaScript correction skipped repeating Java tests; the corrected interface was verified in the browser.
+
+### Limits and remaining work
+
+The language has three known numeric fields; it does not execute scripts, perform arithmetic, handle dates or automatically enforce outcomes. Observations are manual and the timestamp records evaluation time. History preserves evaluated revisions, not every intermediate edit. No load benchmark or production access-control audit was performed. User login/roles, the integrated dashboard, the full acceptance audit, rendered final report/PDF, clean-run source ZIP and 10–15-minute video remain to be completed.

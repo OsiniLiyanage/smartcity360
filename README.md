@@ -1,8 +1,8 @@
 # SmartCity360
 
-Java web assignment project. Current stage: meter processing using **Decorator (Part A)**, a city hierarchy using **Composite (Part B)**, complaints using **Chain of Responsibility (Part C)** and streetlights using **Flyweight (Part D)**, with Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
+Java web assignment project. Current stage: meter processing using **Decorator (Part A)**, a city hierarchy using **Composite (Part B)**, complaints using **Chain of Responsibility (Part C)**, streetlights using **Flyweight (Part D)** and city policies using **Interpreter (Part E)**, with Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
 
-Create city hierarchies, process meter readings with optional authentication/compression/encryption, and inspect usage totals. Route complaints by severity and record work through resolution. Register streetlights, control individual power/fault states and demonstrate specification sharing for 100,000 temporary lights. Twenty-four JUnit tests passed; separate live checkpoints verified 41 hierarchy, 46 complaint, 63 meter and 55 streetlight HTTP checks. Browser workflows and restart persistence were checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
+Create city hierarchies, process meter readings with optional authentication/compression/encryption, and inspect usage totals. Route complaints by severity and record work through resolution. Register streetlights, control individual power/fault states and demonstrate specification sharing for 100,000 temporary lights. Save/edit noise and parking rules, evaluate zone observations and retain the original rule with each result. Thirty-three JUnit tests passed; separate live checkpoints verified 41 hierarchy, 46 complaint, 63 meter, 55 streetlight and 84 policy HTTP checks. Browser workflows and restart persistence were checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ Create city hierarchies, process meter readings with optional authentication/com
 - Maven
 - Payara Community 7, compatible with Jakarta EE 11
 
-PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). Part E, user login/role permissions, the final report and the recorded demonstration remain pending. The optional meter credential wrapper is distinct from application user authentication. This is a local demonstration, not a production deployment.
+PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). All five assessed pattern features are implemented. User login/role permissions, the integrated dashboard, final acceptance audit, consolidated report/PDF, source ZIP and recorded demonstration remain pending. The optional meter credential wrapper is distinct from application user authentication. This is a local demonstration, not a production deployment.
 
 ## Build
 
@@ -28,6 +28,7 @@ Follow [Local development in IntelliJ](docs/LOCAL_DEVELOPMENT.md) to configure a
 - Complaints: `http://localhost:9080/smartcity360/complaints.html`
 - Energy meters: `http://localhost:9080/smartcity360/meters.html`
 - Streetlights: `http://localhost:9080/smartcity360/streetlights.html`
+- City policies: `http://localhost:9080/smartcity360/policies.html`
 - REST check: `http://localhost:9080/smartcity360/api/health`
 - Saved city records: `http://localhost:9080/smartcity360/api/cities`
 
@@ -52,6 +53,8 @@ The health endpoint confirms Java responds; listing cities also checks the datab
 - `pattern/flyweight/`: immutable lamp specifications, the shared pool and independent light contexts.
 - `StreetlightService.java`: saves inventory and reconstructs paginated contexts using shared specifications.
 - `FlyweightDemonstration.java`: isolated object-identity comparison without database writes.
+- `pattern/interpreter/`: terminal comparisons, boolean expression nodes, observation context and bounded rule parser.
+- `PolicyService.java`: validates saved revisions and stores evaluations with original rule snapshots.
 
 ## Try the hierarchy
 
@@ -65,18 +68,23 @@ Use the same reporting period for all manual readings. These are saved values, n
 
 ## Verify
 
-- `mvn test`: five Composite, six Chain of Responsibility, seven Decorator and six Flyweight tests.
+- `mvn test`: five Composite, six Chain of Responsibility, seven Decorator, six Flyweight and nine Interpreter tests.
 - `node scripts/verify-zones.mjs`: live API checks with Payara/PostgreSQL running; creates and retains two labelled demo cities per run.
 - `node scripts/verify-complaints.mjs`: live complaint checks; creates two labelled demo cities and four complaints per successful run.
 - `node scripts/verify-meters.mjs`: live meter checks; creates two labelled demo cities, a meter and nine accepted readings per successful run. Generated credentials stay in ignored `.local`.
 - `node scripts/verify-streetlights.mjs`: live streetlight checks; creates two labelled demo cities, three saved lights and test specifications. The separate 100,000-light demonstration creates no database rows.
+- `node scripts/verify-policies.mjs`: live policy checks; retains two labelled demo cities, three policies and eight evaluation results on a successful run.
 - [Part B report draft](docs/report/PART_B_COMPOSITE.md): class roles, UML source, tradeoffs and viva explanation.
 - [Complaint workflow guide](docs/COMPLAINTS.md): UI steps, API, data model and limitations.
 - [Part C report draft](docs/report/PART_C_CHAIN_OF_RESPONSIBILITY.md): assessment answers and supporting UML source.
 - [Meter workflow guide](docs/METERS.md): registration, layer choices, recovery, key backup and limitations.
 - [Part A report draft](docs/report/PART_A_DECORATOR.md): A1–A3 answers, UML source and standard-library references.
-
 - [Streetlight workflow guide](docs/STREETLIGHTS.md): registration, individual controls, API and sharing demonstration limits.
 - [Part D report draft](docs/report/PART_D_FLYWEIGHT.md): D1–D3 answers, UML source and evidence for object sharing.
+
+- [Policy workflow guide](docs/POLICIES.md): language grammar, saved revisions, observations, API and limitations.
+- [Part E report draft](docs/report/PART_E_INTERPRETER.md): E1–E3 answers, required UML source and critical assessment.
+
+The five report sections are source material for one final document; they are not separate submission reports or a finished PDF.
 
 There is no Spring Boot dependency or standalone `main` method: Payara runs this web application.
