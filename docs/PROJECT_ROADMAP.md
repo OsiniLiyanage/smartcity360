@@ -2,9 +2,13 @@
 
 Updated 8 November 2026 following the user's project-first direction.
 
+Additional user direction: add dashboard charts/graphs and in-application printable reports. Additional patterns taught in class may be used where they solve a real implementation problem. The five assessed patterns remain clearly identifiable.
+
 ## Delivery boundary
 
 Finish the application first. Do not start assembling the consolidated PDF, preparing the submission ZIP or preparing/recording the video until Osini explicitly says to proceed. Existing pattern report drafts remain reference material. This file is a development plan, not submission-document preparation.
+
+Operational reports inside SmartCity360 are authorized application features. Printing such a report, including the browser's Save as PDF option, is separate from assembling the assignment's consolidated report. The submission-artifact hold still applies.
 
 The five pattern implementations are working feature foundations. That does not mean the full municipal application is finished. The current API has no user authentication or authorization. Complaint submission accepts a typed resident name, the chain assigns an authority tier rather than an individual employee, and work events currently use a demonstration actor. The current pattern tests do not prove access control.
 
@@ -63,6 +67,39 @@ An account role alone is insufficient: permissions must also check its city assi
 - Consistent navigation, responsive layouts, useful empty/error/loading states, clear permission messages and searchable/paginated lists where needed.
 - An administrator activity view for important account and operational actions.
 - Use labelled, coherent demo data for a connected city journey rather than relying only on separate test datasets. Preserve existing user records.
+
+### Dashboard charts and operational reports
+
+Build these on the protected APIs and completed workflows, so charts and exports cannot bypass account permissions.
+
+| Workspace | Useful charts and summaries | Printable reports |
+|---|---|---|
+| Resident | Own complaints by status and submission date; own linked-building energy history only after authorized linking exists | Own complaint details and progress history |
+| Local Staff | Assigned workload, overdue/open work when due dates exist, completed work and assigned maintenance tasks | Assigned work list and permitted case/maintenance details |
+| Supervisor | Team workload, complaint severity/status, submitted versus resolved counts over time, outstanding faults | Team workload, complaint progress and maintenance reports within authorized city scope |
+| City Manager | City complaint trends, resolution durations where recorded, district energy summaries, lighting faults and policy outcomes | City operations summary, energy, maintenance and policy-evaluation reports |
+| System Admin | Account status/role totals and administrative activity; explicitly authorized cross-city summaries | User administration and permitted audit/activity reports |
+
+- Use line charts for trends, bar charts for comparisons and status charts where proportions are useful. Each chart needs a title, units, a clear time range, readable legends and a corresponding numeric/table view.
+- Provide city/area/date/status filters as applicable, reset controls and explicit no-data states. Apply the same filter definitions to chart totals, detail tables and printed output.
+- Define metrics before plotting them. Current building usage is a saved reading for a reporting period; successive snapshots must not be summed as though each were additional consumption. Energy trends require defined periods/readings. Historical complaint status and resolution timing must come from recorded events, not today's status projected backwards.
+- A report preview should show its title, authorized scope, selected filters, generated time, summary, readable charts and relevant details. Print layout must omit navigation/forms and handle page breaks and table headings sensibly.
+- Provide Print / Save as PDF using the browser print flow as the first working output. Do not claim a separate downloadable PDF generator exists unless implemented. Keep charts and assets local so the existing local demonstration does not depend on paid services or a CDN.
+- Prevent secret fields, meter credentials, password hashes, internal staff notes and unauthorized personal records from entering reports. A resident-visible case report must include only resident-visible history.
+- Completion: filtered chart totals agree with underlying records, changing filters updates all related views consistently, print preview remains readable, and direct report requests cannot reveal another user's or city's restricted data.
+
+### Additional class-taught patterns
+
+These are intended applications, not claims that the extra patterns are already implemented. Their addition should follow the feature they support and be explained with actual class roles and behavior.
+
+| Pattern | Natural application | Guardrail |
+|---|---|---|
+| Builder | Assemble an immutable operational-report request with optional date range, authorized area, status filters and selected sections | Validate the finished request; permissions are derived from the authenticated user, never granted by builder options |
+| Visitor | Traverse the existing city hierarchy to collect reporting statistics/details for different node types | Use explicit `accept`/`visit` collaboration, preserve Composite operations, and avoid double-counting both group totals and their leaves |
+
+Builder is covered in the supplied class PDF around pages 13–17 and Visitor around pages 40–43. They extend the product without replacing the five selected A–E patterns. Prototype for reusable templates or Mediator for cross-feature coordination can be considered later if those workflows genuinely benefit; neither is required merely to increase the pattern count.
+
+Do not describe a normal constructor, generic service or utility method as a design pattern without the corresponding structure. The class notes themselves warn against unnecessary complexity and overly large classes (anti-pattern discussion, pages 45–46).
 
 ### 5. Finish and verify the application
 
