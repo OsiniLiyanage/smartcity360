@@ -36,6 +36,8 @@ To specify other installation locations, append these parameters to script comma
 
 Start the server when it is stopped:
 
+First start PostgreSQL as described in [Database setup](DATABASE.md). The application now needs its configured JDBC resource and database.
+
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Start
 ```
@@ -95,4 +97,4 @@ Save a separate commit for each meaningful working change. Review the diff, run 
 
 During setup, PowerShell's default XML save inserted a UTF-8 byte-order mark that Payara's startup parser rejected. The helper now writes UTF-8 without that mark. No old Payara 6 settings were changed.
 
-Still pending: PostgreSQL connection, JPA entities, Tailwind interface and assignment feature behavior.
+This initial checkpoint was followed by PostgreSQL/JPA integration on 7 November; see [verification evidence](VERIFICATION.md). Tailwind and assignment feature behavior remain later milestones.

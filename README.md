@@ -1,8 +1,8 @@
 # SmartCity360
 
-Java web assignment project. Current stage: Maven and Jakarta REST foundation.
+Java web assignment project. Current stage: Jakarta REST and PostgreSQL/JPA foundation, with a working create/list city page.
 
-Verification (6 November 2026): `mvn -B -ntp package` succeeded with Java release 21. The WAR deployed successfully on Payara Community 7.2026.10. The setup page and REST endpoint both returned HTTP 200; the endpoint returned the expected JSON with `application/json` content type. No automated tests have been added for this minimal foundation. Database connectivity remains pending.
+Verification (7 November 2026): Maven packaging and Payara deployment succeeded. Live HTTP checks covered city creation/listing, name trimming and five invalid inputs. A saved city survived restarting both PostgreSQL and Payara, and a direct SQL query matched the API response. See [verification evidence](docs/VERIFICATION.md) for details and limits.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ Verification (6 November 2026): `mvn -B -ntp package` succeeded with Java releas
 - Maven
 - Payara Community 7, compatible with Jakarta EE 11
 
-PostgreSQL/JPA, Tailwind and the five assignment features are planned but not yet configured or implemented.
+PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). Tailwind, authentication and the five assignment features are later milestones; this page is the persistence checkpoint.
 
 ## Build
 
@@ -24,10 +24,11 @@ Follow [Local development in IntelliJ](docs/LOCAL_DEVELOPMENT.md) to configure a
 
 - Setup page: `http://localhost:9080/smartcity360/`
 - REST check: `http://localhost:9080/smartcity360/api/health`
+- Saved city records: `http://localhost:9080/smartcity360/api/cities`
 
 Expected REST response: `{"application":"SmartCity360","status":"UP"}`.
 
-The REST check confirms the Java endpoint responds; it does not verify a database connection. PostgreSQL/JPA integration is the next learning step.
+The health endpoint confirms Java responds; listing cities also checks the database path. Start PostgreSQL before Payara in later development sessions.
 
 ## Understand these files
 
