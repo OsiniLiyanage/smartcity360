@@ -9,6 +9,8 @@
         <class>lk.osini.smartcity360.entity.ZoneEntity</class>
         <class>lk.osini.smartcity360.entity.Complaint</class>
         <class>lk.osini.smartcity360.entity.ComplaintEvent</class>
+        <class>lk.osini.smartcity360.entity.Meter</class>
+        <class>lk.osini.smartcity360.entity.MeterReading</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Schema changes are explicit SQL files, never drop-and-create. -->
