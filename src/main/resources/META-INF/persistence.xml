@@ -7,6 +7,8 @@
         <jta-data-source>jdbc/SmartCity360DS</jta-data-source>
         <class>lk.osini.smartcity360.entity.City</class>
         <class>lk.osini.smartcity360.entity.ZoneEntity</class>
+        <class>lk.osini.smartcity360.entity.Complaint</class>
+        <class>lk.osini.smartcity360.entity.ComplaintEvent</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Schema changes are explicit SQL files, never drop-and-create. -->
