@@ -1,8 +1,8 @@
 # SmartCity360
 
-Java web assignment project. Current stage: a working city hierarchy workspace using the **Composite pattern (Part B)**, Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
+Java web assignment project. Current stage: a city hierarchy workspace using **Composite (Part B)** and a complaint workflow using **Chain of Responsibility (Part C)**, with Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
 
-Create cities, districts, streets and buildings; record building usage; inspect recursive totals; and switch simulated power at any level. Five JUnit tests and 41 live HTTP checks passed. Browser interactions were also checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
+Create city hierarchies, record usage and control simulated power. Submit complaints linked to those cities/areas, route by severity, escalate and record work through resolution. Eleven JUnit tests passed; separate live checkpoints verified 41 hierarchy HTTP checks and 46 complaint HTTP checks. Browser workflows and restart persistence were checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ Create cities, districts, streets and buildings; record building usage; inspect 
 - Maven
 - Payara Community 7, compatible with Jakarta EE 11
 
-PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). Parts A, C, D and E, authentication, the final report and the recorded demonstration remain pending. This is a local demonstration, not a production deployment.
+PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). Parts A, D and E, authentication, the final report and the recorded demonstration remain pending. This is a local demonstration, not a production deployment.
 
 ## Build
 
@@ -25,6 +25,7 @@ The compiled Tailwind CSS is committed, so a fresh checkout can build the WAR wi
 Follow [Local development in IntelliJ](docs/LOCAL_DEVELOPMENT.md) to configure and run Payara 7. Our separate `smartcity360` domain uses HTTP port 9080 and administration port 9048. Deploy the WAR with application context `/smartcity360`:
 
 - City workspace: `http://localhost:9080/smartcity360/`
+- Complaints: `http://localhost:9080/smartcity360/complaints.html`
 - REST check: `http://localhost:9080/smartcity360/api/health`
 - Saved city records: `http://localhost:9080/smartcity360/api/cities`
 
@@ -41,6 +42,9 @@ The health endpoint confirms Java responds; listing cities also checks the datab
 - `pattern/composite/`: common component, zone group and building leaf.
 - `ZoneService.java`: constructs the Composite from stored rows and saves command results.
 - `docs/report/PART_B_COMPOSITE.md`: report draft with explanation and UML source. Documentation is separate from the deployed app.
+- `pattern/chain/`: complaint handlers and their accept-or-forward algorithm.
+- `ComplaintService.java`: stores routing history and validates work transitions/escalation.
+- `docs/report/PART_C_CHAIN_OF_RESPONSIBILITY.md`: separate C1–C3 report draft.
 
 ## Try the hierarchy
 
@@ -54,8 +58,11 @@ Use the same reporting period for all manual readings. These are saved values, n
 
 ## Verify
 
-- `mvn test`: five Composite behavior tests.
+- `mvn test`: five Composite and six Chain of Responsibility tests.
 - `node scripts/verify-zones.mjs`: live API checks with Payara/PostgreSQL running; creates and retains two labelled demo cities per run.
+- `node scripts/verify-complaints.mjs`: live complaint checks; creates two labelled demo cities and four complaints per successful run.
 - [Part B report draft](docs/report/PART_B_COMPOSITE.md): class roles, UML source, tradeoffs and viva explanation.
+- [Complaint workflow guide](docs/COMPLAINTS.md): UI steps, API, data model and limitations.
+- [Part C report draft](docs/report/PART_C_CHAIN_OF_RESPONSIBILITY.md): assessment answers and supporting UML source.
 
 There is no Spring Boot dependency or standalone `main` method: Payara runs this web application.
