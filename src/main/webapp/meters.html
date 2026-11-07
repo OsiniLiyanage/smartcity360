@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartCity360 | Energy meters</title>
+    <link rel="stylesheet" href="assets/css/app.css"><script src="assets/js/meters.js" defer></script>
+</head>
+<body>
+    <header class="border-b border-slate-200 bg-white"><div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5">
+        <a href="./" class="text-xl font-bold tracking-tight text-slate-900">SmartCity<span class="text-teal-700">360</span></a>
+        <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">Local demonstration</span>
+    </div></header>
+    <nav aria-label="Main navigation" class="mx-auto flex max-w-7xl flex-wrap gap-5 border-b border-slate-200 px-5 py-3 text-sm">
+        <a href="./" class="text-slate-600 hover:text-teal-800">City zones</a>
+        <a href="complaints.html" class="text-slate-600 hover:text-teal-800">Complaints</a>
+        <a href="meters.html" aria-current="page" class="font-semibold text-teal-800">Energy meters</a>
+    </nav>
+    <main class="mx-auto max-w-7xl px-5 py-8">
+        <p class="mb-2 text-xs font-bold uppercase tracking-widest text-teal-700">Energy monitoring</p>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">One reading. Layers of protection.</h1>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Register a building meter, process its usage through optional layers, and inspect the saved result. Accepted readings update the city’s usage totals.</p>
+        <p id="message" role="status" aria-live="polite" class="my-5 min-h-6 text-sm text-teal-800"></p>
+        <div class="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <aside class="space-y-5">
+                <section class="panel space-y-3">
+                    <div><label for="city-select" class="label">Choose a city</label><select id="city-select" class="field"></select></div>
+                    <div><label for="meter-select" class="label">Choose a meter</label><select id="meter-select" class="field"></select></div>
+                    <button id="refresh" type="button" class="secondary w-full">Refresh meters</button>
+                    <p class="text-xs leading-5 text-slate-500">Add buildings in <a href="./" class="underline">City zones</a> before registering meters.</p>
+                </section>
+                <section class="panel" aria-labelledby="register-heading">
+                    <h2 id="register-heading" class="mb-4 text-lg font-semibold">Register a meter</h2>
+                    <form id="meter-form" class="space-y-4">
+                        <div><label for="building-select" class="label">Building without a meter</label><select id="building-select" class="field" required></select></div>
+                        <div><label for="meter-name" class="label">Meter name</label><input id="meter-name" class="field" required maxlength="100" placeholder="e.g. Library energy meter"></div>
+                        <button type="submit" class="button w-full">Register meter</button>
+                    </form>
+                    <p id="register-hint" class="mt-3 text-xs leading-5 text-slate-500"></p>
+                </section>
+                <section class="panel" aria-labelledby="totals-heading">
+                    <h2 id="totals-heading" class="font-semibold">Current usage totals</h2>
+                    <p class="mt-4 text-xs text-slate-500">Selected building</p><p id="building-total" class="mt-1 text-xl font-semibold">—</p>
+                    <p class="mt-4 text-xs text-slate-500">Whole city</p><p id="city-total" class="mt-1 text-xl font-semibold">—</p>
+                    <p class="mt-3 text-xs leading-5 text-slate-500">Manual totals for a shared reporting period. A new accepted reading replaces its building’s current total; readings are not added together.</p>
+                </section>
+            </aside>
+            <div class="min-w-0 space-y-5">
+                <div id="empty" class="panel py-12 text-center text-sm text-slate-500">Choose or register a meter to begin.</div>
+                <div id="workspace" hidden class="space-y-5">
+                    <section class="panel" aria-labelledby="meter-title">
+                        <h2 id="meter-title" class="break-words text-xl font-semibold"></h2><p id="meter-location" class="mt-1 break-words text-xs text-slate-500"></p>
+                        <div class="mt-5"><label for="credential" class="label">Meter credential</label><input id="credential" type="password" autocomplete="off" maxlength="200" class="field" placeholder="Required when authentication is selected"></div>
+                        <label class="mt-3 flex items-center gap-2 text-xs text-slate-600"><input id="show-credential" type="checkbox"> Show credential</label>
+                        <p id="credential-hint" class="mt-3 text-xs leading-5 text-slate-500">Credentials stay only in this tab. Save a newly issued credential privately before leaving; it cannot be retrieved later.</p>
+                        <details class="mt-3 text-xs text-slate-500"><summary class="cursor-pointer">Lost the credential?</summary><p class="my-3 leading-5">Replacing it immediately invalidates the old credential, including for earlier authenticated readings. This local demo has no user accounts yet.</p><button id="replace-credential" type="button" class="secondary">Replace meter credential</button></details>
+                    </section>
+                    <section class="panel" aria-labelledby="reading-heading">
+                        <h2 id="reading-heading" class="font-semibold">Process a usage reading</h2>
+                        <form id="reading-form" class="mt-4 space-y-4">
+                            <div><label for="usage" class="label">Building usage total (kWh)</label><input id="usage" type="number" required min="0" max="999999999.999" step="0.001" class="field"></div>
+                            <fieldset class="space-y-3 rounded-xl bg-slate-50 p-4"><legend class="px-1 text-sm font-medium">Optional processing layers</legend>
+                                <label class="flex items-start gap-3 text-sm"><input id="authentication" class="mt-1" type="checkbox" checked><span><strong>Authenticate meter</strong><span class="mt-1 block text-xs text-slate-500">Check the meter credential before processing.</span></span></label>
+                                <label class="flex items-start gap-3 text-sm"><input id="compression" class="mt-1" type="checkbox" checked><span><strong>Compress payload</strong><span class="mt-1 block text-xs text-slate-500">Use GZIP. Small messages can become larger.</span></span></label>
+                                <label class="flex items-start gap-3 text-sm"><input id="encryption" class="mt-1" type="checkbox" checked><span><strong>Encrypt payload</strong><span class="mt-1 block text-xs text-slate-500">Use AES-GCM with a fresh random nonce.</span></span></label>
+                            </fieldset>
+                            <p id="processing-order" class="text-xs leading-5 text-slate-600"></p>
+                            <p id="layer-warning" hidden class="rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900"></p>
+                            <button type="submit" class="button">Process and save reading</button>
+                        </form>
+                    </section>
+                    <section class="panel" aria-labelledby="history-heading"><h2 id="history-heading" class="font-semibold">Saved readings</h2><p class="mt-1 mb-4 text-xs text-slate-500">Select a reading to inspect its payload and verify recovery.</p><div id="readings" class="max-h-72 space-y-2 overflow-auto"></div></section>
+                    <section id="reading-detail" hidden class="panel" aria-labelledby="detail-title">
+                        <h2 id="detail-title" class="font-semibold"></h2><p id="detail-layers" class="mt-2 text-sm text-slate-600"></p><p id="detail-sizes" class="mt-2 text-sm text-slate-600"></p>
+                        <p class="mt-4 mb-2 text-xs font-medium text-slate-500">Encoded payload (Base64 display; Base64 itself is not encryption)</p>
+                        <pre id="payload" class="max-h-40 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-slate-900 p-4 text-xs leading-5 text-slate-100"></pre>
+                        <div class="mt-4 flex flex-wrap gap-3"><button id="recover" type="button" class="button">Recover and verify</button><button id="tamper" type="button" class="secondary">Test corrupted copy</button></div>
+                        <p class="mt-3 text-xs text-slate-500">Recovery uses this reading’s saved layers. A corruption test alters a copy only; the saved reading stays intact.</p>
+                        <p id="recovery-status" role="status" aria-live="polite" class="mt-4 text-sm font-medium text-teal-800"></p><pre id="recovered" hidden class="mt-3 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-teal-50 p-4 text-xs leading-5 text-teal-900"></pre>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <footer class="mt-8 border-t border-slate-200 pt-4 text-xs leading-5 text-slate-500">Local meter-message simulation. Payload encryption does not encrypt usage metadata or replace HTTPS, user login or access controls.</footer>
+    </main>
+</body>
+</html>
