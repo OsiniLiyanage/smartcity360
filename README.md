@@ -1,8 +1,8 @@
 # SmartCity360
 
-Java web assignment project. Current stage: a city hierarchy workspace using **Composite (Part B)** and a complaint workflow using **Chain of Responsibility (Part C)**, with Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
+Java web assignment project. Current stage: meter processing using **Decorator (Part A)**, a city hierarchy using **Composite (Part B)** and complaints using **Chain of Responsibility (Part C)**, with Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
 
-Create city hierarchies, record usage and control simulated power. Submit complaints linked to those cities/areas, route by severity, escalate and record work through resolution. Eleven JUnit tests passed; separate live checkpoints verified 41 hierarchy HTTP checks and 46 complaint HTTP checks. Browser workflows and restart persistence were checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
+Create city hierarchies, process meter readings with optional authentication/compression/encryption, and inspect usage totals. Route complaints by severity and record work through resolution. Eighteen JUnit tests passed; separate live checkpoints verified 41 hierarchy, 46 complaint and 63 meter HTTP checks. Browser workflows and restart persistence were checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ Create city hierarchies, record usage and control simulated power. Submit compla
 - Maven
 - Payara Community 7, compatible with Jakarta EE 11
 
-PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). Parts A, D and E, authentication, the final report and the recorded demonstration remain pending. This is a local demonstration, not a production deployment.
+PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). Parts D and E, user login/role permissions, the final report and the recorded demonstration remain pending. The optional meter credential wrapper is distinct from application user authentication. This is a local demonstration, not a production deployment.
 
 ## Build
 
@@ -26,6 +26,7 @@ Follow [Local development in IntelliJ](docs/LOCAL_DEVELOPMENT.md) to configure a
 
 - City workspace: `http://localhost:9080/smartcity360/`
 - Complaints: `http://localhost:9080/smartcity360/complaints.html`
+- Energy meters: `http://localhost:9080/smartcity360/meters.html`
 - REST check: `http://localhost:9080/smartcity360/api/health`
 - Saved city records: `http://localhost:9080/smartcity360/api/cities`
 
@@ -45,6 +46,8 @@ The health endpoint confirms Java responds; listing cities also checks the datab
 - `pattern/chain/`: complaint handlers and their accept-or-forward algorithm.
 - `ComplaintService.java`: stores routing history and validates work transitions/escalation.
 - `docs/report/PART_C_CHAIN_OF_RESPONSIBILITY.md`: separate C1–C3 report draft.
+- `pattern/decorator/`: common meter stream, base component and three wrappers.
+- `MeterService.java`: processes/recover-checks readings before updating building usage; `MeterKeyStore` keeps the private encryption key outside the repository.
 
 ## Try the hierarchy
 
@@ -58,11 +61,14 @@ Use the same reporting period for all manual readings. These are saved values, n
 
 ## Verify
 
-- `mvn test`: five Composite and six Chain of Responsibility tests.
+- `mvn test`: five Composite, six Chain of Responsibility and seven Decorator tests.
 - `node scripts/verify-zones.mjs`: live API checks with Payara/PostgreSQL running; creates and retains two labelled demo cities per run.
 - `node scripts/verify-complaints.mjs`: live complaint checks; creates two labelled demo cities and four complaints per successful run.
+- `node scripts/verify-meters.mjs`: live meter checks; creates two labelled demo cities, a meter and nine accepted readings per successful run. Generated credentials stay in ignored `.local`.
 - [Part B report draft](docs/report/PART_B_COMPOSITE.md): class roles, UML source, tradeoffs and viva explanation.
 - [Complaint workflow guide](docs/COMPLAINTS.md): UI steps, API, data model and limitations.
 - [Part C report draft](docs/report/PART_C_CHAIN_OF_RESPONSIBILITY.md): assessment answers and supporting UML source.
+- [Meter workflow guide](docs/METERS.md): registration, layer choices, recovery, key backup and limitations.
+- [Part A report draft](docs/report/PART_A_DECORATOR.md): A1–A3 answers, UML source and standard-library references.
 
 There is no Spring Boot dependency or standalone `main` method: Payara runs this web application.

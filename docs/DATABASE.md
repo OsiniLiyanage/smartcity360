@@ -1,10 +1,10 @@
-# PostgreSQL and the city hierarchy
+   # PostgreSQL and the city hierarchy
 
 ## Local setup
 
 This project uses PostgreSQL 18.6 Windows binaries from the distributor linked by postgresql.org. On this computer the binaries are in `D:\OODP2\tools\pgsql`. The database runs on **127.0.0.1:5433**, separately from other database installations.
 
-The helper creates a database named `smartcity360`, a separate application login `smartcity360_app`, and the `city`, `zone`, `complaint` and `complaint_event` tables. Admin and app passwords are generated locally in `.local/database.json`. That entire directory is ignored by Git and includes the database's actual data files. Do not delete it to clean the project: it contains saved data. Back it up privately when needed.
+The helper creates a database named `smartcity360`, a separate application login `smartcity360_app`, and the `city`, `zone`, `complaint`, `complaint_event`, `meter` and `meter_reading` tables. Admin and app passwords are generated locally in `.local/database.json`. That entire directory is ignored by Git and includes the database's actual data files. Do not delete it to clean the project: it contains saved data. Back it up privately when needed.
 
 The application account has permission to read/change city and zone records and use their ID sequences. It is not the PostgreSQL superuser. Payara stores its connection settings in its local domain configuration, outside the repository.
 
@@ -24,7 +24,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Ac
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Deploy
 ```
 
-Setup runs the numbered files in `database/` in filename order, each inside a transaction. The current `001_city.sql`, `002_zones.sql` and `003_complaints.sql` scripts can safely run again and preserve existing records. There is no migration-history table: future scripts must remain safe to rerun or the runner must be upgraded before introducing one-time data transformations. Do not recreate the database to apply this update.
+Setup runs the numbered files in `database/` in filename order, each inside a transaction. The current scripts `001_city.sql` through `004_meters.sql` can safely run again and preserve existing records. There is no migration-history table: future scripts must remain safe to rerun or the runner must be upgraded before introducing one-time data transformations. Do not recreate the database to apply this update.
 
 For later sessions, start PostgreSQL before Payara:
 
@@ -67,6 +67,8 @@ Every hierarchy mutation locks the owning city row within a JPA transaction. Thi
 Usage permits 0–999999999.999 kWh and up to three decimal places. Invalid inputs return 400; missing or cross-city targets return 404. Root city IDs and zone IDs are separate identities. `/api/health` remains application-only; a successful hierarchy request also checks the database path. User accounts remain pending.
 
 Complaint records use the same datasource. The app can read/insert/update complaints and read/insert history; it cannot delete complaints or edit/delete history through its database role. See [complaint storage and workflow](COMPLAINTS.md) for version checks, transaction behavior and API routes.
+
+Meters also use this datasource. The app can read/insert/update meter registrations and read/insert reading history. Accepted readings update the linked building within the same transaction. Meter credentials are stored as hashes; the payload encryption key is a separate private file in the Payara domain. Back up that key privately with the database to preserve historical recovery. See [meter storage and key details](METERS.md).
 
 ## Source references
 

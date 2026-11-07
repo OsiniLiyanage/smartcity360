@@ -130,3 +130,50 @@ A later negative-input check found that accepting only a `JsonObject` parameter 
 ### Remaining scope
 
 No real municipality is notified. Demo operator labels are not authenticated identities; role enforcement remains pending. The normal chain handles all supported severities, so the intentionally shortened-chain failure is a unit-test scenario, not a UI configuration. No runtime chain editor, manual assignment screen, named staff allocation, large-queue benchmark or complete browser compatibility audit is claimed. Parts A, D and E and final report/PDF/video production remain outstanding.
+
+## 7 November 2026 — Meter processing and Decorator
+
+Same local Java/Payara/PostgreSQL environment. `004_meters.sql` adds meter and reading tables without replacing prior records. The feature is a sequence of bounded meter messages, not a connection to real hardware.
+
+| Check | Observed result |
+|---|---|
+| Maven package | BUILD SUCCESS; 37 Java sources; 18 tests passed, including seven new Decorator tests |
+| Eight layer combinations | Exact original byte recovery for every authentication/compression/encryption combination, in unit and live tests |
+| Credential failure | Unit test verified rejection before delegation; live submission/recovery returned 401 |
+| Encryption | Fresh nonces produced different encrypted outputs; wrong key and modified/truncated ciphertext rejected in unit tests |
+| Compression | Repetitive unit-test data became smaller; corrupted GZIP rejected |
+| Expansion limit | Over-64-KiB decoded message rejected |
+| Input protection | Base component did not expose/mutate its input array; oversized input rejected |
+| Live regression | `node scripts/verify-meters.mjs`: 63 HTTP checks passed |
+| Registration rules | Building required; duplicate building meter returned 409; cross-city building returned 404 |
+| Meter list | Exposed only ID, name and building ID; no credential/hash |
+| Reading integration | Latest accepted reading replaced building usage; neighbouring building remained at its existing total |
+| Rejected inputs | Negative/over-limit/over-precision/non-numeric usage, invalid flags and non-object bodies rejected |
+| Rejected-request effects | No saved reading and no usage change from rejected submissions |
+| Credential replacement | Old credential rejected; new credential recovered an earlier authenticated reading |
+| Optional authentication | Explicitly disabled layer allowed processing/recovery without a valid credential, as labelled in the demo |
+| Corrupted copy | Recovery rejected a modified copy; subsequent original recovery succeeded |
+| Browser registration | Registered Clinic demonstration meter for Demo Clinic |
+| Browser accepted reading | Reading #10 stored 42.125 kWh; city total became 60.25 kWh |
+| Browser recovery | Exact JSON message recovered with all three layers selected |
+| Browser corruption test | Corrupted copy rejected; original still recovered |
+| Size reporting | Browser sample: 87 original bytes → 132 encoded bytes; increase displayed explicitly |
+| Full restart | Stopped/started PostgreSQL and Payara; all nine API snapshots matched and every payload recovered successfully using the persistent key |
+| Frontend | Tailwind build, JavaScript syntax and desktop visual inspection passed |
+
+### Evidence
+
+Successful API city: **12**, `Meter Demo 2026-11-07T13:44:03.229Z`. Library meter is **1**; the API script retained nine readings, IDs 1–9. The browser then registered meter **2**, `Clinic demonstration meter`, for building **18**, and saved reading **10**. The private API restart snapshot is `.local/meter-verification.json`; it contains a generated demonstration credential and must not be published. Browser proof is `docs/report/evidence/meter-recovery.png`, which does not reveal the credential or encryption key.
+
+### Reproduce
+
+1. Apply numbered SQL files with the database helper's Setup action, then build/deploy.
+2. Run `mvn test`, and `node scripts/verify-meters.mjs` with the servers running.
+3. In Energy meters, choose a city with an unregistered building and register a meter. Save its issued credential privately.
+4. Process a reading with all three layers; verify building/city totals and recover the message.
+5. Test a corrupted copy, then recover the original again.
+6. For restart checks, retain the meter credential privately and preserve the domain key; restart both servers and recover stored readings.
+
+### Limits
+
+Optional meter authentication is not application login or role enforcement. Payload encryption leaves usage metadata plaintext and does not secure the HTTP connection. Registration/credential replacement are local demonstration operations. The key uses inherited domain file permissions; no distributed key vault or multi-key rotation is implemented. Message sizes are bounded, but high-volume streaming, large-history pagination and production security testing are not claimed. Part D, Part E, application access controls and final report/PDF/video remain pending.
