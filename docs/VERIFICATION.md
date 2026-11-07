@@ -177,3 +177,51 @@ Successful API city: **12**, `Meter Demo 2026-11-07T13:44:03.229Z`. Library mete
 ### Limits
 
 Optional meter authentication is not application login or role enforcement. Payload encryption leaves usage metadata plaintext and does not secure the HTTP connection. Registration/credential replacement are local demonstration operations. The key uses inherited domain file permissions; no distributed key vault or multi-key rotation is implemented. Message sizes are bounded, but high-volume streaming, large-history pagination and production security testing are not claimed. Part D, Part E, application access controls and final report/PDF/video remain pending.
+
+## Part D checkpoint — 7–8 November 2026
+
+Part D now provides persistent streetlight registration, individual power/fault controls, shared immutable specifications, paginated inventory and a separate Flyweight demonstration. The earlier checkpoint's pending-Part-D status is superseded by this section.
+
+| Check | Observed result |
+|---|---|
+| Maven package | Passed; 46 Java source files compiled, WAR created |
+| JUnit | 24 passed: 5 Composite, 6 Chain, 7 Decorator, 6 Flyweight; zero failures/errors |
+| JavaScript syntax and Tailwind build | Passed |
+| Numbered database setup | `005_streetlights.sql` applied; existing data retained |
+| Live streetlight API | 55 checks passed |
+| 100,000-light identity demonstration | 3 shared specification objects versus 100,000 actual baseline specification objects; 99,997 avoided |
+| Independent state in demonstration | Passed; one light switched off while another with the same specification stayed on |
+| Demonstration persistence impact | No database records created |
+| Browser workflow | Shared specification creation, registration, individual switching, fault note and 100,000-light demonstration passed |
+| Restart comparison | Saved inventory exactly matched after PostgreSQL/Payara restart, including versions and fault note |
+
+### API and unit scope
+
+The HTTP script checks exact configuration reuse (including concurrent creation), distinct configurations, pagination, actual shared identities on a page, independent power/fault/repair behavior, changing one light's configuration, duplicate labels, invalid JSON and field types, cross-city isolation, stale versions and simultaneous edits. One competing edit succeeds while the other receives 409. The unit suite checks 100,000 shared contexts and concurrent factory lookup as well as invalid configurations.
+
+These are separate feature checkpoints, not a claim that all four live API scripts were rerun together after the latest deployment. The full unit suite passed with Part D included.
+
+### Browser and restart evidence
+
+In city 14, the browser registered `SL-BROWSER` at `Community centre entrance` with a new `Community LED 75` / 75 W / neutral-white specification. Switching it off left the other three lights unchanged. It was then commanded on and marked faulty with the note “Demonstration fault: lamp flickers; inspection requested.” The summary showed four saved lights, three healthy/on lights, one fault and 160 W simulated rated load.
+
+The 100,000-light browser demonstration showed three shared specifications, 100,000 unshared specification objects and independent light state. Evidence images are [workspace](report/evidence/streetlight-workspace.png) and [sharing demonstration](report/evidence/streetlight-sharing.png).
+
+A private local snapshot of the complete four-light inventory was taken before stopping Payara and PostgreSQL. After starting PostgreSQL and then Payara, an exact JSON comparison passed: all settings, IDs, versions and the fault note were retained. The reconstructed page again reported three shared specification identities for four light contexts. The snapshot is ignored local verification material, not required application configuration.
+
+The API demonstration took 375.96 ms and the later browser demonstration took 106.30 ms on this machine. Each time covers the combined shared and baseline allocations plus identity counting. These uncontrolled samples are not a shared-versus-unshared speed benchmark or a heap-memory measurement.
+
+### Reproduce
+
+1. Apply numbered database scripts with `Setup`, build the WAR and deploy.
+2. Run `mvn test` and, with both servers running, `node scripts/verify-streetlights.mjs`.
+3. Open Streetlights, select a city with a street, create a specification and register a light.
+4. Change that light's power, save a fault note and verify other lights remain unchanged.
+5. Run the 100,000-light demonstration and inspect object counts and independent-state confirmation.
+6. Save the inventory response; stop Payara then PostgreSQL, start PostgreSQL then Payara, and compare the inventory again.
+
+The HTTP script retains two demo cities, three lights and test configurations per successful run. Browser verification added one further light. Do not mistake the in-memory 100,000-light exercise for 100,000 saved database records.
+
+### Limits and remaining work
+
+Rated load is a simulation based on nameplate watts, commanded power and fault status; it is not measured consumption. The inventory has no bulk operation, deletion or maintenance-history feature. The pool retains unique requested configurations until restart/redeployment. No production load, hardware integration or heap-memory benchmark was performed. Part E, application access controls, final consolidated report/PDF and recorded video remain pending.
