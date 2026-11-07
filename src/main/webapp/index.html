@@ -1,25 +1,89 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SmartCity360 - Project Setup</title>
+    <title>SmartCity360 | City operations</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/cities.js" defer></script>
 </head>
 <body>
-    <main>
-        <h1>SmartCity360</h1>
-        <p>Create a city and see its saved database record. Districts, streets and buildings will follow.</p>
-        <form id="city-form">
-            <label for="city-name">City name</label>
-            <input id="city-name" name="name" required maxlength="100" autocomplete="off">
-            <button type="submit">Save city</button>
-        </form>
-        <p id="message" role="status" aria-live="polite"></p>
-        <h2>Saved cities</h2>
-        <ul id="cities"></ul>
-        <button id="refresh" type="button">Refresh cities</button>
-        <p><a href="api/health">Check the Java application</a></p>
+    <header class="border-b border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5">
+            <a href="./" class="text-xl font-bold tracking-tight text-slate-900">SmartCity<span class="text-teal-700">360</span></a>
+            <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">Local demonstration</span>
+        </div>
+    </header>
+    <main class="mx-auto max-w-7xl px-5 py-8">
+        <div class="mb-6">
+            <p class="mb-2 text-xs font-bold uppercase tracking-widest text-teal-700">City operations</p>
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900">One city. Every neighbourhood.</h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Explore your districts, streets and buildings. Review recorded energy usage and control simulated power for any part of the city.</p>
+        </div>
+        <p id="message" role="status" aria-live="polite" class="mb-5 min-h-6 text-sm text-teal-800"></p>
+        <div class="grid items-start gap-6 lg:grid-cols-[310px_minmax(0,1fr)]">
+            <aside class="space-y-5">
+                <section class="panel" aria-labelledby="cities-heading">
+                    <h2 id="cities-heading" class="mb-4 text-lg font-semibold">Your cities</h2>
+                    <label for="city-select" class="label">Choose a city</label>
+                    <select id="city-select" class="field"><option value="">Loading cities...</option></select>
+                    <button id="refresh" type="button" class="secondary mt-3 w-full">Refresh cities</button>
+                    <details class="mt-5 border-t border-slate-100 pt-4">
+                        <summary class="cursor-pointer text-sm font-semibold text-teal-800">Create a city</summary>
+                        <form id="city-form" class="mt-4 space-y-3">
+                            <div><label for="city-name" class="label">City name</label><input id="city-name" class="field" required maxlength="100" autocomplete="off" placeholder="e.g. Colombo"></div>
+                            <button type="submit" class="button w-full">Save city</button>
+                        </form>
+                    </details>
+                </section>
+                <section class="panel" aria-labelledby="structure-heading">
+                    <h2 id="structure-heading" class="text-lg font-semibold">City structure</h2>
+                    <p class="mt-1 mb-3 text-xs leading-5 text-slate-500">Select an area to see its totals or manage its buildings.</p>
+                    <div id="hierarchy" class="max-h-[600px] overflow-auto"><p class="text-sm text-slate-500">Choose or create a city to begin.</p></div>
+                </section>
+            </aside>
+            <section class="min-w-0" aria-label="Selected area">
+                <div id="empty-state" class="panel py-16 text-center">
+                    <h2 class="text-xl font-semibold">Start with your city</h2>
+                    <p class="mt-2 text-sm text-slate-500">Create a city, then add districts, streets and buildings.</p>
+                </div>
+                <div id="workspace" hidden class="space-y-5">
+                    <div class="panel">
+                        <p id="selected-type" class="mb-1 text-xs font-bold uppercase tracking-widest text-teal-700"></p>
+                        <h2 id="selected-name" class="break-words text-2xl font-semibold text-slate-900"></h2>
+                        <p id="selected-path" class="mt-2 break-words text-xs text-slate-500"></p>
+                        <dl class="mt-6 grid gap-4 sm:grid-cols-3">
+                            <div class="rounded-xl bg-slate-50 p-4"><dt class="text-xs text-slate-500">Recorded usage</dt><dd class="mt-2"><span id="usage-total" class="text-2xl font-semibold"></span> <span class="text-sm text-slate-500">kWh</span></dd></div>
+                            <div class="rounded-xl bg-slate-50 p-4"><dt class="text-xs text-slate-500">Buildings</dt><dd id="building-count" class="mt-2 text-2xl font-semibold"></dd></div>
+                            <div class="rounded-xl bg-slate-50 p-4"><dt class="text-xs text-slate-500">Power state</dt><dd id="power-state" class="mt-2 text-2xl font-semibold"></dd><dd id="powered-count" class="mt-1 text-xs text-slate-500"></dd></div>
+                        </dl>
+                    </div>
+                    <section class="panel" aria-labelledby="power-heading">
+                        <h3 id="power-heading" class="font-semibold">Power controls</h3>
+                        <p id="power-scope" class="mt-2 text-sm text-slate-600"></p>
+                        <div class="mt-4 flex flex-wrap gap-3"><button id="power-on" type="button" class="button">Switch on</button><button id="power-off" type="button" class="secondary">Switch off</button></div>
+                        <p class="mt-4 text-xs leading-5 text-slate-500">Simulated commands only. Switching power off preserves the usage already recorded.</p>
+                    </section>
+                    <section id="add-panel" class="panel" aria-labelledby="add-heading">
+                        <h3 id="add-heading" class="mb-4 font-semibold"></h3>
+                        <form id="zone-form" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                            <div class="flex-1"><label id="zone-name-label" for="zone-name" class="label">Name</label><input id="zone-name" class="field" required maxlength="100" autocomplete="off"></div>
+                            <button id="add-zone" type="submit" class="button">Add</button>
+                        </form>
+                        <p class="mt-3 text-xs text-slate-500">City → District → Street → Building</p>
+                    </section>
+                    <section id="usage-panel" hidden class="panel" aria-labelledby="usage-heading">
+                        <h3 id="usage-heading" class="mb-2 font-semibold">Record building usage</h3>
+                        <p class="mb-4 text-sm text-slate-600">Enter a total for the same reporting period as your other buildings. Saving replaces this building’s previous value.</p>
+                        <form id="usage-form" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                            <div class="flex-1"><label for="usage-input" class="label">Energy used (kWh)</label><input id="usage-input" type="number" min="0" max="999999999.999" step="0.001" required class="field"></div>
+                            <button type="submit" class="button">Save usage</button>
+                        </form>
+                    </section>
+                </div>
+            </section>
+        </div>
+        <footer class="mt-10 border-t border-slate-200 pt-5 text-xs text-slate-500">SmartCity360 · City hierarchy workspace · <a href="api/health" class="underline underline-offset-2">Application health</a></footer>
     </main>
-    <script src="assets/js/cities.js" defer></script>
 </body>
 </html>

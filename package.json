@@ -1,0 +1,11 @@
+{
+  "name": "smartcity360-ui",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i src/main/frontend/app.css -o src/main/webapp/assets/css/app.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.0",
+    "tailwindcss": "4.3.0"
+  }
+}
