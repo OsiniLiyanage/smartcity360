@@ -13,6 +13,8 @@
         <class>lk.osini.smartcity360.entity.MeterReading</class>
         <class>lk.osini.smartcity360.entity.LampSpecificationEntity</class>
         <class>lk.osini.smartcity360.entity.StreetlightEntity</class>
+        <class>lk.osini.smartcity360.entity.Policy</class>
+        <class>lk.osini.smartcity360.entity.PolicyEvaluation</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Schema changes are explicit SQL files, never drop-and-create. -->
