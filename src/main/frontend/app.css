@@ -3,6 +3,7 @@
 @source "../webapp/complaints.html";
 @source "../webapp/meters.html";
 @source "../webapp/streetlights.html";
+@source "../webapp/policies.html";
 @source "../webapp/assets/js";
 
 @layer base {
