@@ -17,6 +17,13 @@
     </properties>
 
     <dependencies>
+        <!-- Installed in Payara's domain/lib by database.ps1; not bundled twice. -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.14</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Payara supplies the implementation when the application runs. -->
         <dependency>
             <groupId>jakarta.platform</groupId>

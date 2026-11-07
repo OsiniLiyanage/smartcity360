@@ -10,6 +10,7 @@ target/
 !.env.example
 *.log
 node_modules/
+.local/
 out/
 
 ### IntelliJ IDEA ###
