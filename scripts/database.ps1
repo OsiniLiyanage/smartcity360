@@ -70,8 +70,10 @@ SELECT 'CREATE DATABASE smartcity360'
 WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'smartcity360') \gexec
 '@ | & $psql -X -h 127.0.0.1 -p 5433 -U postgres -d postgres -v ON_ERROR_STOP=1
             if ($LASTEXITCODE -ne 0) { throw 'Could not create database/role.' }
-            Invoke-Pg -Program $psql -Arguments @('-X', '-h', '127.0.0.1', '-p', '5433', '-U', 'postgres',
-                '-d', 'smartcity360', '-v', 'ON_ERROR_STOP=1', '-f', (Join-Path $root 'database\001_city.sql'))
+            foreach ($schema in (Get-ChildItem -LiteralPath (Join-Path $root 'database') -Filter '*.sql' | Sort-Object Name)) {
+                Invoke-Pg -Program $psql -Arguments @('-X', '-h', '127.0.0.1', '-p', '5433', '-U', 'postgres',
+                    '-d', 'smartcity360', '-v', 'ON_ERROR_STOP=1', '-1', '-f', $schema.FullName)
+            }
         } finally {
             $env:PGPASSWORD = $oldPassword
             $env:SC_APP_PASSWORD = $oldAppPassword

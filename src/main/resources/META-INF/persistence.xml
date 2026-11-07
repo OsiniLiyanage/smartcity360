@@ -6,6 +6,7 @@
     <persistence-unit name="SmartCity360PU" transaction-type="JTA">
         <jta-data-source>jdbc/SmartCity360DS</jta-data-source>
         <class>lk.osini.smartcity360.entity.City</class>
+        <class>lk.osini.smartcity360.entity.ZoneEntity</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Schema changes are explicit SQL files, never drop-and-create. -->
