@@ -1,0 +1,86 @@
+# SmartCity360 product completion roadmap
+
+Updated 8 November 2026 following the user's project-first direction.
+
+## Delivery boundary
+
+Finish the application first. Do not start assembling the consolidated PDF, preparing the submission ZIP or preparing/recording the video until Osini explicitly says to proceed. Existing pattern report drafts remain reference material. This file is a development plan, not submission-document preparation.
+
+The five pattern implementations are working feature foundations. That does not mean the full municipal application is finished. The current API has no user authentication or authorization. Complaint submission accepts a typed resident name, the chain assigns an authority tier rather than an individual employee, and work events currently use a demonstration actor. The current pattern tests do not prove access control.
+
+## Recommended roles
+
+These are the proposed implementation defaults for the next stage, not permissions already enforced by the application.
+
+| Role | Responsibility | Access boundary |
+|---|---|---|
+| Resident | Register, manage their profile, submit complaints, track their own cases, reply and request reopening, receive updates | Their own private records; public city/service information only |
+| Local Staff | Work on local-level assigned complaints, record work notes, report/repair streetlight faults and enter operational observations | Assigned city and assigned/authorized operational work |
+| Supervisor | Triage complaints, assign staff, review local work, handle supervisor-level cases and escalate issues | Assigned city; local-team oversight |
+| City Manager | Handle high-severity cases, oversee city operations, manage operational policies and authorize broad power commands | Assigned city; no global account administration |
+| System Admin | Provision staff, assign roles/city access, manage account status, configure cities and system administration | Cross-city administrative access; exceptional operational actions must be recorded |
+
+City Manager and System Admin are separate responsibilities. Technical account administration must not silently impersonate a resident or member of staff. The application should record the authenticated identity behind every action.
+
+Public registration always creates a Resident account. The server must ignore/reject attempts to self-select staff/admin privileges. Staff use the same sign-in mechanism but receive different permitted navigation and actions. Initial admin setup must be a deliberate local bootstrap, not a public first-user-becomes-admin route or committed default password.
+
+An account role alone is insufficient: permissions must also check its city assignment, record ownership, current workflow state and assigned responsibility. A resident must not gain access to another complaint by changing an ID. A staff member must not gain access to another city by changing a URL. User-visible buttons reflect permissions, while Java independently enforces them on every request.
+
+## Build sequence and completion checks
+
+### 1. Accounts and permission enforcement — next milestone
+
+- Persist accounts, roles, account status and staff city assignments; add resident registration, sign-in, sign-out, profile and password change.
+- Use password hashing, server-controlled login sessions, session expiry, request protection for state-changing operations and bounded login attempts. Use Jakarta/Payara facilities and standard libraries where appropriate; no Spring Boot or paid identity service is needed.
+- Provide local initial-admin setup and admin user-management screens. Staff creation/activation must not depend on a fake email-delivery screen.
+- Protect all existing API operations, not only new pages. Explicitly identify the small set of public endpoints.
+- Replace free-typed identity with authenticated identity. Add complaint ownership and real actor IDs to history.
+- Treat pre-existing demonstration complaints without an account owner as unclaimed demonstration records; do not assign them to a resident by matching a display name.
+- Adapt existing live verification scripts to authenticated test users and add tests for denied access, ownership, role escalation attempts, cross-city access, logout and disabled accounts.
+- Completion: two residents cannot read each other's private cases; staff permissions and city boundaries are enforced even through direct API requests; signing out or disabling an account prevents further authorized actions.
+
+### 2. Complete resident and complaint workflows
+
+- Resident home with their open/resolved cases and notifications; complaint submission linked to an area and reporting category.
+- Preserve the Chain of Responsibility for routing to authority tiers, then allow authorized assignment to an individual staff member.
+- Staff work queues, filters/search, triage, work notes, resident-visible replies and resolution explanations.
+- Distinguish staff-only notes from resident-visible updates before exposing history to residents.
+- Resident follow-up and reopening request; authorized review of that request. Record who changed severity or status and why.
+- Completion: a resident submits a case, the proper tier receives it, a real employee works on it, escalation reaches the next tier when needed, the resident sees the outcome and can follow up.
+
+### 3. Complete municipal operations
+
+- Zones: edit names/details, search the hierarchy, show affected scope before a power command and retain command history with actor/reason. Archive safely where appropriate instead of deleting referenced history.
+- Meters: useful reading history, reporting periods and trends, clear meter status and controlled credential operations. Residents may view building-specific consumption only after an authorized account-to-building relationship exists.
+- Streetlights: search/filter by area and fault, maintenance history, work assignment and repair completion. Fault repair must retain prior evidence instead of simply losing the old note.
+- Policies: management restricted to appropriate city roles, evaluation access for operational staff, active/inactive controls and a complete edit history. Keep the existing original-rule snapshots for evaluations.
+- Completion: each module supports a meaningful lifecycle and feeds real information into the other screens. Device operations remain explicitly simulated until there is actual hardware integration.
+
+### 4. Connect the product and improve usability
+
+- Role-appropriate home pages and a manager dashboard using saved data: complaints by status/severity, outstanding faults, consumption summaries and policy outcomes.
+- In-app notifications generated by real workflow changes; read/unread handling and ownership restrictions.
+- Consistent navigation, responsive layouts, useful empty/error/loading states, clear permission messages and searchable/paginated lists where needed.
+- An administrator activity view for important account and operational actions.
+- Use labelled, coherent demo data for a connected city journey rather than relying only on separate test datasets. Preserve existing user records.
+
+### 5. Finish and verify the application
+
+- Verify full resident, local-staff, supervisor, city-manager and system-admin journeys.
+- Recheck all five patterns after access control and workflow integration.
+- Verify persistence, simultaneous edits, input validation, unauthorized access and recovery from ordinary failures.
+- Check that every displayed count, alert and action has a real implementation. Do not show fake email delivery, invented hardware telemetry or nonfunctional dashboard buttons.
+- Review backup/restore and clean setup for the application itself. Submission ZIP/PDF/video work remains on hold until explicitly released by the user.
+
+## Scope discipline
+
+The aim is a complete municipal operations product whose five design patterns remain easy to identify and explain. A separate technician role, maps/GPS, SMS/email providers, payments and new application frameworks are not currently needed to complete these workflows. Add them only for a concrete agreed use case, rather than increasing complexity without improving the resident/staff journey.
+
+Password recovery, if presented, must have a real verified recovery mechanism. Until email delivery or an equivalent secure recovery route is configured, do not claim an email reset has been sent. This implementation decision belongs in the account milestone.
+
+## Supporting references
+
+- Jakarta Security 4.0: https://jakarta.ee/specifications/security/4.0/jakarta-security-spec-4.0.html
+- OWASP Authorization Cheat Sheet (request-by-request authorization and default denial): https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html
+
+Role boundaries and workflow choices above are project design proposals, not requirements imposed by those references or claims that the class notes teach authentication implementation.
