@@ -8,8 +8,18 @@
 <body>
     <main>
         <h1>SmartCity360</h1>
-        <p>Project setup page. The city management features will be added next.</p>
+        <p>Create a city and see its saved database record. Districts, streets and buildings will follow.</p>
+        <form id="city-form">
+            <label for="city-name">City name</label>
+            <input id="city-name" name="name" required maxlength="100" autocomplete="off">
+            <button type="submit">Save city</button>
+        </form>
+        <p id="message" role="status" aria-live="polite"></p>
+        <h2>Saved cities</h2>
+        <ul id="cities"></ul>
+        <button id="refresh" type="button">Refresh cities</button>
         <p><a href="api/health">Check the Java application</a></p>
     </main>
+    <script src="assets/js/cities.js" defer></script>
 </body>
 </html>
