@@ -11,6 +11,7 @@ import lk.osini.smartcity360.service.ComplaintService;
 @Path("/cities/{cityId}/complaints")
 @Produces(MediaType.APPLICATION_JSON)
 public class ComplaintResource {
+    @Inject private lk.osini.smartcity360.security.CurrentUser current;
     @Inject private ComplaintService service;
 
     @GET
@@ -29,7 +30,7 @@ public class ComplaintResource {
     public Response create(@PathParam("cityId") long cityId, JsonValue payload) {
         JsonObject body = object(payload);
         return Response.status(201).entity(json(service.create(cityId, optionalId(body, "zoneId"),
-                text(body, "residentName"), text(body, "subject"), text(body, "description"),
+                current.get().getDisplayName(), text(body, "subject"), text(body, "description"),
                 choice(body, "severity", Severity.class)))).build();
     }
 
@@ -91,11 +92,13 @@ public class ComplaintResource {
     private JsonObject json(ComplaintService.Detail detail) {
         JsonArrayBuilder events = Json.createArrayBuilder();
         for (ComplaintEvent event : detail.history()) {
+            if (current.resident() && event.getPublicMessage() == null) continue;
             events.add(Json.createObjectBuilder().add("id", event.getId()).add("type", event.getEventType())
-                    .add("actor", event.getActor()).add("message", event.getMessage())
+                    .add("actor", current.resident() ? (current.get().getId().equals(event.getActorUserId()) ? "You" : "City team") : event.getActor())
+                    .add("message", current.resident() ? event.getPublicMessage() : event.getMessage())
                     .add("occurredAt", event.getOccurredAt().toString()));
         }
         return summary(detail.complaint()).add("description", detail.complaint().getDescription())
-                .add("zoneName", detail.zoneName()).add("history", events).build();
+                .add("zoneName", detail.zoneName()).add("canWork", !current.resident()).add("history", events).build();
     }
 }

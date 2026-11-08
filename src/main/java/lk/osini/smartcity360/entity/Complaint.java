@@ -12,6 +12,7 @@ public class Complaint {
     private Long id;
     @Column(name = "city_id", nullable = false) private Long cityId;
     @Column(name = "zone_id") private Long zoneId;
+    @Column(name = "owner_id") private Long ownerId;
     @Column(name = "resident_name", nullable = false, length = 100) private String residentName;
     @Column(nullable = false, length = 160) private String subject;
     @Column(nullable = false, length = 2000) private String description;
@@ -37,6 +38,8 @@ public class Complaint {
     }
     public void changeStatus(ComplaintStatus status) { this.status = status; updatedAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS); }
     public Long getId() { return id; }
+    public Long getOwnerId() { return ownerId; }
+    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
     public Long getCityId() { return cityId; }
     public Long getZoneId() { return zoneId; }
     public String getResidentName() { return residentName; }

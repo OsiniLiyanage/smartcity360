@@ -11,6 +11,8 @@ public class ComplaintEvent {
     @Column(name = "complaint_id", nullable = false) private Long complaintId;
     @Column(name = "event_type", nullable = false) private String eventType;
     @Column(nullable = false) private String actor;
+    @Column(name = "actor_user_id") private Long actorUserId;
+    @Column(name = "public_message", length = 1200) private String publicMessage;
     @Column(nullable = false, length = 1200) private String message;
     @Column(name = "occurred_at", nullable = false) private Instant occurredAt;
 
@@ -20,6 +22,9 @@ public class ComplaintEvent {
         this.actor = actor; this.message = message; occurredAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
     }
     public Long getId() { return id; }
+    public void identity(Long actorUserId, String publicMessage) { this.actorUserId = actorUserId; this.publicMessage = publicMessage; }
+    public Long getActorUserId() { return actorUserId; }
+    public String getPublicMessage() { return publicMessage; }
     public String getEventType() { return eventType; }
     public String getActor() { return actor; }
     public String getMessage() { return message; }

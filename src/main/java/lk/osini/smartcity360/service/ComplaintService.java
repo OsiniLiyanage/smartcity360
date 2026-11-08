@@ -1,6 +1,9 @@
 package lk.osini.smartcity360.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lk.osini.smartcity360.security.CurrentUser;
+import lk.osini.smartcity360.security.Role;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -10,6 +13,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class ComplaintService {
+    @Inject private CurrentUser current;
     @PersistenceContext(unitName = "SmartCity360PU") private EntityManager em;
     // The submission client knows only the first handler. Change this wiring to change the chain.
     private final ComplaintHandler first =
@@ -19,6 +23,10 @@ public class ComplaintService {
 
     public List<Complaint> list(long cityId) {
         city(cityId);
+        if (current.resident()) return em.createQuery("SELECT c FROM Complaint c WHERE c.cityId=:city AND c.ownerId=:owner ORDER BY c.updatedAt DESC,c.id DESC",Complaint.class)
+                .setParameter("city",cityId).setParameter("owner",current.get().getId()).getResultList();
+        if (current.get().getRole().authorityLevel() < 3) return em.createQuery("SELECT c FROM Complaint c WHERE c.cityId=:city AND c.assignedTo IN :tiers ORDER BY c.updatedAt DESC,c.id DESC",Complaint.class)
+                .setParameter("city",cityId).setParameter("tiers",tiers()).getResultList();
         return em.createQuery("SELECT c FROM Complaint c WHERE c.cityId = :city ORDER BY c.updatedAt DESC, c.id DESC", Complaint.class)
                 .setParameter("city", cityId).getResultList();
     }
@@ -32,15 +40,16 @@ public class ComplaintService {
             ZoneEntity zone = em.find(ZoneEntity.class, zoneId);
             if (zone == null || zone.getCityId() != cityId) throw new NotFoundException("Area not found in this city.");
         }
-        resident = text(resident, 100, "Resident name");
+        resident = current.get().getDisplayName();
         subject = text(subject, 160, "Subject");
         description = text(description, 2000, "Description");
         if (severity == null) throw new BadRequestException("Choose a severity.");
         RoutingResult result = first.handle(severity);
         Complaint complaint = new Complaint(cityId, zoneId, resident, subject, description, severity, result.assignedTo());
+        if (current.resident()) complaint.setOwnerId(current.get().getId());
         em.persist(complaint);
         em.flush();
-        event(complaint, "SUBMITTED", "RESIDENT", "Complaint submitted with " + severity + " severity.");
+        userEvent(complaint, "SUBMITTED", "Complaint submitted with " + severity + " severity.", "Complaint submitted with " + severity + " severity.");
         recordRoute(complaint, result);
         em.flush();
         return view(complaint);
@@ -48,6 +57,7 @@ public class ComplaintService {
 
     @Transactional
     public Detail status(long cityId, long id, long version, ComplaintStatus target, String note) {
+        requireOperator();
         Complaint complaint = find(cityId, id, true);
         checkVersion(complaint, version);
         note = text(note, 1000, "Work note");
@@ -57,14 +67,15 @@ public class ComplaintService {
                 || previous == ComplaintStatus.RESOLVED && target == ComplaintStatus.IN_PROGRESS;
         if (!allowed) throw new ClientErrorException("Start assigned work before resolving it. Resolved work can be reopened.", 409);
         complaint.changeStatus(target);
-        event(complaint, previous == ComplaintStatus.RESOLVED ? "REOPENED" : "STATUS_CHANGED",
-                "DEMO_OPERATOR", previous + " -> " + target + ": " + note);
+        userEvent(complaint, previous == ComplaintStatus.RESOLVED ? "REOPENED" : "STATUS_CHANGED",
+                previous + " -> " + target + ": " + note, "Status changed from " + previous + " to " + target + ".");
         em.flush();
         return view(complaint);
     }
 
     @Transactional
     public Detail escalate(long cityId, long id, long version, Severity severity, String note) {
+        requireOperator();
         Complaint complaint = find(cityId, id, true);
         checkVersion(complaint, version);
         note = text(note, 1000, "Escalation reason");
@@ -75,20 +86,31 @@ public class ComplaintService {
         Severity previous = complaint.getSeverity();
         RoutingResult result = first.handle(severity);
         complaint.route(severity, result.assignedTo());
-        event(complaint, "ESCALATED", "DEMO_OPERATOR", previous + " -> " + severity + ": " + note);
+        userEvent(complaint, "ESCALATED", previous + " -> " + severity + ": " + note, "Severity changed from " + previous + " to " + severity + ".");
         recordRoute(complaint, result);
         em.flush();
         return view(complaint);
     }
 
     private void city(long cityId) {
+        current.requireCity(cityId);
         if (em.find(City.class, cityId) == null) throw new NotFoundException("City not found.");
     }
     private Complaint find(long cityId, long id, boolean lock) {
+        current.requireCity(cityId);
         Complaint item = em.find(Complaint.class, id);
         if (item == null || item.getCityId() != cityId) throw new NotFoundException("Complaint not found in this city.");
         if (lock) em.refresh(item, LockModeType.PESSIMISTIC_WRITE);
+        if (current.resident() && !current.get().getId().equals(item.getOwnerId())) throw new NotFoundException("Complaint not found.");
+        if (!current.resident() && current.get().getRole().authorityLevel() < 3 && !tiers().contains(item.getAssignedTo()))
+            throw new NotFoundException("Complaint not found in your work queue.");
         return item;
+    }
+    private List<Authority> tiers() { return current.get().getRole() == Role.LOCAL_STAFF ? List.of(Authority.LOCAL_STAFF) : List.of(Authority.LOCAL_STAFF, Authority.SUPERVISOR); }
+    private void requireOperator() { if (current.resident()) throw new ForbiddenException("Residents cannot change staff work status."); }
+    private void userEvent(Complaint complaint, String type, String message, String publicMessage) {
+        var event = new ComplaintEvent(complaint.getId(),type,current.get().getDisplayName(),message);
+        event.identity(current.get().getId(),publicMessage); em.persist(event); em.flush();
     }
     private void checkVersion(Complaint item, long version) {
         if (item.getVersion() != version)
@@ -100,7 +122,8 @@ public class ComplaintService {
         return value.strip();
     }
     private void event(Complaint complaint, String type, String actor, String message) {
-        em.persist(new ComplaintEvent(complaint.getId(), type, actor, message));
+        var event = new ComplaintEvent(complaint.getId(), type, actor, message);
+        event.identity(null,message); em.persist(event);
         // Flush each event to allocate IDs in handling order. This does not commit:
         // the complaint and all history entries still share one atomic transaction.
         em.flush();
