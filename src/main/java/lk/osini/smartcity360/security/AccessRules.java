@@ -8,13 +8,14 @@ import lk.osini.smartcity360.entity.Complaint;
 public final class AccessRules {
     private AccessRules() { }
     private static final Set<String> ALL = Set.of("CityResource.list", "AreaResource.tree", "ComplaintResource.list", "ComplaintResource.detail", "ComplaintResource.create",
-            "AuthResource.logout", "AuthResource.profile", "AuthResource.password");
+            "AuthResource.logout", "AuthResource.profile", "AuthResource.password", "ComplaintResource.message");
+    private static final Set<String> RESIDENT = Set.of("ComplaintResource.requestReopen");
     private static final Set<String> STAFF = Set.of("ZoneResource.tree", "ZoneResource.usage", "MeterResource.list", "MeterResource.readings", "MeterResource.submit", "MeterResource.recover",
             "StreetlightResource.specifications", "StreetlightResource.list", "StreetlightResource.detail", "StreetlightResource.update",
             "PolicyResource.list", "PolicyResource.detail", "PolicyResource.evaluate", "PolicyResource.history",
             "ComplaintResource.status", "ComplaintResource.escalate");
     private static final Set<String> MANAGE = Set.of("ZoneResource.create", "MeterResource.register", "MeterResource.replace", "StreetlightResource.create",
-            "ComplaintResource.assignees", "ComplaintResource.assign");
+            "ComplaintResource.assignees", "ComplaintResource.assign", "ComplaintResource.reviewReopen");
     private static final Set<String> MANAGER = Set.of("ZoneResource.power", "PolicyResource.create", "PolicyResource.update", "PolicyResource.validate");
     private static final Set<String> ADMIN = Set.of("CityResource.create", "StreetlightResource.saveSpecification", "StreetlightResource.demonstrate",
             "AccountResource.list", "AccountResource.create", "AccountResource.update", "AccountResource.events");
@@ -24,6 +25,7 @@ public final class AccessRules {
     public static boolean allowed(Role role, String operation) {
         if (role == null) return false;
         if (ALL.contains(operation)) return true;
+        if (RESIDENT.contains(operation)) return role == Role.RESIDENT;
         if (STAFF.contains(operation)) return role != Role.RESIDENT;
         if (MANAGE.contains(operation)) return role.authorityLevel() >= 2;
         if (MANAGER.contains(operation)) return role.authorityLevel() >= 3;

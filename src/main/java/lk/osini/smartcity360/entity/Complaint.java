@@ -14,6 +14,7 @@ public class Complaint {
     @Column(name = "zone_id") private Long zoneId;
     @Column(name = "owner_id") private Long ownerId;
     @Column(name = "assigned_user_id") private Long assignedUserId;
+    @Column(name = "reopen_requested", nullable = false) private boolean reopenRequested;
     @Column(name = "resident_name", nullable = false, length = 100) private String residentName;
     @Column(nullable = false, length = 160) private String subject;
     @Column(nullable = false, length = 2000) private String description;
@@ -36,15 +37,22 @@ public class Complaint {
         this.severity = severity; assignedTo = authority;
         assignedUserId = null;
         status = authority == null ? ComplaintStatus.UNASSIGNED : ComplaintStatus.ASSIGNED;
-        updatedAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+        touch();
     }
-    public void changeStatus(ComplaintStatus status) { this.status = status; updatedAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS); }
+    public void changeStatus(ComplaintStatus status) { this.status = status; touch(); }
+    public boolean isReopenRequested() { return reopenRequested; }
+    public void setReopenRequested(boolean requested) { reopenRequested = requested; touch(); }
+    public void touch() {
+        Instant now = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+        // Even consecutive messages in the same millisecond must dirty the row and advance its JPA version.
+        updatedAt = updatedAt != null && !now.isAfter(updatedAt) ? updatedAt.plusMillis(1) : now;
+    }
     public Long getId() { return id; }
     public Long getOwnerId() { return ownerId; }
     public Long getAssignedUserId() { return assignedUserId; }
     public void assignUser(Long userId) {
         assignedUserId = userId;
-        updatedAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+        touch();
     }
     public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
     public Long getCityId() { return cityId; }

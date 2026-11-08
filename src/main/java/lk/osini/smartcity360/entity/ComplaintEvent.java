@@ -10,7 +10,7 @@ public class ComplaintEvent {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Column(name = "complaint_id", nullable = false) private Long complaintId;
     @Column(name = "event_type", nullable = false) private String eventType;
-    @Column(nullable = false) private String actor;
+    @Column(nullable = false, length = 100) private String actor;
     @Column(name = "actor_user_id") private Long actorUserId;
     @Column(name = "public_message", length = 1200) private String publicMessage;
     @Column(nullable = false, length = 1200) private String message;

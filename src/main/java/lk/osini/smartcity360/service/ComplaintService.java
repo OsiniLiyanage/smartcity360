@@ -36,6 +36,47 @@ public class ComplaintService {
 
     public Detail detail(long cityId, long id) { return view(find(cityId, id, false)); }
 
+    @Transactional
+    public Detail message(long cityId, long id, long version, String message) {
+        Complaint complaint = find(cityId, id, true);
+        checkVersion(complaint, version);
+        if (complaint.getOwnerId() == null)
+            throw new ClientErrorException("This demonstration case has no resident account to receive replies.", 409);
+        message = text(message, 1000, "Public message");
+        complaint.touch();
+        userEvent(complaint, current.resident() ? "RESIDENT_MESSAGE" : "STAFF_REPLY", message, message);
+        return view(complaint);
+    }
+
+    @Transactional
+    public Detail requestReopen(long cityId, long id, long version, String note) {
+        if (!current.resident()) throw new ForbiddenException("Only the resident who owns a case can request reopening.");
+        Complaint complaint = find(cityId, id, true);
+        checkVersion(complaint, version);
+        note = text(note, 1000, "Reopening reason");
+        if (complaint.getStatus() != ComplaintStatus.RESOLVED || complaint.isReopenRequested())
+            throw new ClientErrorException("Request reopening of a resolved case that has no pending request.", 409);
+        complaint.setReopenRequested(true);
+        userEvent(complaint, "REOPEN_REQUESTED", note, note);
+        return view(complaint);
+    }
+
+    @Transactional
+    public Detail reviewReopen(long cityId, long id, long version, boolean approve, String note) {
+        if (!AccessRules.allowed(current.get().getRole(), "ComplaintResource.reviewReopen"))
+            throw new ForbiddenException("Only supervisors, city managers and system administrators can review reopening requests.");
+        Complaint complaint = find(cityId, id, true);
+        checkVersion(complaint, version);
+        note = text(note, 1000, "Public review explanation");
+        if (complaint.getStatus() != ComplaintStatus.RESOLVED || !complaint.isReopenRequested())
+            throw new ClientErrorException("This complaint has no pending reopening request.", 409);
+        complaint.setReopenRequested(false);
+        if (approve) complaint.changeStatus(ComplaintStatus.IN_PROGRESS);
+        String explanation = (approve ? "Reopening approved. " : "Reopening declined. ") + note;
+        userEvent(complaint, approve ? "REOPEN_APPROVED" : "REOPEN_DECLINED", explanation, explanation);
+        return view(complaint);
+    }
+
     public List<AppUser> assignees(long cityId, long id, int page) {
         requireAssignmentManager();
         Complaint complaint = find(cityId, id, false);
@@ -112,6 +153,11 @@ public class ComplaintService {
                 || previous == ComplaintStatus.RESOLVED && target == ComplaintStatus.IN_PROGRESS;
         if (!allowed) throw new ClientErrorException("Start assigned work before resolving it. Resolved work can be reopened.", 409);
         complaint.changeStatus(target);
+        if (previous == ComplaintStatus.RESOLVED && complaint.isReopenRequested()) {
+            complaint.setReopenRequested(false);
+            userEvent(complaint, "REOPEN_APPROVED", "Pending resident request accepted by staff reopening.",
+                    "Your reopening request was accepted and work has resumed.");
+        }
         userEvent(complaint, previous == ComplaintStatus.RESOLVED ? "REOPENED" : "STATUS_CHANGED",
                 previous + " -> " + target + ": " + note, "Status changed from " + previous + " to " + target + ".");
         em.flush();

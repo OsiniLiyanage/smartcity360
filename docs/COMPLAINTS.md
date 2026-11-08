@@ -4,7 +4,7 @@ The complaints page is `http://localhost:9080/smartcity360/complaints.html`, als
 
 ## Run and demonstrate
 
-1. Run the database helper with `-Action Setup` to apply the numbered scripts through `008_complaint_assignment.sql` to an existing installation.
+1. Run the database helper with `-Action Setup` to apply the numbered scripts through `009_complaint_follow_up.sql` to an existing installation.
 2. Build/deploy normally. After changing UI classes, run `npm run build:css` before `mvn package`.
 3. Sign in, open Complaints, choose a city and submit a demo complaint with a subject, description and severity. The reporter identity comes from the account.
 4. LOW routes to local staff, MEDIUM to a supervisor, HIGH to a city manager. Inspect **Handling history** to see forwarding.
@@ -28,6 +28,23 @@ All routes below are relative to `/api/cities/{cityId}/complaints`.
 | PUT `/{id}/escalate` | `{severity, note, version}`; higher severity only; returns updated detail |
 | GET `/{id}/assignees?page=0` | Up to 25 eligible employees, ordered by display name and ID; each has id, displayName and role |
 | PUT `/{id}/assignment` | `{assignedUserId, note, version}`; positive employee ID or explicit null to clear allocation; returns updated detail |
+| POST `/{id}/messages` | `{message, version}`; resident follow-up or staff public reply; returns updated detail |
+| POST `/{id}/reopen-request` | `{note, version}`; the owning resident requests reopening of a resolved case; returns updated detail |
+| PUT `/{id}/reopen-request` | `{approve, note, version}`; supervisor or higher reviews a pending request; approve is a JSON boolean; returns updated detail |
+
+### Resident follow-up and reopening
+
+Messages are visible to the resident who owns the complaint and to staff with existing city/tier access. Staff use the message endpoint for public replies, including explanations of a resolution. Existing work-status notes remain private. Every message records the authenticated actor, while resident history labels staff as City team. Ownerless demonstration complaints reject messages because there is no resident recipient. Messages may be added to open or resolved cases and do not change their work status.
+
+A resident can request reopening only for their own resolved complaint, with one pending request at a time. The request sets `reopenRequested` to true while status stays RESOLVED. Supervisors, city managers and administrators can review requests within their existing city/tier access. Approval changes status to IN_PROGRESS; decline keeps RESOLVED. Both clear the pending flag and store a resident-visible explanation. After a decline, the resident may submit another request with further evidence. All prior requests and decisions remain in history.
+
+Existing authorized staff can still reopen through the status endpoint. If a resident request is pending, this records acceptance and clears the flag. Its work note remains private. That preserves existing staff workflows alongside the new review route.
+
+Messages and reasons require 1-1000 characters after trimming. Every write requires the latest complaint `version`. The service locks and refreshes the complaint before checking access, version and workflow state. Each accepted message changes the complaint activity timestamp, making JPA advance the version even for consecutive messages. A stale retry returns 409. Refresh the detail/history after a lost response before choosing whether to resubmit. Concurrent review requests use the same lock and version checks, so only one decision should commit; live database verification remains required.
+
+All summaries include `reopenRequested`. Detail adds `canMessage`, `canRequestReopen` and `canReviewReopen` for frontend controls. These flags reflect the authorized detail response; Java independently checks permissions on writes. The frontend must visibly identify public messages and review explanations, render their text safely, refresh the saved version after each action, and keep the existing private work-note control separate.
+
+Migration 009 defaults the pending flag to false for older complaints and widens history actor names to the account display-name limit of 100 characters. Apply migrations 008 and 009 before deploying this backend. Frontend controls are pending integration.
 
 ### Named employee allocation
 
@@ -58,10 +75,12 @@ Status/escalation updates acquire a row lock, refresh current data and compare t
 ## Checks and limits
 
 - `mvn test` runs six chain tests and seven focused allocation tests alongside the other pattern and security suites. The allocation tests cover role allowlists, candidate eligibility, account changes, existing unallocated cases and escalation cleanup. They do not replace live HTTP, transaction or migration verification.
+- `ComplaintFollowUpTest` exercises actual service/resource methods with mocked persistence. It covers ownership, city/tier restrictions, public/private history, request/review transitions, stale writes, validation, legacy staff reopening and assignment service regressions. Its mocks do not emulate JPA version increments or prove transaction locking.
+- The 8 November 2026 backend checkpoint passed 62 Java tests, including 17 service/resource follow-up checks. Test-only Mockito, Jersey and Parsson dependencies support these checks outside Payara. Mockito uses interface proxies and reflection to avoid dynamic agent attachment. Migrations 008/009, live HTTP and frontend integration were not exercised in this checkpoint.
 - `node scripts/verify-complaints.mjs` runs the live complaint regression checks. It creates two labelled demo cities and four complaints per successful run and retains them for inspection.
 - `.local/complaint-verification.json` stores a private snapshot for restart verification.
 - Queue filtering/search runs in the browser over records the current user may access; pagination is not implemented.
-- No real authority receives a notification. New submissions and work updates record authenticated identities; old ownerless demonstrations stay unclaimed. Resident replies, notifications and reopening requests remain pending.
+- No real authority receives a notification. New submissions and work updates record authenticated identities; old ownerless demonstrations stay unclaimed. Resident messages, public staff replies and reopening requests have backend endpoints. Frontend integration and notifications remain pending.
 - Named staff allocation has backend endpoints; its frontend integration and live HTTP verification remain pending. Runtime chain editing and manual assignment of an unhandled complaint are not implemented. The default chain covers every supported severity; a shortened chain's explicit unhandled result is covered by unit tests.
 
 The separate [Part C report draft](report/PART_C_CHAIN_OF_RESPONSIBILITY.md) contains the assessment answers and supporting UML source.

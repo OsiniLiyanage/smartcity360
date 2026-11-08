@@ -52,6 +52,27 @@ public class ComplaintResource {
         return result.build();
     }
 
+    @POST @Path("/{id}/messages") @Consumes(MediaType.APPLICATION_JSON)
+    public JsonObject message(@PathParam("cityId") long cityId, @PathParam("id") long id, JsonValue payload) {
+        JsonObject body = object(payload);
+        return json(service.message(cityId, id, version(body), text(body, "message")));
+    }
+
+    @POST @Path("/{id}/reopen-request") @Consumes(MediaType.APPLICATION_JSON)
+    public JsonObject requestReopen(@PathParam("cityId") long cityId, @PathParam("id") long id, JsonValue payload) {
+        JsonObject body = object(payload);
+        return json(service.requestReopen(cityId, id, version(body), text(body, "note")));
+    }
+
+    @PUT @Path("/{id}/reopen-request") @Consumes(MediaType.APPLICATION_JSON)
+    public JsonObject reviewReopen(@PathParam("cityId") long cityId, @PathParam("id") long id, JsonValue payload) {
+        JsonObject body = object(payload);
+        JsonValue approve = body.get("approve");
+        if (approve != JsonValue.TRUE && approve != JsonValue.FALSE)
+            throw new BadRequestException("Provide approve as a boolean.");
+        return json(service.reviewReopen(cityId, id, version(body), approve == JsonValue.TRUE, text(body, "note")));
+    }
+
     @PUT @Path("/{id}/assignment") @Consumes(MediaType.APPLICATION_JSON)
     public JsonObject assign(@PathParam("cityId") long cityId, @PathParam("id") long id, JsonValue payload) {
         JsonObject body = object(payload);
@@ -102,6 +123,7 @@ public class ComplaintResource {
                 .add("cityId", item.getCityId()).add("residentName", item.getResidentName())
                 .add("subject", item.getSubject()).add("severity", item.getSeverity().name())
                 .add("status", item.getStatus().name()).add("version", item.getVersion())
+                .add("reopenRequested", item.isReopenRequested())
                 .add("createdAt", item.getCreatedAt().toString()).add("updatedAt", item.getUpdatedAt().toString());
         if (item.getZoneId() == null) result.addNull("zoneId"); else result.add("zoneId", item.getZoneId());
         if (item.getAssignedTo() == null) result.addNull("assignedTo"); else result.add("assignedTo", item.getAssignedTo().name());
@@ -122,6 +144,11 @@ public class ComplaintResource {
         }
         JsonObjectBuilder result = summary(detail.complaint()).add("description", detail.complaint().getDescription())
                 .add("zoneName", detail.zoneName()).add("canWork", !current.resident()).add("history", events);
+        result.add("canMessage", detail.complaint().getOwnerId() != null)
+                .add("canRequestReopen", current.resident() && detail.complaint().getStatus() == ComplaintStatus.RESOLVED
+                        && !detail.complaint().isReopenRequested())
+                .add("canReviewReopen", lk.osini.smartcity360.security.AccessRules.allowed(current.get().getRole(), "ComplaintResource.reviewReopen")
+                        && detail.complaint().getStatus() == ComplaintStatus.RESOLVED && detail.complaint().isReopenRequested());
         if (!current.resident()) {
             result.add("canAssign", lk.osini.smartcity360.security.AccessRules.allowed(current.get().getRole(), "ComplaintResource.assign")
                     && detail.complaint().getAssignedTo() != null && detail.complaint().getStatus() != ComplaintStatus.RESOLVED);
