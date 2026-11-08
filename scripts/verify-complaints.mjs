@@ -1,7 +1,9 @@
+import {authenticatedFetch} from './auth-client.mjs';
 // Requires local Payara/PostgreSQL. Retains two labelled demo cities and four complaints.
 import assert from 'node:assert/strict';
 import {mkdir, writeFile} from 'node:fs/promises';
 const base = process.env.SMARTCITY_URL || 'http://127.0.0.1:9080/smartcity360/api';
+const fetch = await authenticatedFetch(base);
 let checks = 0;
 async function call(path, method = 'GET', body, expected = 200) {
     const response = await fetch(`${base}/${path}`, {
@@ -38,8 +40,8 @@ for (const [item, authority, actors] of [
 assert.equal(low.zoneName, 'Central District');
 assert.equal(high.zoneName, 'Whole city');
 for (const changes of [
-    {residentName: ''}, {subject: '  '}, {description: null}, {severity: 'URGENT'},
-    {subject: 'x'.repeat(161)}, {description: 'x'.repeat(2001)}, {residentName: 'x'.repeat(101)},
+    {subject: ''}, {subject: '  '}, {description: null}, {severity: 'URGENT'},
+    {subject: 'x'.repeat(161)}, {description: 'x'.repeat(2001)}, {severity: null},
     {zoneId: 1.5}, {zoneId: -1}, {zoneId: 1e30}, {severity: 1}
 ]) await call(path, 'POST', {...body, ...changes}, 400);
 await call(path, 'POST', null, 400);

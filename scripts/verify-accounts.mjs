@@ -1,0 +1,116 @@
+import assert from 'node:assert/strict';
+import {writeFile,mkdir} from 'node:fs/promises';
+import {randomBytes} from 'node:crypto';
+import {AuthClient,administrator} from './auth-client.mjs';
+const base=process.env.SMARTCITY_URL||'http://127.0.0.1:9080/smartcity360/api';
+let checks=0;
+async function call(client,path,method='GET',body,expected=200){
+    const result=await client.call(path,method,body);
+    assert.ok([expected].flat().includes(result.status),`${method} ${path}: ${result.status} ${result.value?.error||''}`);
+    assert.ok(result.value!==null);checks++;return result.value;
+}
+const anonymous=new AuthClient(base);const session=await anonymous.session();
+assert.equal(session.value.user,null);assert.ok(session.headers.get('set-cookie').includes('HttpOnly'));assert.ok(session.headers.get('set-cookie').includes('SameSite=Strict'));checks++;
+await call(anonymous,'health');
+for(const path of ['cities','admin/accounts','lamp-specifications','cities/1/zones','cities/1/complaints','cities/1/meters','cities/1/streetlights','cities/1/policies'])await call(anonymous,path,'GET',undefined,401);
+const token=anonymous.csrf;anonymous.csrf='';await call(anonymous,'auth/login','POST',{email:'nobody@example.test',password:'invalid password'},403);anonymous.csrf=token;
+await call(anonymous,'auth/login','POST',{email:'nobody@example.test',password:'invalid password'},401);
+const admin=await administrator(base);const adminSnapshot=admin.user;
+const city=await call(admin,'cities','POST',{name:`Account Access Demo ${new Date().toISOString()}`},201);
+const other=await call(admin,'cities','POST',{name:`Account Isolation ${city.id}`},201);
+const tree=await call(admin,`cities/${city.id}/zones`,'POST',{name:'Account District',type:'DISTRICT'},201);const zoneId=tree.children[0].id;
+const stamp=Date.now();const credentials={};
+async function resident(label){const client=new AuthClient(base);await client.session();const email=`${label.toLowerCase().replaceAll(' ','-')}.${stamp}@example.test`,password=randomBytes(24).toString('base64url');
+    const prior=client.cookie;
+    await call(client,'auth/register','POST',{email,displayName:label,password},201);assert.notEqual(client.cookie,prior);assert.equal(client.user.role,'RESIDENT');
+    credentials[label]={email,password,userId:client.user.id};return client;}
+const alice=await resident('Resident One'),bob=await resident('Resident Two');
+for(const privilege of [{role:'SYSTEM_ADMIN'},{cityId:city.id},{enabled:true}])await call(anonymous,'auth/register','POST',{email:`blocked.${stamp}@example.test`,displayName:'Blocked',password:'Long test password 123',...privilege},400);
+await call(anonymous,'auth/register','POST',{email:credentials['Resident One'].email.toUpperCase(),displayName:'Duplicate',password:'Long test password 123'},409);
+await call(anonymous,'auth/register','POST',{email:'short@example.test',displayName:'Short',password:'short'},400);
+const data={subject:'Broken light near the library',description:'A demonstration issue needing inspection.',severity:'LOW',zoneId};
+const first=await call(alice,`cities/${city.id}/complaints`,'POST',{...data,residentName:'Spoofed identity'},201);
+assert.equal(first.residentName,'Resident One');assert.equal(first.canWork,false);
+const second=await call(bob,`cities/${city.id}/complaints`,'POST',{...data,subject:'Different resident case'},201);
+assert.deepEqual((await call(alice,`cities/${city.id}/complaints`)).map(c=>c.id),[first.id]);
+await call(alice,`cities/${city.id}/complaints/${second.id}`,'GET',undefined,404);
+await call(alice,`cities/${city.id}/complaints/${second.id}/status`,'PUT',{status:'IN_PROGRESS',note:'Not allowed',version:second.version},403);
+await call(alice,'admin/accounts','GET',undefined,403);
+await call(alice,'admin/accounts','POST',{},403);
+await call(alice,'cities','POST',{name:'Forbidden'},403);
+for(const module of ['zones','meters','streetlights','policies'])await call(alice,`cities/${city.id}/${module}`,'GET',undefined,403);
+const areas=await call(alice,`cities/${city.id}/areas`);assert.equal(areas.children[0].id,zoneId);assert.equal(JSON.stringify(areas).includes('usageKwh'),false);
+const legacy=await call(admin,`cities/${city.id}/complaints`,'POST',data,201);
+await call(alice,`cities/${city.id}/complaints/${legacy.id}`,'GET',undefined,404);
+const operator={};
+for(const role of ['LOCAL_STAFF','SUPERVISOR','CITY_MANAGER']){
+    const email=`${role.toLowerCase()}.${stamp}@example.test`;
+    const issued=await call(admin,'admin/accounts','POST',{email,displayName:role+' Test',role,cityId:city.id},201);
+    assert.equal(issued.user.passwordChangeRequired,true);assert.equal(Object.hasOwn(issued.user,'passwordHash'),false);
+    const client=new AuthClient(base);await client.login(email,issued.temporaryPassword);
+    await call(client,'cities','GET',undefined,403);
+    const password=randomBytes(24).toString('base64url');
+    await call(client,'auth/password','PUT',{currentPassword:issued.temporaryPassword,newPassword:password});
+    await call(client,'cities','GET',undefined,401);
+    await client.login(email,password);operator[role]=client;credentials[role]={email,password,userId:client.user.id};
+    assert.deepEqual((await call(client,'cities')).map(c=>c.id),[city.id]);
+    await call(client,`cities/${other.id}/zones`,'GET',undefined,403);
+    await call(client,`cities/${other.id}/areas`,'GET',undefined,403);
+    await call(client,'admin/accounts','GET',undefined,403);
+}
+const local=operator.LOCAL_STAFF,supervisor=operator.SUPERVISOR,manager=operator.CITY_MANAGER;
+let worked=await call(local,`cities/${city.id}/complaints/${first.id}/status`,'PUT',{status:'IN_PROGRESS',note:'INTERNAL_ONLY inspection details',version:first.version});
+assert.ok(worked.history.some(e=>e.actor==='LOCAL_STAFF Test' && e.message.includes('INTERNAL_ONLY')));
+const residentView=await call(alice,`cities/${city.id}/complaints/${first.id}`);
+assert.equal(JSON.stringify(residentView).includes('INTERNAL_ONLY'),false);assert.ok(residentView.history.some(e=>e.message.includes('IN_PROGRESS')));
+worked=await call(local,`cities/${city.id}/complaints/${first.id}/escalate`,'PUT',{severity:'MEDIUM',note:'INTERNAL_ONLY needs specialist',version:worked.version});
+await call(local,`cities/${city.id}/complaints/${first.id}`,'GET',undefined,404);
+await call(supervisor,`cities/${city.id}/complaints/${first.id}`);
+worked=await call(supervisor,`cities/${city.id}/complaints/${first.id}/escalate`,'PUT',{severity:'HIGH',note:'INTERNAL_ONLY manager decision',version:worked.version});
+await call(supervisor,`cities/${city.id}/complaints/${first.id}`,'GET',undefined,404);
+await call(manager,`cities/${city.id}/complaints/${first.id}`);
+await call(local,`cities/${city.id}/zones/power`,'PUT',{powerOn:false},403);
+await call(supervisor,`cities/${city.id}/zones/power`,'PUT',{powerOn:false},403);
+await call(manager,`cities/${city.id}/zones/power`,'PUT',{powerOn:false});
+await call(local,'policy-language/validate','POST',{expression:'noise > 65'},403);
+await call(manager,'policy-language/validate','POST',{expression:'noise > 65'});
+const priorToken=alice.csrf;alice.csrf='wrong-token';await call(alice,'auth/profile','PUT',{displayName:'Blocked rename'},403);alice.csrf=priorToken;
+await call(alice,'auth/profile','PUT',{displayName:'Resident One Updated'});
+assert.equal((await call(alice,'auth/session')).user.displayName,'Resident One Updated');
+await call(alice,'auth/password','PUT',{currentPassword:'incorrect password',newPassword:'New valid password 128'},400);
+const secondSession=new AuthClient(base);await secondSession.login(credentials['Resident One'].email,credentials['Resident One'].password);
+const replacement=randomBytes(24).toString('base64url');await call(alice,'auth/password','PUT',{currentPassword:credentials['Resident One'].password,newPassword:replacement});
+credentials['Resident One'].password=replacement;
+await call(secondSession,`cities/${city.id}/complaints`,'GET',undefined,401);
+await alice.login(credentials['Resident One'].email,replacement);
+async function allAccounts(){
+    const result=await call(admin,'admin/accounts');
+    for(let page=1;result.items.length<result.total;page++){
+        const next=await call(admin,`admin/accounts?page=${page}`);
+        if(!next.items.length)throw Error('Account pagination ended before the reported total.');
+        result.items.push(...next.items);
+    }
+    return result;
+}
+const accounts=await allAccounts();
+assert.equal(JSON.stringify(accounts).includes('passwordHash'),false);assert.equal(JSON.stringify(accounts).includes('securityVersion'),false);
+const localRow=accounts.items.find(u=>u.id===local.user.id);
+await call(admin,`admin/accounts/${adminSnapshot.id}`,'PUT',{version:adminSnapshot.version,role:'RESIDENT',cityId:null,enabled:false},400);
+let disabled=await call(admin,`admin/accounts/${localRow.id}`,'PUT',{version:localRow.version,role:localRow.role,cityId:localRow.cityId,enabled:false});
+await call(local,'cities','GET',undefined,401);
+await call(admin,`admin/accounts/${localRow.id}`,'PUT',{version:localRow.version,role:localRow.role,cityId:localRow.cityId,enabled:true},409);
+const managerRow=accounts.items.find(u=>u.id===manager.user.id);
+await call(admin,`admin/accounts/${managerRow.id}`,'PUT',{version:managerRow.version,role:'CITY_MANAGER',cityId:other.id,enabled:true});
+await call(manager,'cities','GET',undefined,401);
+await manager.login(credentials.CITY_MANAGER.email,credentials.CITY_MANAGER.password);
+assert.deepEqual((await call(manager,'cities')).map(c=>c.id),[other.id]);
+await call(manager,`cities/${city.id}/complaints`,'GET',undefined,403);
+// Leave the demo staff usable after proving disabling and reassignment.
+await call(admin,`admin/accounts/${disabled.id}`,'PUT',{version:disabled.version,role:disabled.role,cityId:disabled.cityId,enabled:true});
+const refreshed=await allAccounts();const moved=refreshed.items.find(u=>u.id===manager.user.id);
+await call(admin,`admin/accounts/${moved.id}`,'PUT',{version:moved.version,role:'CITY_MANAGER',cityId:city.id,enabled:true});
+const beforeLogout=bob.cookie;await call(bob,'auth/logout','POST');bob.cookie=beforeLogout;await call(bob,'cities','GET',undefined,401);
+const events=await call(admin,'admin/accounts/events');assert.ok(events.some(e=>e.action==='ACCESS_UPDATED'));assert.ok(events.some(e=>e.action==='PASSWORD_CHANGED'));
+await mkdir('.local',{recursive:true});
+await writeFile('.local/account-verification.json',JSON.stringify({cityId:city.id,otherCityId:other.id,zoneId,complaintId:first.id,checks,credentials},null,2));
+console.log(`PASS: ${checks} account/access HTTP checks across all five roles. Private test credentials saved in .local/account-verification.json.`);

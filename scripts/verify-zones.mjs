@@ -1,8 +1,10 @@
+import {authenticatedFetch} from './auth-client.mjs';
 // Live integration check. Requires running Payara/PostgreSQL and retains labelled demo data.
 import assert from 'node:assert/strict';
 import {mkdir, writeFile} from 'node:fs/promises';
 
 const base = process.env.SMARTCITY_URL || 'http://127.0.0.1:9080/smartcity360/api';
+const fetch = await authenticatedFetch(base);
 let checks = 0;
 async function call(path, method = 'GET', body, expected = 200) {
     const response = await fetch(`${base}/${path}`, {
