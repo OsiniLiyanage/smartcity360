@@ -266,3 +266,47 @@ The full unit suite passed with Part E included. Earlier live API checkpoints fo
 ### Limits and remaining work
 
 The language has three known numeric fields; it does not execute scripts, perform arithmetic, handle dates or automatically enforce outcomes. Observations are manual and the timestamp records evaluation time. History preserves evaluated revisions, not every intermediate edit. No load benchmark or production access-control audit was performed. User login/roles, the integrated dashboard, the full acceptance audit, rendered final report/PDF, clean-run source ZIP and 10–15-minute video remain to be completed.
+
+
+## Accounts and access checkpoint - 8 November 2026
+
+This checkpoint supersedes earlier statements that application login and permissions are pending. It completes the account foundation, not the full product roadmap. The submission PDF, ZIP and video remain on hold.
+
+| Check | Observed result |
+|---|---|
+| Maven package | Passed; 71 application Java sources, WAR deployed |
+| Full JUnit suite | 38 passed, zero failures/errors: 33 pattern tests plus 5 security tests |
+| JavaScript syntax and Tailwind build | Passed; local compiled CSS and versioned account assets included |
+| Account/access HTTP suite | 95 checks passed across all five roles |
+| Existing feature regression | All rerun with authentication: 41 hierarchy, 46 complaints, 63 meters, 55 streetlights, 84 policies (289 total) |
+| Browser | Resident sign-in/private history, staff city scope and hidden controls, admin user list/account activity, and sign-out verified |
+| Restart persistence | Exact comparison passed for 6 accounts, activity records, staff scopes and resident complaint history; unauthorized access remained denied |
+| Repository checks | No em dashes or private local credential values found in publishable text files; Git whitespace checks passed |
+
+### Access and privacy coverage
+
+The account suite checks unauthenticated requests, CSRF on writes/login, HttpOnly and SameSite=Strict session cookies, login session rotation, normalized duplicate emails, attempted privilege selection during public signup, temporary-password restrictions, each staff city boundary, complaint tier boundaries and resident record ownership. It verifies that staff-only notes and real staff names do not appear in resident history. Pre-existing and staff-created ownerless complaints are not claimed by a resident with the same display name.
+
+Profile/password checks cover incorrect current passwords and invalidation of a second session after password change. Admin checks cover disabled-account session invalidation, stale edits, self-access protection, city reassignment and account activity without password hashes. Signing out makes reuse of the prior cookie fail. The unit suite separately checks password hashing, role allowlists and bounded login-attempt windows.
+
+Before this checkpoint, cookie settings were moved under Payara's session configuration and the minimal resident area endpoint was separated from the city resource so it did not shadow existing root-level routes. The passing HTTP suite checks those resolved paths and cookies.
+
+### Browser scope
+
+A resident signed in and selected their own case in the account demonstration city. Only their complaint appeared, with public route/status summaries and no work/escalation controls. Local staff saw only their assigned city, no account-management link, and no city creation, hierarchy creation or hierarchy power controls. The system admin opened Manage users, saw all six accounts and loaded the account activity list. [Account screen evidence](evidence/account-management.png) shows the staff accounts and activity panel without passwords.
+
+Browser verification exposed empty restricted-action panels; permission rendering now hides their containers. Hierarchy-wide power restrictions are scoped to the hierarchy page, preserving the separately authorized individual streetlight control. Read-only policy users receive the saved expression and its meaning outside the hidden editor. The home complaint link now carries its selected city and the complaint page validates that choice against accessible cities. The latter link and policy display changes were code/syntax checked; their complete browser journeys are not claimed here.
+
+The final packaging after adding asset version query strings reused the already passing Java tests. Versioned assets avoid reusing older scripts after the updated HTML loads. An existing tab may need refresh after redeployment. No mobile/responsive sweep or public production security audit was performed.
+
+### Restart reproduction
+
+1. With both servers running and the account demonstration present, run `node scripts/verify-account-persistence.mjs snapshot`.
+2. Stop Payara, then PostgreSQL. Start PostgreSQL, then Payara.
+3. Wait until `/smartcity360/api/health` reports UP, then run `node scripts/verify-account-persistence.mjs verify`.
+
+The initial comparison attempt ran while Payara's port was open but the WAR was still loading and received 404. After application readiness, comparison passed unchanged. The verifier signs in afresh as all five roles and also checks other-resident denial and cross-city denial. It does not claim session continuity across restart. Private snapshots and generated credentials remain ignored under `.local`.
+
+### Remaining product work
+
+Named employee assignment, resident replies/reopening requests, notifications, fuller operations history, charts and printable operational reports remain to be built. The home screen has actual accessible complaint counts only. Email verification, password recovery and email delivery are not implemented. The class pattern report drafts remain earlier source material for later reconciliation, not a finished submission document.

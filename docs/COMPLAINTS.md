@@ -4,16 +4,18 @@ The complaints page is `http://localhost:9080/smartcity360/complaints.html`, als
 
 ## Run and demonstrate
 
-1. Run the database helper with `-Action Setup` to apply `003_complaints.sql` to an existing installation.
+1. Run the database helper with `-Action Setup` to apply the numbered scripts through `007_accounts.sql` to an existing installation.
 2. Build/deploy normally. After changing UI classes, run `npm run build:css` before `mvn package`.
-3. Open Complaints, choose a city and submit a demo complaint with a name, subject, description and severity.
+3. Sign in, open Complaints, choose a city and submit a demo complaint with a subject, description and severity. The reporter identity comes from the account.
 4. LOW routes to local staff, MEDIUM to a supervisor, HIGH to a city manager. Inspect **Handling history** to see forwarding.
-5. Enter a work note and select **Start work**. Add resolution details and select **Mark resolved**. A resolved complaint can be reopened with another note.
+5. As authorized staff or admin, enter a private work note and select **Start work**. Add resolution details and select **Mark resolved**. A resolved complaint can be reopened with another note.
 6. For an unresolved LOW/MEDIUM complaint, choose a higher severity and record a reason. Escalation preserves history, routes again and resets work status to ASSIGNED for the new team.
 
 Routing is a Java Chain of Responsibility, not browser-side assignment. The browser only supplies severity; the handlers decide the authority. Power/device simulation and complaints remain in one Java WAR with the same city/zone database.
 
 ## API
+
+Residents see only their own cases. Staff are restricted to their city and permitted authority tiers. Residents cannot change work status or severity; their history contains public summaries without staff-only notes. See [account permissions](ACCOUNTS.md).
 
 All routes below are relative to `/api/cities/{cityId}/complaints`.
 
@@ -21,7 +23,7 @@ All routes below are relative to `/api/cities/{cityId}/complaints`.
 |---|---|
 | GET `/` | City queue, newest update first; summary records |
 | GET `/{id}` | Detail, affected-area name and ordered history |
-| POST `/` | `{residentName, subject, description, severity, zoneId}`; optional/null zone means whole city; returns 201 detail |
+| POST `/` | `{subject, description, severity, zoneId}`; optional/null zone means whole city; returns 201 detail |
 | PUT `/{id}/status` | `{status, note, version}`; returns updated detail |
 | PUT `/{id}/escalate` | `{severity, note, version}`; higher severity only; returns updated detail |
 
@@ -39,11 +41,11 @@ Status/escalation updates acquire a row lock, refresh current data and compare t
 
 ## Checks and limits
 
-- `mvn test` runs six chain tests plus five Composite tests.
+- `mvn test` runs six chain tests alongside all other pattern and security suites.
 - `node scripts/verify-complaints.mjs` runs the live complaint regression checks. It creates two labelled demo cities and four complaints per successful run and retains them for inspection.
 - `.local/complaint-verification.json` stores a private snapshot for restart verification.
-- Queue filtering/search runs in the browser over all records in the city; pagination is not implemented.
-- No real authority receives a notification. Demo identities are labels, not authenticated users. Authentication and role permissions remain a later milestone.
+- Queue filtering/search runs in the browser over records the current user may access; pagination is not implemented.
+- No real authority receives a notification. New submissions and work updates record authenticated identities; old ownerless demonstrations stay unclaimed. Resident replies, notifications and reopening requests remain pending.
 - Runtime chain editing, named staff allocation and manual assignment of an unhandled complaint are not implemented. The default chain covers every supported severity; a shortened chain's explicit unhandled result is covered by unit tests.
 
 The separate [Part C report draft](report/PART_C_CHAIN_OF_RESPONSIBILITY.md) contains the assessment answers and supporting UML source.

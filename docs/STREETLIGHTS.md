@@ -52,4 +52,4 @@ The demonstration creates actual shared contexts and actual unshared baseline sp
 
 Six Flyweight JUnit tests cover sharing identity, distinct configurations, independent state, concurrent lookup, 100,000 contexts and validation. `node scripts/verify-streetlights.mjs` runs 55 live HTTP checks, retaining two demo cities and three lights per successful run. It also creates test specifications and saves a non-secret verification snapshot in ignored `.local`.
 
-See [verification evidence](VERIFICATION.md) for browser and restart checks, and [D1–D3 report material](report/PART_D_FLYWEIGHT.md) for the assignment explanation and UML source. Application login/roles remain pending. These are local simulated controls, not hardware commands or proof of production database throughput.
+See [verification evidence](VERIFICATION.md) for browser and restart checks, and [D1–D3 report material](report/PART_D_FLYWEIGHT.md) for the assignment explanation and UML source. Application login and role/city boundaries are enforced; see [accounts](ACCOUNTS.md). These are local simulated controls, not hardware commands or proof of production database throughput.

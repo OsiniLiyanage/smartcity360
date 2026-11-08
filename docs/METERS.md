@@ -55,7 +55,7 @@ Meter credential replacement does not replace the encryption key. It changes the
 - `node scripts/verify-meters.mjs`: live integration checks, retaining two labelled demo cities, a meter and nine accepted readings per successful run. A private restart snapshot with a generated demo credential is written only under ignored `.local`.
 - Tests cover all eight combinations, exact recovery, invalid credentials, credential replacement, corruption, scoped records and unchanged totals on rejection.
 - The browser is a local simulation client, not a physical meter or independent transport service. Individual messages are bounded to 64 KiB; continuous streaming/backpressure is not implemented.
-- Optional authentication is for showing the pattern. It does not protect unrelated API endpoints. User accounts, role permissions and public deployment security remain pending.
+- Optional authentication is for showing the pattern. It does not protect unrelated API endpoints. Separate application accounts and role/city permissions now protect every meter endpoint; see [accounts](ACCOUNTS.md). Public production deployment remains outside this local checkpoint.
 - Readings and meter lists currently load in full; no throughput, retention or large-history benchmark is claimed.
 
 See the separate [A1–A3 report draft](report/PART_A_DECORATOR.md) for the pattern explanation, UML source and references.

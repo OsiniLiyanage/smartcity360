@@ -10,11 +10,11 @@ Finish the application first. Do not start assembling the consolidated PDF, prep
 
 Operational reports inside SmartCity360 are authorized application features. Printing such a report, including the browser's Save as PDF option, is separate from assembling the assignment's consolidated report. The submission-artifact hold still applies.
 
-The five pattern implementations are working feature foundations. That does not mean the full municipal application is finished. The current API has no user authentication or authorization. Complaint submission accepts a typed resident name, the chain assigns an authority tier rather than an individual employee, and work events currently use a demonstration actor. The current pattern tests do not prove access control.
+The five pattern implementations and the account/access foundation are working. Resident signup, sign-in, profile/password changes, admin provisioning, five roles, city restrictions and complaint ownership are implemented. Work events now use authenticated actors and resident history excludes internal notes. The home screen has real complaint counts. The chain still assigns an authority tier rather than an individual employee. Charts, reports and the remaining workflows below are not yet complete. See [accounts](ACCOUNTS.md) and [verification](VERIFICATION.md).
 
 ## Recommended roles
 
-These are the proposed implementation defaults for the next stage, not permissions already enforced by the application.
+The account roles and basic access boundaries are enforced. Responsibilities such as named assignment, replies and reopening requests describe remaining workflow work; the exact implemented permissions are listed in the account guide.
 
 | Role | Responsibility | Access boundary |
 |---|---|---|
@@ -32,7 +32,7 @@ An account role alone is insufficient: permissions must also check its city assi
 
 ## Build sequence and completion checks
 
-### 1. Accounts and permission enforcement - next milestone
+### 1. Accounts and permission enforcement - foundation implemented
 
 - Persist accounts, roles, account status and staff city assignments; add resident registration, sign-in, sign-out, profile and password change.
 - Use password hashing, server-controlled login sessions, session expiry, request protection for state-changing operations and bounded login attempts. Use Jakarta/Payara facilities and standard libraries where appropriate; no Spring Boot or paid identity service is needed.

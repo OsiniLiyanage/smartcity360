@@ -85,4 +85,4 @@ Invalid inputs return 400, missing or cross-city records 404, and duplicate name
 
 See [verification evidence](VERIFICATION.md) for browser and restart results, and [E1–E3 report material](report/PART_E_INTERPRETER.md) for the UML and critical assessment.
 
-There are no date/calendar rules, functions, arithmetic, unit conversions, automated sensing, enforcement actions or full policy-edit audit log. Evaluated revisions are preserved, but unevaluated intermediate edits are not. The grammar is parsed afresh rather than cached; scale testing of very large policy collections is not claimed. Application accounts and roles remain pending.
+There are no date/calendar rules, functions, arithmetic, unit conversions, automated sensing, enforcement actions or full policy-edit audit log. Evaluated revisions are preserved, but unevaluated intermediate edits are not. The grammar is parsed afresh rather than cached; scale testing of very large policy collections is not claimed. Application accounts and role/city boundaries are enforced; see [accounts](ACCOUNTS.md).

@@ -2,7 +2,7 @@
 
 Java web assignment project. Current stage: meter processing using **Decorator (Part A)**, a city hierarchy using **Composite (Part B)**, complaints using **Chain of Responsibility (Part C)**, streetlights using **Flyweight (Part D)** and city policies using **Interpreter (Part E)**, with Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
 
-Create city hierarchies, process meter readings with optional authentication/compression/encryption, and inspect usage totals. Route complaints by severity and record work through resolution. Register streetlights, control individual power/fault states and demonstrate specification sharing for 100,000 temporary lights. Save/edit noise and parking rules, evaluate zone observations and retain the original rule with each result. Thirty-three JUnit tests passed; separate live checkpoints verified 41 hierarchy, 46 complaint, 63 meter, 55 streetlight and 84 policy HTTP checks. Browser workflows and restart persistence were checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
+Create city hierarchies, process meter readings with optional authentication/compression/encryption, and inspect usage totals. Route complaints by severity and record work through resolution. Register streetlights, control individual power/fault states and demonstrate specification sharing for 100,000 temporary lights. Save/edit noise and parking rules, evaluate zone observations and retain the original rule with each result. Thirty-eight JUnit tests passed, including five security tests. The account milestone passed 95 access checks and reran 41 hierarchy, 46 complaint, 63 meter, 55 streetlight and 84 policy HTTP checks. Browser workflows and restart persistence were checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ Create city hierarchies, process meter readings with optional authentication/com
 - Maven
 - Payara Community 7, compatible with Jakarta EE 11
 
-PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). All five assessed pattern features are implemented. User login/role permissions, the integrated dashboard, final acceptance audit, consolidated report/PDF, source ZIP and recorded demonstration remain pending. The optional meter credential wrapper is distinct from application user authentication. This is a local demonstration, not a production deployment.
+PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). All five assessed pattern features are implemented. Resident registration, sign-in, five roles, account administration and complaint privacy are implemented. Named staff assignment, resident follow-up, the integrated charts/reports dashboard and final acceptance audit remain pending. The consolidated report/PDF, source ZIP and recorded demonstration are on hold until explicitly requested. The optional meter credential wrapper is distinct from application user authentication. This is a local demonstration, not a production deployment.
 
 ## Build
 
@@ -24,6 +24,8 @@ The compiled Tailwind CSS is committed, so a fresh checkout can build the WAR wi
 
 Follow [Local development in IntelliJ](docs/LOCAL_DEVELOPMENT.md) to configure and run Payara 7. Our separate `smartcity360` domain uses HTTP port 9080 and administration port 9048. Deploy the WAR with application context `/smartcity360`:
 
+- Sign in: `http://localhost:9080/smartcity360/login.html`
+- Personal workspace: `http://localhost:9080/smartcity360/home.html`
 - City workspace: `http://localhost:9080/smartcity360/`
 - Complaints: `http://localhost:9080/smartcity360/complaints.html`
 - Energy meters: `http://localhost:9080/smartcity360/meters.html`
@@ -33,6 +35,8 @@ Follow [Local development in IntelliJ](docs/LOCAL_DEVELOPMENT.md) to configure a
 - Saved city records: `http://localhost:9080/smartcity360/api/cities`
 
 Expected REST response: `{"application":"SmartCity360","status":"UP"}`.
+
+Apply the account migration and bootstrap the first admin using the [account setup guide](docs/ACCOUNTS.md). All application data endpoints now require sign-in.
 
 The health endpoint confirms Java responds; listing cities also checks the database path. Start PostgreSQL before Payara in later development sessions.
 
@@ -58,7 +62,7 @@ The health endpoint confirms Java responds; listing cities also checks the datab
 
 ## Try the hierarchy
 
-1. Open the workspace, expand **Create a city**, enter a name and save.
+1. Sign in as system admin, open City zones, expand **Create a city**, enter a name and save.
 2. Add a district. Select it in **City structure**, then add a street.
 3. Select the street and add a building. Select the building to save usage in kWh.
 4. Select the city or district to see the sum of its buildings' readings.
@@ -68,7 +72,11 @@ Use the same reporting period for all manual readings. These are saved values, n
 
 ## Verify
 
-- `mvn test`: five Composite, six Chain of Responsibility, seven Decorator, six Flyweight and nine Interpreter tests.
+Live scripts require an administrator session. The helper reads the ignored local bootstrap file or explicit private environment credentials; see the account guide.
+
+- `mvn test`: five Composite, six Chain of Responsibility, seven Decorator, six Flyweight and nine Interpreter tests, plus five account-security tests.
+- `node scripts/verify-accounts.mjs`: checks all five roles and privacy boundaries; retains labelled test users/cities and private local credentials.
+- [Account setup and permissions](docs/ACCOUNTS.md): bootstrap, sign-in, password changes and role boundaries.
 - `node scripts/verify-zones.mjs`: live API checks with Payara/PostgreSQL running; creates and retains two labelled demo cities per run.
 - `node scripts/verify-complaints.mjs`: live complaint checks; creates two labelled demo cities and four complaints per successful run.
 - `node scripts/verify-meters.mjs`: live meter checks; creates two labelled demo cities, a meter and nine accepted readings per successful run. Generated credentials stay in ignored `.local`.

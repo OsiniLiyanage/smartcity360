@@ -104,3 +104,9 @@ This initial checkpoint was followed by PostgreSQL/JPA integration and the Compo
 For an existing database, run the database helper with `-Action Setup` to apply the additive zone table before deploying the hierarchy update. Existing city records are preserved.
 
 The Tailwind output is checked into source control. When editing UI classes or `src/main/frontend/app.css`, run `npm ci` once and then `npm run build:css`. Build with `mvn package` and deploy again with the server helper. A Maven-only build works when using the already compiled CSS. Report source files in `docs/report` are not included in the WAR.
+
+## Account-enabled local development
+
+Apply all numbered database migrations and follow [the initial administrator setup](ACCOUNTS.md). Open `http://localhost:9080/smartcity360/login.html` and sign in before using data endpoints. The health check remains public. After restarting Payara, wait until the application health endpoint reports UP; the server port may open before the WAR finishes loading.
+
+If an open development tab shows an older interface after redeployment, refresh it. Account interface assets have versioned URLs. Existing report drafts reflect earlier checkpoints and must be reconciled with the final application when submission-document work is authorized.
