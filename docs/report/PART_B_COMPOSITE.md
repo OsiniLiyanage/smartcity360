@@ -1,4 +1,4 @@
-# Part B — Smart-zone hierarchy
+# Part B - Smart-zone hierarchy
 
 Report source draft, 7 November 2026. This material belongs in the single final submission report, alongside A, C, D, E and the system documentation. It is not an application screen and is not packaged in the WAR. Final figure numbering, screenshots and reference metadata will be checked when the report is assembled.
 

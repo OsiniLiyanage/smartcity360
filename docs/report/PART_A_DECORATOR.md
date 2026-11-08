@@ -1,4 +1,4 @@
-# Part A — Meter message processing
+# Part A - Meter message processing
 
 Report source draft, 7 November 2026. Include A1–A3 in the single final submission report. This file and its UML source are separate from application screens and are not packaged in the WAR. Final citation metadata and figure numbering remain to be checked during report assembly.
 

@@ -1,4 +1,4 @@
-# Energy meters — Part A
+# Energy meters - Part A
 
 Open `http://localhost:9080/smartcity360/meters.html`, or choose **Energy meters** from the application navigation.
 

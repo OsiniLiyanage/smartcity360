@@ -1,4 +1,4 @@
-# Part E — Interpreting city policies
+# Part E - Interpreting city policies
 
 Report source draft, 8 November 2026. Include E1–E3 and the rendered UML figure in the single final report. This material is separate from the application and is not packaged in its WAR. Figure numbering and final Harvard source metadata remain to be completed during report assembly.
 

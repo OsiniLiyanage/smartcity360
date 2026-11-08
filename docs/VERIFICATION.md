@@ -41,7 +41,7 @@ The form can be used for the normal journey; direct API requests are necessary t
 
 At this first checkpoint, the root city was only a persistence foundation. The next checkpoint verifies the hierarchy implementation.
 
-## 7 November 2026 — Composite hierarchy and Tailwind workspace
+## 7 November 2026 - Composite hierarchy and Tailwind workspace
 
 Same Java/Payara/PostgreSQL environment as above. Tests used labelled demonstration cities, preserving all existing user records.
 
@@ -85,7 +85,7 @@ The integration script saves a private snapshot in `.local/zone-verification.jso
 
 These checks establish the local Part B behavior, not completion of all five assignment scenarios. The browser was inspected at its available viewport; a full desktop/mobile/browser compatibility sweep has not been performed. Concurrent commands were checked once with two requests; no stress or scale benchmark is claimed. Power is simulated and readings are entered manually for a shared reporting period. Authentication, real device delivery, historical reporting periods and final report/PDF/video production remain pending.
 
-## 7 November 2026 — Complaint workflow and Chain of Responsibility
+## 7 November 2026 - Complaint workflow and Chain of Responsibility
 
 The complaint module was built and verified against the same local Java 21 / Payara 7 / PostgreSQL 18 setup. Existing cities/zones were preserved by the additive schema update.
 
@@ -131,7 +131,7 @@ A later negative-input check found that accepting only a `JsonObject` parameter 
 
 No real municipality is notified. Demo operator labels are not authenticated identities; role enforcement remains pending. The normal chain handles all supported severities, so the intentionally shortened-chain failure is a unit-test scenario, not a UI configuration. No runtime chain editor, manual assignment screen, named staff allocation, large-queue benchmark or complete browser compatibility audit is claimed. Parts A, D and E and final report/PDF/video production remain outstanding.
 
-## 7 November 2026 — Meter processing and Decorator
+## 7 November 2026 - Meter processing and Decorator
 
 Same local Java/Payara/PostgreSQL environment. `004_meters.sql` adds meter and reading tables without replacing prior records. The feature is a sequence of bounded meter messages, not a connection to real hardware.
 
@@ -178,7 +178,7 @@ Successful API city: **12**, `Meter Demo 2026-11-07T13:44:03.229Z`. Library mete
 
 Optional meter authentication is not application login or role enforcement. Payload encryption leaves usage metadata plaintext and does not secure the HTTP connection. Registration/credential replacement are local demonstration operations. The key uses inherited domain file permissions; no distributed key vault or multi-key rotation is implemented. Message sizes are bounded, but high-volume streaming, large-history pagination and production security testing are not claimed. Part D, Part E, application access controls and final report/PDF/video remain pending.
 
-## Part D checkpoint — 7–8 November 2026
+## Part D checkpoint - 7–8 November 2026
 
 Part D now provides persistent streetlight registration, individual power/fault controls, shared immutable specifications, paginated inventory and a separate Flyweight demonstration. The earlier checkpoint's pending-Part-D status is superseded by this section.
 
@@ -226,7 +226,7 @@ The HTTP script retains two demo cities, three lights and test configurations pe
 
 Rated load is a simulation based on nameplate watts, commanded power and fault status; it is not measured consumption. The inventory has no bulk operation, deletion or maintenance-history feature. The pool retains unique requested configurations until restart/redeployment. No production load, hardware integration or heap-memory benchmark was performed. Part E, application access controls, final consolidated report/PDF and recorded video remain pending.
 
-## Part E checkpoint — 8 November 2026
+## Part E checkpoint - 8 November 2026
 
 Part E now supports saved city policy rules, syntax validation, zone-linked observations, explicit result meaning and immutable evaluation history. This supersedes the earlier pending-Part-E status. All five assessed pattern features are implemented; the final integrated acceptance audit and submission artifacts remain pending.
 

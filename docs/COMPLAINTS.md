@@ -1,4 +1,4 @@
-# Complaint workflow — Part C
+# Complaint workflow - Part C
 
 The complaints page is `http://localhost:9080/smartcity360/complaints.html`, also linked from **City zones**. All data belongs to the selected city; the affected area may be the whole city or one of its districts, streets or buildings.
 

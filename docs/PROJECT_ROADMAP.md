@@ -32,7 +32,7 @@ An account role alone is insufficient: permissions must also check its city assi
 
 ## Build sequence and completion checks
 
-### 1. Accounts and permission enforcement — next milestone
+### 1. Accounts and permission enforcement - next milestone
 
 - Persist accounts, roles, account status and staff city assignments; add resident registration, sign-in, sign-out, profile and password change.
 - Use password hashing, server-controlled login sessions, session expiry, request protection for state-changing operations and bounded login attempts. Use Jakarta/Payara facilities and standard libraries where appropriate; no Spring Boot or paid identity service is needed.

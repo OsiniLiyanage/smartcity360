@@ -42,8 +42,8 @@ function nodes(node, path = '') {
 }
 function totals() {
     const building = nodes(tree).find(node => node.type === 'BUILDING' && node.id === selectedMeter?.buildingId);
-    $('#building-total').textContent = building ? `${numbers.format(building.usageKwh)} kWh` : '—';
-    $('#city-total').textContent = tree ? `${numbers.format(tree.usageKwh)} kWh` : '—';
+    $('#building-total').textContent = building ? `${numbers.format(building.usageKwh)} kWh` : '-';
+    $('#city-total').textContent = tree ? `${numbers.format(tree.usageKwh)} kWh` : '-';
     if (selectedMeter) $('#meter-location').textContent = building?.label || 'Building';
 }
 function processing() {

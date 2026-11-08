@@ -1,4 +1,4 @@
-# Part D — Shared streetlight specifications
+# Part D - Shared streetlight specifications
 
 Report source draft, 8 November 2026. Include D1–D3 in the single final submission report. This document and its UML source are separate from the deployed application. Final figure numbering and source metadata remain to be checked during report assembly.
 

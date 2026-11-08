@@ -1,4 +1,4 @@
-# Part C — Complaint escalation
+# Part C - Complaint escalation
 
 Report source draft, 7 November 2026. Include this material in the single final submission report with the other assessment answers. It is separate from application screens and is not packaged in the WAR. Final citation metadata and figure numbers remain to be completed during report assembly.
 
