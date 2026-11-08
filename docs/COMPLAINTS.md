@@ -4,7 +4,7 @@ The complaints page is `http://localhost:9080/smartcity360/complaints.html`, als
 
 ## Run and demonstrate
 
-1. Run the database helper with `-Action Setup` to apply the numbered scripts through `007_accounts.sql` to an existing installation.
+1. Run the database helper with `-Action Setup` to apply the numbered scripts through `008_complaint_assignment.sql` to an existing installation.
 2. Build/deploy normally. After changing UI classes, run `npm run build:css` before `mvn package`.
 3. Sign in, open Complaints, choose a city and submit a demo complaint with a subject, description and severity. The reporter identity comes from the account.
 4. LOW routes to local staff, MEDIUM to a supervisor, HIGH to a city manager. Inspect **Handling history** to see forwarding.
@@ -26,6 +26,22 @@ All routes below are relative to `/api/cities/{cityId}/complaints`.
 | POST `/` | `{subject, description, severity, zoneId}`; optional/null zone means whole city; returns 201 detail |
 | PUT `/{id}/status` | `{status, note, version}`; returns updated detail |
 | PUT `/{id}/escalate` | `{severity, note, version}`; higher severity only; returns updated detail |
+| GET `/{id}/assignees?page=0` | Up to 25 eligible employees, ordered by display name and ID; each has id, displayName and role |
+| PUT `/{id}/assignment` | `{assignedUserId, note, version}`; positive employee ID or explicit null to clear allocation; returns updated detail |
+
+### Named employee allocation
+
+The assignment endpoints are for supervisors, city managers and system administrators within their existing city/tier access. Local staff and residents cannot allocate work or list candidates. A candidate must be enabled, belong to the complaint's city and have the exact role selected by the Chain of Responsibility. A supervisor can allocate local-staff or supervisor cases. City managers and administrators can allocate every tier they may access. System administrators are not staff candidates.
+
+`assignedTo` retains its existing authority-tier meaning. Staff summaries additionally expose nullable `assignedUserId`. Staff detail includes nullable `assignee` with `id`, `displayName` and `eligible`, plus `canAssign`. These fields are omitted from resident responses. Candidate responses exclude email addresses and credentials. Resident history uses a generic allocation summary and excludes employee names, IDs and assignment reasons.
+
+Assignment reasons must contain 1-1000 characters. A missing `assignedUserId` is rejected; explicit null clears the allocation. Resolved cases and cases without a responsible authority cannot be allocated. Requests require the current complaint version. A repeated request using the saved new version and same employee is a no-op. Retrying with the old version returns 409 after an actual change. Allocation preserves the current work status and existing tier-based operational permissions, including authorized team coverage. A named allocation does not give anyone access to a different city or authority tier.
+
+Escalation clears the employee allocation and records that release in history. Disabling an allocated account or changing its city/role retains the historical allocation but makes `assignee.eligible` false. A manager can then reassign or clear it. Existing account access rules prevent that employee from using revoked permissions.
+
+The migration adds a nullable foreign key and index, preserving older complaints as unallocated. Assignment holds a read lock on the candidate account and a write lock on the complaint while validating eligibility/version and recording its history in one transaction. The account lock is acquired first to keep simultaneous account changes ordered consistently.
+
+Frontend controls for these endpoints are pending integration. Apply the migration before deploying Java code that maps the new column.
 
 Resident name is 1–100 characters; subject 1–160; description 1–2000; work/escalation note 1–1000. Text is trimmed, JSON value types are checked, and null/array/scalar request bodies are rejected with 400. Cross-city or missing targets return 404. Invalid work transitions and stale versions return 409.
 
@@ -41,11 +57,11 @@ Status/escalation updates acquire a row lock, refresh current data and compare t
 
 ## Checks and limits
 
-- `mvn test` runs six chain tests alongside all other pattern and security suites.
+- `mvn test` runs six chain tests and seven focused allocation tests alongside the other pattern and security suites. The allocation tests cover role allowlists, candidate eligibility, account changes, existing unallocated cases and escalation cleanup. They do not replace live HTTP, transaction or migration verification.
 - `node scripts/verify-complaints.mjs` runs the live complaint regression checks. It creates two labelled demo cities and four complaints per successful run and retains them for inspection.
 - `.local/complaint-verification.json` stores a private snapshot for restart verification.
 - Queue filtering/search runs in the browser over records the current user may access; pagination is not implemented.
 - No real authority receives a notification. New submissions and work updates record authenticated identities; old ownerless demonstrations stay unclaimed. Resident replies, notifications and reopening requests remain pending.
-- Runtime chain editing, named staff allocation and manual assignment of an unhandled complaint are not implemented. The default chain covers every supported severity; a shortened chain's explicit unhandled result is covered by unit tests.
+- Named staff allocation has backend endpoints; its frontend integration and live HTTP verification remain pending. Runtime chain editing and manual assignment of an unhandled complaint are not implemented. The default chain covers every supported severity; a shortened chain's explicit unhandled result is covered by unit tests.
 
 The separate [Part C report draft](report/PART_C_CHAIN_OF_RESPONSIBILITY.md) contains the assessment answers and supporting UML source.

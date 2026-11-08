@@ -1,6 +1,8 @@
 package lk.osini.smartcity360.security;
 
 import java.util.Set;
+import lk.osini.smartcity360.entity.AppUser;
+import lk.osini.smartcity360.entity.Complaint;
 
 /** Explicit endpoint allowlist. Unknown resource methods are denied, including for admins. */
 public final class AccessRules {
@@ -11,7 +13,8 @@ public final class AccessRules {
             "StreetlightResource.specifications", "StreetlightResource.list", "StreetlightResource.detail", "StreetlightResource.update",
             "PolicyResource.list", "PolicyResource.detail", "PolicyResource.evaluate", "PolicyResource.history",
             "ComplaintResource.status", "ComplaintResource.escalate");
-    private static final Set<String> MANAGE = Set.of("ZoneResource.create", "MeterResource.register", "MeterResource.replace", "StreetlightResource.create");
+    private static final Set<String> MANAGE = Set.of("ZoneResource.create", "MeterResource.register", "MeterResource.replace", "StreetlightResource.create",
+            "ComplaintResource.assignees", "ComplaintResource.assign");
     private static final Set<String> MANAGER = Set.of("ZoneResource.power", "PolicyResource.create", "PolicyResource.update", "PolicyResource.validate");
     private static final Set<String> ADMIN = Set.of("CityResource.create", "StreetlightResource.saveSpecification", "StreetlightResource.demonstrate",
             "AccountResource.list", "AccountResource.create", "AccountResource.update", "AccountResource.events");
@@ -25,5 +28,12 @@ public final class AccessRules {
         if (MANAGE.contains(operation)) return role.authorityLevel() >= 2;
         if (MANAGER.contains(operation)) return role.authorityLevel() >= 3;
         return ADMIN.contains(operation) && role == Role.SYSTEM_ADMIN;
+    }
+
+    public static boolean eligibleAssignee(AppUser user, Complaint complaint) {
+        return user != null && user.isEnabled() && user.getRole().isStaff()
+                && complaint.getCityId().equals(user.getCityId())
+                && complaint.getAssignedTo() != null
+                && complaint.getAssignedTo().name().equals(user.getRole().name());
     }
 }

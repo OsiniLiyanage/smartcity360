@@ -3,6 +3,7 @@ package lk.osini.smartcity360.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lk.osini.smartcity360.security.CurrentUser;
+import lk.osini.smartcity360.security.AccessRules;
 import lk.osini.smartcity360.security.Role;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
@@ -10,6 +11,7 @@ import jakarta.ws.rs.*;
 import lk.osini.smartcity360.entity.*;
 import lk.osini.smartcity360.pattern.chain.*;
 import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class ComplaintService {
@@ -19,7 +21,8 @@ public class ComplaintService {
     private final ComplaintHandler first =
             new LocalStaffHandler(new SupervisorHandler(new CityManagerHandler()));
 
-    public record Detail(Complaint complaint, String zoneName, List<ComplaintEvent> history) { }
+    public record Assignee(Long id, String displayName, boolean eligible) { }
+    public record Detail(Complaint complaint, String zoneName, List<ComplaintEvent> history, Assignee assignee) { }
 
     public List<Complaint> list(long cityId) {
         city(cityId);
@@ -32,6 +35,48 @@ public class ComplaintService {
     }
 
     public Detail detail(long cityId, long id) { return view(find(cityId, id, false)); }
+
+    public List<AppUser> assignees(long cityId, long id, int page) {
+        requireAssignmentManager();
+        Complaint complaint = find(cityId, id, false);
+        if (page < 0 || page > 100000) throw new BadRequestException("Choose a valid page.");
+        if (complaint.getAssignedTo() == null || complaint.getStatus() == ComplaintStatus.RESOLVED) return List.of();
+        return em.createQuery("SELECT u FROM AppUser u WHERE u.cityId = :city AND u.enabled = true AND u.role = :role ORDER BY u.displayName, u.id", AppUser.class)
+                .setParameter("city", cityId)
+                .setParameter("role", Role.valueOf(complaint.getAssignedTo().name()))
+                .setFirstResult(page * 25).setMaxResults(25).getResultList();
+    }
+
+    @Transactional
+    public Detail assign(long cityId, long id, long version, Long userId, String note) {
+        requireAssignmentManager();
+        // Authorize the case before looking up any candidate account.
+        find(cityId, id, false);
+        note = text(note, 1000, "Assignment reason");
+        AppUser assignee = null;
+        if (userId != null) {
+            if (userId < 1) throw new BadRequestException("Choose a valid staff account.");
+            assignee = em.find(AppUser.class, userId);
+            if (assignee == null) throw new BadRequestException("Choose an active staff member in this city and authority tier.");
+            // Keep eligibility stable until the assignment commits, including concurrent account updates.
+            em.refresh(assignee, LockModeType.PESSIMISTIC_READ);
+        }
+        Complaint complaint = find(cityId, id, true);
+        checkVersion(complaint, version);
+        if (complaint.getStatus() == ComplaintStatus.RESOLVED || complaint.getAssignedTo() == null)
+            throw new ClientErrorException("Assign an employee to an open complaint with a responsible authority tier.", 409);
+        if (userId != null && !AccessRules.eligibleAssignee(assignee, complaint))
+            throw new BadRequestException("Choose an active staff member in this city and authority tier.");
+        if (Objects.equals(complaint.getAssignedUserId(), userId)) return view(complaint);
+        Long previous = complaint.getAssignedUserId();
+        complaint.assignUser(userId);
+        String employee = assignee == null ? "unallocated" : assignee.getDisplayName() + " (#" + userId + ")";
+        userEvent(complaint, "EMPLOYEE_ASSIGNED",
+                "Employee assignment changed from " + previous + " to " + employee + ": " + note,
+                "The city team updated the staff allocation for this complaint.");
+        em.flush();
+        return view(complaint);
+    }
 
     @Transactional
     public Detail create(long cityId, Long zoneId, String resident, String subject, String description, Severity severity) {
@@ -85,8 +130,12 @@ public class ComplaintService {
             throw new BadRequestException("Choose a higher severity for escalation.");
         Severity previous = complaint.getSeverity();
         RoutingResult result = first.handle(severity);
+        Long previousEmployee = complaint.getAssignedUserId();
         complaint.route(severity, result.assignedTo());
         userEvent(complaint, "ESCALATED", previous + " -> " + severity + ": " + note, "Severity changed from " + previous + " to " + severity + ".");
+        if (previousEmployee != null)
+            userEvent(complaint, "EMPLOYEE_UNASSIGNED", "Employee #" + previousEmployee + " released by escalation.",
+                    "The new responsible team will allocate the complaint.");
         recordRoute(complaint, result);
         em.flush();
         return view(complaint);
@@ -108,6 +157,10 @@ public class ComplaintService {
     }
     private List<Authority> tiers() { return current.get().getRole() == Role.LOCAL_STAFF ? List.of(Authority.LOCAL_STAFF) : List.of(Authority.LOCAL_STAFF, Authority.SUPERVISOR); }
     private void requireOperator() { if (current.resident()) throw new ForbiddenException("Residents cannot change staff work status."); }
+    private void requireAssignmentManager() {
+        if (!AccessRules.allowed(current.get().getRole(), "ComplaintResource.assign"))
+            throw new ForbiddenException("Only supervisors, city managers and system administrators can allocate complaints.");
+    }
     private void userEvent(Complaint complaint, String type, String message, String publicMessage) {
         var event = new ComplaintEvent(complaint.getId(),type,current.get().getDisplayName(),message);
         event.identity(current.get().getId(),publicMessage); em.persist(event); em.flush();
@@ -143,6 +196,12 @@ public class ComplaintService {
         List<ComplaintEvent> events = em.createQuery(
                 "SELECT e FROM ComplaintEvent e WHERE e.complaintId = :id ORDER BY e.id", ComplaintEvent.class)
                 .setParameter("id", item.getId()).getResultList();
-        return new Detail(item, area, events);
+        Assignee assignee = null;
+        if (!current.resident() && item.getAssignedUserId() != null) {
+            AppUser user = em.find(AppUser.class, item.getAssignedUserId());
+            assignee = new Assignee(item.getAssignedUserId(), user == null ? "Unavailable account" : user.getDisplayName(),
+                    AccessRules.eligibleAssignee(user, item));
+        }
+        return new Detail(item, area, events, assignee);
     }
 }

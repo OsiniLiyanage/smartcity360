@@ -13,6 +13,7 @@ public class Complaint {
     @Column(name = "city_id", nullable = false) private Long cityId;
     @Column(name = "zone_id") private Long zoneId;
     @Column(name = "owner_id") private Long ownerId;
+    @Column(name = "assigned_user_id") private Long assignedUserId;
     @Column(name = "resident_name", nullable = false, length = 100) private String residentName;
     @Column(nullable = false, length = 160) private String subject;
     @Column(nullable = false, length = 2000) private String description;
@@ -33,12 +34,18 @@ public class Complaint {
     }
     public void route(Severity severity, Authority authority) {
         this.severity = severity; assignedTo = authority;
+        assignedUserId = null;
         status = authority == null ? ComplaintStatus.UNASSIGNED : ComplaintStatus.ASSIGNED;
         updatedAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
     }
     public void changeStatus(ComplaintStatus status) { this.status = status; updatedAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS); }
     public Long getId() { return id; }
     public Long getOwnerId() { return ownerId; }
+    public Long getAssignedUserId() { return assignedUserId; }
+    public void assignUser(Long userId) {
+        assignedUserId = userId;
+        updatedAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+    }
     public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
     public Long getCityId() { return cityId; }
     public Long getZoneId() { return zoneId; }

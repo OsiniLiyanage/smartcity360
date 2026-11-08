@@ -41,6 +41,24 @@ public class ComplaintResource {
                 choice(body, "status", ComplaintStatus.class), text(body, "note")));
     }
 
+    @GET @Path("/{id}/assignees")
+    public JsonArray assignees(@PathParam("cityId") long cityId, @PathParam("id") long id,
+                              @QueryParam("page") @DefaultValue("0") int page) {
+        JsonArrayBuilder result = Json.createArrayBuilder();
+        for (AppUser user : service.assignees(cityId, id, page)) {
+            result.add(Json.createObjectBuilder().add("id", user.getId())
+                    .add("displayName", user.getDisplayName()).add("role", user.getRole().name()));
+        }
+        return result.build();
+    }
+
+    @PUT @Path("/{id}/assignment") @Consumes(MediaType.APPLICATION_JSON)
+    public JsonObject assign(@PathParam("cityId") long cityId, @PathParam("id") long id, JsonValue payload) {
+        JsonObject body = object(payload);
+        if (!body.containsKey("assignedUserId")) throw new BadRequestException("Provide assignedUserId, or null to clear the allocation.");
+        return json(service.assign(cityId, id, version(body), optionalId(body, "assignedUserId"), text(body, "note")));
+    }
+
     @PUT @Path("/{id}/escalate") @Consumes(MediaType.APPLICATION_JSON)
     public JsonObject escalate(@PathParam("cityId") long cityId, @PathParam("id") long id, JsonValue payload) {
         JsonObject body = object(payload);
@@ -87,6 +105,10 @@ public class ComplaintResource {
                 .add("createdAt", item.getCreatedAt().toString()).add("updatedAt", item.getUpdatedAt().toString());
         if (item.getZoneId() == null) result.addNull("zoneId"); else result.add("zoneId", item.getZoneId());
         if (item.getAssignedTo() == null) result.addNull("assignedTo"); else result.add("assignedTo", item.getAssignedTo().name());
+        if (!current.resident()) {
+            if (item.getAssignedUserId() == null) result.addNull("assignedUserId");
+            else result.add("assignedUserId", item.getAssignedUserId());
+        }
         return result;
     }
     private JsonObject json(ComplaintService.Detail detail) {
@@ -98,7 +120,15 @@ public class ComplaintResource {
                     .add("message", current.resident() ? event.getPublicMessage() : event.getMessage())
                     .add("occurredAt", event.getOccurredAt().toString()));
         }
-        return summary(detail.complaint()).add("description", detail.complaint().getDescription())
-                .add("zoneName", detail.zoneName()).add("canWork", !current.resident()).add("history", events).build();
+        JsonObjectBuilder result = summary(detail.complaint()).add("description", detail.complaint().getDescription())
+                .add("zoneName", detail.zoneName()).add("canWork", !current.resident()).add("history", events);
+        if (!current.resident()) {
+            result.add("canAssign", lk.osini.smartcity360.security.AccessRules.allowed(current.get().getRole(), "ComplaintResource.assign")
+                    && detail.complaint().getAssignedTo() != null && detail.complaint().getStatus() != ComplaintStatus.RESOLVED);
+            if (detail.assignee() == null) result.addNull("assignee");
+            else result.add("assignee", Json.createObjectBuilder().add("id", detail.assignee().id())
+                    .add("displayName", detail.assignee().displayName()).add("eligible", detail.assignee().eligible()));
+        }
+        return result.build();
     }
 }
