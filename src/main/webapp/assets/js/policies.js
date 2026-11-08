@@ -4,7 +4,7 @@ const outcomes = {VIOLATION: 'Violation detected', NO_VIOLATION: 'No violation u
 let cityId = null, selected = null, zones = [], page = 0, historyPage = 0, listing = null, history = null;
 let busy = false, ready = false, dirty = false;
 async function request(path, method = 'GET', body) {
-    const response = await fetch(`api/${path}`, {method, headers: body === undefined ? {} : {'Content-Type': 'application/json'},
+    const response = await SmartCityAuth.fetch(`api/${path}`, {method, headers: body === undefined ? {} : {'Content-Type': 'application/json'},
         body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(15000)});
     const value = await response.json().catch(() => null);
     if (!response.ok) throw new Error(value?.error || `Request failed (${response.status}). Please refresh.`);
@@ -40,12 +40,13 @@ function flatten(node, parent = '') {
 }
 function editor(row = null) {
     selected = row; dirty = false; historyPage = 0; history = null; $('#result').hidden = true;
-    $('#editor-title').textContent = row ? 'Edit policy' : 'New policy';
+    const canManage = ['CITY_MANAGER','SYSTEM_ADMIN'].includes(SmartCityAuth.user?.role);
+    $('#editor-title').textContent = row ? (canManage ? 'Edit policy' : row.name) : (canManage ? 'New policy' : 'Select a saved policy');
     $('#revision').textContent = row ? `Saved revision ${row.version} · ${new Date(row.updatedAt).toLocaleString()}` : 'A new policy will belong to the selected city.';
     $('#policy-name').value = row?.name || ''; $('#category').value = row?.category || 'NOISE';
     $('#meaning').value = row?.trueMeaning || 'VIOLATION'; $('#expression').value = row?.expression || '';
     $('#active').checked = row?.active ?? true;
-    $('#syntax').textContent = row ? `Parsed grouping: ${row.grouping}` : '';
+    $('#syntax').textContent = row ? `Rule: ${row.expression}. True means ${row.trueMeaning.toLowerCase()}. Parsed grouping: ${row.grouping}` : '';
     $('#evaluation-form').reset();
     for (const field of Object.keys(fieldNames)) $(`#${field}`).required = row?.requiredFields.includes(field) || false;
     renderHistory(); controls();

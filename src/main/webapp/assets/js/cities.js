@@ -9,7 +9,7 @@ let selected = null;
 let busy = false;
 
 async function request(path, method = 'GET', body) {
-    const response = await fetch(`api/${path}`, {
+    const response = await SmartCityAuth.fetch(`api/${path}`, {
         method,
         headers: body === undefined ? {} : {'Content-Type': 'application/json'},
         body: body === undefined ? undefined : JSON.stringify(body)

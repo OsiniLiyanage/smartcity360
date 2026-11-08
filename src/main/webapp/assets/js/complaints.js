@@ -5,14 +5,14 @@ const names = {LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High', LOCAL_STAFF: 'Local s
     RESIDENT: 'Resident submission', DEMO_OPERATOR: 'Demo operator', SUBMITTED: 'Submitted',
     FORWARDED: 'Forwarded', UNHANDLED: 'Unhandled', STATUS_CHANGED: 'Work updated',
     REOPENED: 'Reopened', ESCALATED: 'Escalated'};
-let cityId = null;
+let cityId = Number(new URLSearchParams(location.search).get('city')) || null;
 let ready = false;
 let busy = false;
 let complaints = [];
 let selected = null;
 
 async function request(path, method = 'GET', body) {
-    const response = await fetch(`api/${path}`, {
+    const response = await SmartCityAuth.fetch(`api/${path}`, {
         method, headers: body === undefined ? {} : {'Content-Type': 'application/json'},
         body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(15000)
     });
@@ -85,13 +85,13 @@ function detail(item) {
     $('#detail-severity').textContent = names[item.severity];
     $('#detail-team').textContent = names[item.assignedTo] || 'No team assigned';
     $('#detail-status').textContent = names[item.status];
-    $('#work-panel').hidden = item.status === 'UNASSIGNED';
+    $('#work-panel').hidden = !item.canWork || item.status === 'UNASSIGNED';
     $('#work-action').textContent = item.status === 'RESOLVED' ? 'Reopen complaint'
         : item.status === 'IN_PROGRESS' ? 'Mark resolved' : 'Start work';
     $('#work-form').reset();
     const levels = ['LOW', 'MEDIUM', 'HIGH'];
     const higher = levels.slice(levels.indexOf(item.severity) + 1);
-    $('#escalation-panel').hidden = !higher.length || item.status === 'RESOLVED';
+    $('#escalation-panel').hidden = !item.canWork || !higher.length || item.status === 'RESOLVED';
     $('#escalation-severity').replaceChildren(...higher.map(level => new Option(names[level], level)));
     $('#escalation-note').value = '';
     $('#history').replaceChildren();
@@ -112,7 +112,7 @@ async function loadCity(id, keepId = null) {
     list();
     $('#area-select').replaceChildren(new Option('Whole city', ''));
     if (id === null) return;
-    const [tree, records] = await Promise.all([request(`cities/${id}/zones`), request(`cities/${id}/complaints`)]);
+    const [tree, records] = await Promise.all([request(`cities/${id}/areas`), request(`cities/${id}/complaints`)]);
     function areas(node, parent = '') {
         const path = parent ? `${parent} / ${node.name}` : node.name;
         if (node.type !== 'CITY') $('#area-select').add(new Option(path, String(node.id)));
@@ -158,7 +158,7 @@ $('#complaint-form').addEventListener('submit', event => {
     event.preventDefault();
     act(async () => {
         const item = await request(`cities/${cityId}/complaints`, 'POST', {
-            residentName: $('#resident-name').value, subject: $('#subject').value,
+            subject: $('#subject').value,
             description: $('#description').value, severity: $('#severity').value,
             zoneId: $('#area-select').value ? Number($('#area-select').value) : null
         });

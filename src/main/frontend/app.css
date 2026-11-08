@@ -24,3 +24,11 @@
   .tree-children { @apply ml-3 border-l border-slate-200 pl-3; }
   .badge { @apply shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600; }
 }
+
+@source "../webapp/login.html";
+@source "../webapp/account.html";
+@source "../webapp/home.html";
+@source "../webapp/accounts.html";
+
+[data-permission-denied] { display: none !important; }
+html[data-auth-loading] main { visibility: hidden; }
