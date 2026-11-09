@@ -28,13 +28,14 @@
         for(const[href,label,key]of links){const a=element('a','sidebar-link');a.href=href;a.append(icon(key),element('span','',label));if((href==='./'?'index.html':href)===page)a.setAttribute('aria-current','page');nav.append(a);}
         sidebar.append(nav);
         const note=element('div','sidebar-note');note.append(element('span','status-dot'),element('span','','Your city. Connected.'),element('small','','Local demonstration workspace'));sidebar.append(note);
-        const person=element('a','sidebar-person');person.href='account.html';const initials=auth.user.displayName.trim().split(/\s+/).slice(0,2).map(n=>n[0]).join('');
+        const person=element('a','sidebar-person');person.href='account.html';person.setAttribute('aria-label',`${auth.user.displayName}, ${auth.roleNames[role]}. Open profile`);const initials=auth.user.displayName.trim().split(/\s+/).slice(0,2).map(n=>n[0]).join('');
         const who=element('span','person-text');who.append(element('strong','',auth.user.displayName),element('small','',auth.roleNames[role]));person.append(element('span','avatar',initials),who);sidebar.append(person);
         const out=element('button','sidebar-signout');out.type='button';out.append(icon('out'),element('span','','Sign out'));
         out.addEventListener('click',async()=>{const feedback=SmartCityFeedback.begin();out.disabled=true;try{await auth.json('auth/logout','POST');feedback.finish('success','Signed out.');SmartCityFeedback.flash('signed-out');location.replace('login.html');}catch(error){out.disabled=false;feedback.finish('error',error.message);}});sidebar.append(out);
         const toggle=element('button','sidebar-toggle');toggle.type='button';toggle.setAttribute('aria-label','Show sidebar');toggle.setAttribute('aria-controls',sidebar.id);toggle.append(icon('menu'));
         const overlay=element('button','sidebar-overlay');overlay.type='button';overlay.setAttribute('aria-label','Close navigation');overlay.tabIndex=-1;
         document.body.prepend(sidebar,toggle,overlay);
+        SmartCityTheme.mount(sidebar,person);
         const mobile=matchMedia('(max-width: 800px)');let expanded=true;
         function apply(open,focus=false){expanded=open;document.body.classList.toggle('sidebar-hidden',!open);document.body.classList.toggle('mobile-nav-open',mobile.matches&&open);
             sidebar.inert=!open;main.inert=mobile.matches&&open;toggle.setAttribute('aria-expanded',String(open));

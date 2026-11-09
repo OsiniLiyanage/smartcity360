@@ -4,7 +4,9 @@ Apply database migrations 010 and 011 before deploying this version. The databas
 
 ## Appearance
 
-`assets/css/refinements.css` is the final screen appearance layer, loaded by `assets/js/theme.js` after the existing design styles. Its light and dark token sets override `themes.css`. Change those token sets to recolor the interface. The sidebar font selector offers Segoe UI, Trebuchet and Arial, using installed system fonts without a CDN. Its selection and the theme are remembered in browser storage.
+`assets/css/themes.css` is the central color and font configuration. It contains light/dark semantic colors, chart colors, subtle background washes, print tokens and all selectable font stacks. `assets/css/refinements.css` handles component layout only. Lime highlights are supported by emerald and teal chart accents, with solid readable working surfaces in both themes.
+
+The sun/moon switch lives in the sidebar, including its collapsed icon rail and mobile drawer. Before sign-in it is available at the top of the page. It supports keyboard activation, exposes its state as an accessible switch, remembers the selected theme, and follows the system preference until a choice is saved. Profile has an Appearance section for Arial (default), Segoe UI or Trebuchet. The revised font preference uses `smartcity.font.v2`, resetting earlier font selections to the new default once. These fonts use installed system fonts without a CDN. Decorative uppercase captions are hidden while record identifiers remain visible in normal typography.
 
 Desktop navigation collapses to a 76-pixel icon rail over 450 milliseconds. At 800 pixels and below it becomes a drawer. Reduced-motion preferences disable the transition. The application mark and browser favicon use `assets/images/app-icon.svg`.
 

@@ -3,7 +3,7 @@
   --lime:var(--accent);
   --paper:var(--page);
   --sidebar:248px;
-  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  font-family:var(--font-body);
   }
 
 * {
@@ -407,7 +407,7 @@ details>summary {
   color:var(--surface);
   margin:20px 0}
 .auth-art-copy em {
-  font-family:Georgia,serif;
+  font-family:var(--font-heading);
   font-weight:400;
   color:var(--lime)}
 .auth-art-copy>p:last-child {
@@ -556,7 +556,7 @@ details>summary {
   color:var(--text);
   margin:15px 0}
 .banner-copy em {
-  font-family:Georgia,serif;
+  font-family:var(--font-heading);
   font-weight:400;
   color:var(--lime)}
 .banner-copy p {

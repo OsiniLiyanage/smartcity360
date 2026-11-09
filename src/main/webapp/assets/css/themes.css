@@ -1,61 +1,81 @@
-/* Color configuration. Edit these two palettes to recolor the whole application.
-   Keep accent-ink readable against accent. All surfaces and chart colors use these tokens. */
-:root, :root[data-theme="light"] {
+/* Central configuration: colors, gradients, fonts and print colors. */
+:root {
+  --font-default: Arial, Helvetica, sans-serif;
+  --font-system: "Segoe UI", Arial, sans-serif;
+  --font-humanist: "Trebuchet MS", Arial, sans-serif;
+  --font-body: var(--font-default);
+  --font-heading: var(--font-body);
   --print-page: #ffffff;
   --print-text: #172015;
   --print-muted: #475340;
   --print-line: #aab4a1;
   --print-surface: #eef1e9;
+}
+:root[data-font="system"] { --font-body: var(--font-system); }
+:root[data-font="humanist"] { --font-body: var(--font-humanist); }
+:root, :root[data-theme="light"] {
   color-scheme: light;
-  --page: #f2f4ee;
+  --page: #f5f8f4;
   --surface: #ffffff;
-  --surface-alt: #eaf0e2;
-  --text: #172015;
-  --muted: #58634f;
-  --line: #cbd5c1;
+  --surface-alt: #edf3ed;
+  --text: #1b2922;
+  --muted: #52645b;
+  --line: #cbd9cf;
   --accent: #c6f432;
-  --accent-hover: #b5e323;
+  --accent-hover: #b6e426;
   --accent-ink: #17210a;
-  --accent-text: #3e5d0a;
-  --accent-soft: #edf6d5;
-  --accent-line: #9eae71;
-  --chart-track: #dfe7d3;
-  --focus: #526f0c;
-  --focus-halo: #749b2233;
-  --shadow: #24360d18;
-  --image-shade: #ffffffc9;
-  --image-line: #17201533;
-  --danger: #a92f2f;
-  --danger-soft: #fff0ee;
-  --warning: #775100;
-  --warning-soft: #fff3d3;
-  --success: #316123;
-  --success-soft: #edf7e6;
+  --accent-text: #38631a;
+  --accent-soft: #edf6d7;
+  --accent-line: #9cb878;
+  --secondary: #187779;
+  --secondary-soft: #e1f1ee;
+  --chart-track: #dfe9e1;
+  --chart-primary: #27845a;
+  --chart-secondary: #268c91;
+  --focus: #366b29;
+  --focus-halo: #27845a30;
+  --shadow: #163d2414;
+  --image-shade: #ffffffd9;
+  --image-line: #1b292233;
+  --danger: #a42e36;
+  --danger-soft: #fff0ef;
+  --warning: #805800;
+  --warning-soft: #fff3d6;
+  --success: #256a43;
+  --success-soft: #e9f5ed;
+  --gradient-green: #9edbba38;
+  --gradient-teal: #98d9d62b;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --page: #0e120d;
-  --surface: #181e15;
-  --surface-alt: #232c1d;
-  --text: #eef3e7;
-  --muted: #afbba2;
-  --line: #3b4831;
+  --page: #101714;
+  --surface: #18221d;
+  --surface-alt: #213029;
+  --text: #edf4ef;
+  --muted: #afc2b7;
+  --line: #3c5145;
   --accent: #c6f432;
   --accent-hover: #d7ff65;
   --accent-ink: #17210a;
-  --accent-text: #d0ec8d;
-  --accent-soft: #2a391a;
-  --accent-line: #667b41;
-  --chart-track: #35422a;
+  --accent-text: #c6e99d;
+  --accent-soft: #2c3d21;
+  --accent-line: #6d8652;
+  --secondary: #8bd5ce;
+  --secondary-soft: #193d38;
+  --chart-track: #34473c;
+  --chart-primary: #79cda1;
+  --chart-secondary: #6cc8ce;
   --focus: #c6f432;
   --focus-halo: #c6f43230;
   --shadow: #00000040;
-  --image-shade: #10160ddd;
-  --image-line: #eef3e733;
-  --danger: #ffb0a8;
-  --danger-soft: #3b201d;
-  --warning: #f4d38d;
-  --warning-soft: #352d18;
-  --success: #b5de9d;
-  --success-soft: #20341b;
+  --image-shade: #101714df;
+  --image-line: #edf4ef33;
+  --danger: #ffb3b7;
+  --danger-soft: #3b2025;
+  --warning: #f1d28c;
+  --warning-soft: #362e19;
+  --success: #9adbb6;
+  --success-soft: #1e372a;
+  --gradient-green: #27845a24;
+  --gradient-teal: #268c911c;
 }

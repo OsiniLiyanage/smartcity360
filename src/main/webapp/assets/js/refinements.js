@@ -1,15 +1,12 @@
 (() => {
-    const fonts = {
-        clear: '"Segoe UI", "Trebuchet MS", sans-serif',
-        humanist: '"Trebuchet MS", "Segoe UI", sans-serif',
-        classic: 'Arial, Helvetica, sans-serif'
-    };
+    const fonts = {classic:'Arial', system:'Segoe UI', humanist:'Trebuchet'};
     function setFont(value) {
-        document.documentElement.style.setProperty('--font-body', fonts[value] || fonts.clear);
-        try { localStorage.setItem('smartcity.font', value); } catch {}
+        document.documentElement.dataset.font = value;
+        try { localStorage.setItem('smartcity.font.v2', value); } catch {}
     }
-    let chosen = 'clear';
-    try { chosen = localStorage.getItem('smartcity.font') || chosen; } catch {}
+    let chosen = 'classic';
+    try { chosen = localStorage.getItem('smartcity.font.v2') || chosen; } catch {}
+    if (!Object.hasOwn(fonts, chosen)) chosen = 'classic';
     setFont(chosen);
     const favicon = document.createElement('link');
     favicon.rel = 'icon'; favicon.type = 'image/svg+xml'; favicon.href = 'assets/images/app-icon.svg';
@@ -51,11 +48,6 @@
         sidebar.querySelectorAll('.sidebar-link').forEach(link => {
             link.title = link.textContent; link.setAttribute('aria-label', link.textContent);
         });
-        const font = document.createElement('select'); font.className = 'appearance-choice';
-        font.setAttribute('aria-label', 'Interface font');
-        for (const [key,label] of Object.entries({clear:'Font · Segoe UI',humanist:'Font · Trebuchet',classic:'Font · Arial'})) font.add(new Option(label,key));
-        font.value = chosen; font.addEventListener('change', () => setFont(font.value));
-        sidebar.insertBefore(font, sidebar.querySelector('.sidebar-person'));
         const role = SmartCityAuth.user.role;
         const rolePages = {
             RESIDENT:['home.html','account.html','complaints.html','reports.html'],
@@ -80,6 +72,15 @@
             image.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%'; avatar.replaceChildren(image);
         }
         if (location.pathname.endsWith('account.html')) {
+            const appearance = document.createElement('section'); appearance.className = 'panel profile-appearance';
+            const heading = document.createElement('h2'); heading.textContent = 'Appearance';
+            const label = document.createElement('label'); label.htmlFor = 'interface-font'; label.textContent = 'Interface font';
+            const font = document.createElement('select'); font.id = 'interface-font'; font.className = 'appearance-choice';
+            for (const [key, name] of Object.entries(fonts)) font.add(new Option(name, key));
+            font.value = chosen; font.addEventListener('change', () => setFont(font.value));
+            appearance.append(heading, label, document.createElement('br'), font);
+            document.querySelector('main').append(appearance);
+
             let photo = savedAvatar || '';
             const section = document.createElement('section'); section.className = 'panel profile-contact';
             section.innerHTML = `<h2>Contact and photo</h2><form id="contact-profile" style="display:grid;gap:16px;margin-top:20px">
