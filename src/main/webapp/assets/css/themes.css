@@ -1,6 +1,11 @@
 /* Color configuration. Edit these two palettes to recolor the whole application.
    Keep accent-ink readable against accent. All surfaces and chart colors use these tokens. */
 :root, :root[data-theme="light"] {
+  --print-page: #ffffff;
+  --print-text: #172015;
+  --print-muted: #475340;
+  --print-line: #aab4a1;
+  --print-surface: #eef1e9;
   color-scheme: light;
   --page: #f2f4ee;
   --surface: #ffffff;

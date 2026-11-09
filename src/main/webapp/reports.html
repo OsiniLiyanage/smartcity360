@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartCity360 | Complaint reports</title>
+    <script src="assets/js/theme.js?v=reports1"></script>
+    <link rel="stylesheet" href="assets/css/app.css?v=reports1">
+    <link rel="stylesheet" href="assets/css/themes.css?v=reports1">
+    <link rel="stylesheet" href="assets/css/design.css?v=reports1">
+    <link rel="stylesheet" href="assets/css/reports.css?v=reports1">
+    <script src="assets/js/shell.js?v=reports1" defer></script>
+    <script src="assets/js/auth.js?v=reports1" defer></script>
+    <script src="assets/js/report-model.js?v=reports1" defer></script>
+    <script src="assets/js/reports.js?v=reports1" defer></script>
+</head>
+<body class="workspace report-page">
+<main id="main-content" tabindex="-1">
+    <div class="report-page-heading screen-only">
+        <p class="eyebrow">A CLEARER PICTURE</p>
+        <h1>Complaint reports</h1>
+        <p class="page-description" id="report-intro">Explore your accessible cases, then print a report of the same results.</p>
+    </div>
+    <form id="report-filters" class="panel screen-only" aria-label="Report filters">
+        <div class="report-filters-grid">
+            <div><label for="report-city" class="label">City</label><select id="report-city" class="field" required disabled></select></div>
+            <div><label for="report-area" class="label">Area (includes child areas)</label><select id="report-area" class="field" disabled><option value="">All areas</option></select></div>
+            <div><label for="report-from" class="label">Submitted from (UTC)</label><input id="report-from" type="date" class="field"></div>
+            <div><label for="report-to" class="label">Submitted through (UTC)</label><input id="report-to" type="date" class="field"></div>
+            <div><label for="report-status" class="label">Current status</label><select id="report-status" class="field"><option value="">All statuses</option><option value="UNASSIGNED">Needs assignment</option><option value="ASSIGNED">Assigned</option><option value="IN_PROGRESS">In progress</option><option value="RESOLVED">Resolved</option></select></div>
+            <div><label for="report-severity" class="label">Severity</label><select id="report-severity" class="field"><option value="">All severities</option><option value="LOW">Low</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option></select></div>
+        </div>
+        <div class="report-actions"><button class="button" id="generate-report" type="submit" disabled>Generate report</button><button class="secondary" id="reset-report" type="button" disabled>Reset filters</button><button class="secondary" id="print-report" type="button" disabled>Print / Save as PDF</button></div>
+        <p class="small-note">Dates include the whole selected day in UTC. Generate refreshes the saved data. Printing opens your browser's print dialog.</p>
+    </form>
+    <p id="message" class="dashboard-message screen-only" role="status" aria-live="polite">Loading your report workspace...</p>
+    <p id="print-unavailable">Generate a current report before printing.</p>
+    <article id="report-preview" hidden aria-labelledby="report-title">
+        <header class="report-heading">
+            <p class="eyebrow">SMARTCITY360 / OPERATIONS</p><h2 id="report-title">Complaint report</h2>
+            <p id="report-scope"></p><p id="report-filter-summary"></p><p id="report-generated"></p>
+        </header>
+        <section class="report-totals" aria-label="Report totals">
+            <div><span>Matching cases</span><strong id="report-total">0</strong></div>
+            <div><span>Open now</span><strong id="report-open">0</strong></div>
+            <div><span>Resolved now</span><strong id="report-resolved">0</strong></div>
+            <div><span>Awaiting reopening review</span><strong id="report-pending">0</strong></div>
+        </section>
+        <p class="small-note report-definition">Open means any status except resolved. Pending reopening requests remain resolved until approved. These are current statuses of cases submitted within the selected dates, not historical completion totals.</p>
+        <div class="report-charts">
+            <section class="panel"><h3>Current status</h3><p class="small-note">Number of matching complaints</p><ul id="report-status-chart" class="report-bars"></ul></section>
+            <section class="panel"><h3>Severity</h3><p class="small-note">Number of matching complaints</p><ul id="report-severity-chart" class="report-bars"></ul></section>
+        </div>
+        <section class="panel report-months"><h3>Submissions by month</h3><p class="small-note">UTC calendar months within the chosen dates. Only months with matching submissions are shown; omitted months have zero. Each bar includes its exact count.</p><ul id="report-month-chart" class="report-bars"></ul></section>
+        <section class="panel report-details">
+            <h3>Matching complaints</h3><p class="small-note screen-only">On a small screen, scroll the table sideways to see every column. Open a reference to view the case.</p>
+            <p id="report-empty" hidden>No complaints match these filters. Try a wider date range or reset the filters.</p>
+            <div class="report-table-wrap" tabindex="0" role="region" aria-label="Matching complaint table, scroll horizontally on small screens">
+                <table class="report-table"><caption class="report-table-caption">Matching cases, newest submissions first. All dates are UTC.</caption><thead><tr><th scope="col">Reference</th><th scope="col">Subject</th><th scope="col">Area</th><th scope="col">Severity</th><th scope="col">Current status</th><th scope="col">Submitted (UTC)</th></tr></thead><tbody id="report-rows"></tbody></table>
+            </div>
+        </section>
+        <footer class="report-footer">Local demonstration workspace. This report contains only cases accessible to the signed-in account when generated. Internal work notes, employee identities and sign-in credentials are excluded. No report is sent to a real authority.</footer>
+    </article>
+</main>
+</body>
+</html>

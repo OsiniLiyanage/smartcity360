@@ -29,6 +29,7 @@
 @source "../webapp/account.html";
 @source "../webapp/home.html";
 @source "../webapp/accounts.html";
+@source "../webapp/reports.html";
 
 [data-permission-denied] { display: none !important; }
 html[data-auth-loading] main { visibility: hidden; }

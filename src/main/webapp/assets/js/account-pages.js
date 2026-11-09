@@ -79,10 +79,12 @@
             const items=[['complaints.html',auth.user.role==='RESIDENT'?'My complaints':'Complaint queue','Report, track and review local issues.','complaints'],['account.html','Your profile','Keep your name and sign-in details up to date.','profile']];
             if(auth.user.role!=='RESIDENT')items.splice(1,0,['./','City zones','Explore the areas and buildings in your city.','city'],['meters.html','Energy meters','Record usage and review meter readings.','meters'],['streetlights.html','Streetlights','Keep track of lights and reported faults.','lights'],['policies.html','City policies','Evaluate observations against city rules.','policies']);
             if(auth.user.role==='SYSTEM_ADMIN')items.unshift(['accounts.html','Manage users','Provision accounts and manage city access.','users']);
+            items.push(['reports.html',auth.user.role==='RESIDENT'?'My reports':'Complaint reports','Filter cases, compare totals and print a report.','reports']);
             $('#work-shortcuts').replaceChildren(...items.map(([href,title,copy,key])=>{const a=node('a','','shortcut');a.href=href;a.append(SmartCityUI.icon(key),node('strong',title),node('p',copy));return a;}));
         }
         async function summary(){const records=await auth.json(`cities/${$('#home-city').value}/complaints`);
             document.querySelectorAll('a[href^="complaints.html"]').forEach(link=>{link.href=`complaints.html?city=${$('#home-city').value}`;});
+            document.querySelectorAll('a[href^="reports.html"]').forEach(link=>{link.href=`reports.html?city=${$('#home-city').value}`;});
             $('#total').textContent=records.length;$('#open').textContent=records.filter(r=>r.status!=='RESOLVED').length;$('#resolved').textContent=records.filter(r=>r.status==='RESOLVED').length;
             const resolved=records.filter(r=>r.status==='RESOLVED').length,rate=records.length?Math.round(resolved/records.length*100):0;
             $('#resolved-rate').textContent=`${rate}%`;$('#status-ring').style.setProperty('--resolved',`${rate}%`);

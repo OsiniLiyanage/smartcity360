@@ -6,6 +6,7 @@
         policies:'M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6z m-5 10 3 3 6-6',
         profile:'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 22v-3a8 8 0 0 1 16 0v3',
         users:'M14 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M2 22v-3a8 8 0 0 1 16 0v3 M17 3a4 4 0 0 1 0 8 M20 14a7 7 0 0 1 3 6',
+        reports:'M5 3h14v18H5z M8 16v-3 M12 16V9 M16 16V6',
         menu:'M4 6h16 M4 12h16 M4 18h16',close:'m6 6 12 12 M18 6 6 18',out:'M9 3H3v18h6 M13 7l5 5-5 5 M7 12h14',arrow:'M5 12h14 m-6-6 6 6-6 6'};
     function icon(name){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
         for(const [key,value]of Object.entries({viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':'1.7','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))svg.setAttribute(key,value);
@@ -23,6 +24,7 @@
         const links=[['home.html','Dashboard','dashboard'],['account.html','Profile','profile'],['complaints.html',role==='RESIDENT'?'My complaints':'Complaint queue','complaints']];
         if(role!=='RESIDENT')links.push(['./','City zones','city'],['meters.html','Energy meters','meters'],['streetlights.html','Streetlights','lights'],['policies.html','City policies','policies']);
         if(role==='SYSTEM_ADMIN')links.push(['accounts.html','Manage users','users']);
+        links.push(['reports.html',role==='RESIDENT'?'My reports':'Reports','reports']);
         for(const[href,label,key]of links){const a=element('a','sidebar-link');a.href=href;a.append(icon(key),element('span','',label));if((href==='./'?'index.html':href)===page)a.setAttribute('aria-current','page');nav.append(a);}
         sidebar.append(nav);
         const note=element('div','sidebar-note');note.append(element('span','status-dot'),element('span','','Your city. Connected.'),element('small','','Local demonstration workspace'));sidebar.append(note);
