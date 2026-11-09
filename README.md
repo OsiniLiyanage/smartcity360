@@ -2,7 +2,7 @@
 
 Java web assignment project. Current stage: meter processing using **Decorator (Part A)**, a city hierarchy using **Composite (Part B)**, complaints using **Chain of Responsibility (Part C)**, streetlights using **Flyweight (Part D)** and city policies using **Interpreter (Part E)**, with Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
 
-Create city hierarchies, process meter readings with optional authentication/compression/encryption, and inspect usage totals. Route complaints by severity and record work through resolution. Register streetlights, control individual power/fault states and demonstrate specification sharing for 100,000 temporary lights. Save/edit noise and parking rules, evaluate zone observations and retain the original rule with each result. Sixty-two JUnit tests passed, including account security, assignment and follow-up service checks. The account milestone passed 95 access checks and reran 41 hierarchy, 46 complaint, 63 meter, 55 streetlight and 84 policy HTTP checks. Browser workflows and restart persistence were checked. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
+Create city hierarchies, process meter readings with optional authentication/compression/encryption, and inspect usage totals. Route complaints by severity and record work through resolution. Register streetlights, control individual power/fault states and demonstrate specification sharing for 100,000 temporary lights. Save/edit noise and parking rules, evaluate zone observations and retain the original rule with each result. The latest recorded checkpoint passed 67 Java tests, six alert lifecycle tests, six report model tests, 40 live profile/demo checks and 62 live report checks. Earlier full-module and restart checks remain dated evidence; they have not all been repeated after the latest permission changes. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ Create city hierarchies, process meter readings with optional authentication/com
 - Maven
 - Payara Community 7, compatible with Jakarta EE 11
 
-PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). All five assessed pattern features are implemented. Resident registration, sign-in, five roles, account administration and complaint privacy are implemented. Named staff assignment, resident follow-up/reopening, role dashboards and configurable light/dark themes are integrated. Richer operational charts/reports and the final acceptance audit remain pending. The consolidated report/PDF, source ZIP and recorded demonstration are on hold until explicitly requested. The optional meter credential wrapper is distinct from application user authentication. This is a local demonstration, not a production deployment.
+PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). All five assessed pattern features are implemented. Resident registration, sign-in, five roles, account administration and complaint privacy are implemented. Named staff assignment, resident follow-up/reopening, role dashboards and configurable light/dark themes are integrated. Filtered complaint reports, profile photos/contact details and action alerts are implemented. Native print verification, final alert browser checks, broader operational reports and the final acceptance audit remain pending. Builder and Visitor are planned extensions, not implemented patterns. See the [current completion checklist](docs/PROJECT_ROADMAP.md#current-completion-checklist). The consolidated report/PDF, source ZIP and recorded demonstration are on hold until explicitly requested. The optional meter credential wrapper is distinct from application user authentication. This is a local demonstration, not a production deployment.
 
 ## Build
 
@@ -72,9 +72,12 @@ Use the same reporting period for all manual readings. These are saved values, n
 
 ## Verify
 
-Live scripts require an administrator session. The helper reads the ignored local bootstrap file or explicit private environment credentials; see the account guide.
+Most live scripts use an administrator fixture; report verification uses retained accounts across roles. The helpers read ignored local credentials or explicit private environment credentials. Older scripts that submit complaints as admin must be adapted to use a resident before rerunning them. Data-generating suites retain extra demo cities; avoid running them against the five-city demonstration just to view the app.
 
-- `mvn test`: five Composite, six Chain of Responsibility, seven Decorator, six Flyweight and nine Interpreter tests, plus five account-security tests.
+- `mvn test`: 67 tests: 33 core pattern tests, five account-security, seven assignment, 17 follow-up and five profile/permission tests.
+- `node scripts/verify-feedback.cjs`: six notification lifecycle tests using a minimal DOM and clock.
+- `node scripts/verify-report-model.cjs`: six report calculation tests.
+- `node scripts/verify-reports.mjs`: 62 read-only checks with retained local accounts; no new demo cities.
 - `node scripts/verify-accounts.mjs`: checks all five roles and privacy boundaries; retains labelled test users/cities and private local credentials.
 - [Account setup and permissions](docs/ACCOUNTS.md): bootstrap, sign-in, password changes and role boundaries.
 - `node scripts/verify-zones.mjs`: live API checks with Payara/PostgreSQL running; creates and retains two labelled demo cities per run.
@@ -99,4 +102,4 @@ There is no Spring Boot dependency or standalone `main` method: Payara runs this
 
 ## Interface and workflow checkpoint
 
-See [interface design and theme configuration](docs/DESIGN.md) for the central color file and responsive sidebar. Every role has Dashboard and Profile; other sections follow API permissions. [Complaint controls](docs/COMPLAINTS.md) now cover named employee assignment, public messages and reopening review. The latest checkpoint passed 62 Java tests, 48 live integration checks and 46 complaint regressions.
+See [interface design and theme configuration](docs/DESIGN.md) for the central color file and responsive sidebar. Every role has Dashboard and Profile; other sections follow API permissions. [Complaint controls](docs/COMPLAINTS.md) now cover named employee assignment, public messages and reopening review. Profiles now include validated username, phone and photo fields. See [action alerts](docs/ACTION_FEEDBACK.md), [complaint reports](docs/REPORTS.md) and the [remaining-work checklist](docs/PROJECT_ROADMAP.md#current-completion-checklist). Final browser and native print checks remain outstanding.

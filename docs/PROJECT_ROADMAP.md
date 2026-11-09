@@ -1,6 +1,6 @@
 # SmartCity360 product completion roadmap
 
-Updated 8 November 2026 following the user's project-first direction.
+Updated 9 November 2026 to reflect the implemented application and remaining verification.
 
 Additional user direction: add dashboard charts/graphs and in-application printable reports. Additional patterns taught in class may be used where they solve a real implementation problem. The five assessed patterns remain clearly identifiable.
 
@@ -14,7 +14,27 @@ The five pattern implementations and the account/access foundation are working. 
 
 ## Recommended roles
 
-The account roles and basic access boundaries are enforced. Responsibilities such as named assignment, replies and reopening requests describe remaining workflow work; the exact implemented permissions are listed in the account guide.
+The account roles, named complaint assignment, replies and reopening review are implemented. The table describes intended role responsibilities, including planned notification and maintenance extensions; the exact enforced permissions are listed in the account guide.
+
+## Current completion checklist
+
+This checklist supersedes older pending descriptions. The build sequence below retains both implemented foundations and planned extensions; it is not a list of entirely unfinished features.
+
+| Topic | Current status | Remaining work |
+|---|---|---|
+| Five assessed patterns | Decorator, Composite, Chain of Responsibility, Flyweight and Interpreter implemented | Final integrated acceptance against the assessment |
+| Accounts and complaints | Five roles, profile photos/username/phone, resident-only submission, assignment, replies and reopening review implemented | Full regression with current submission permissions |
+| Appearance and action alerts | Separate themes, icon rail/mobile drawer, configurable fonts, favicon and success/error/loading alerts implemented | Final browser check of alert integration and profile-photo workflow |
+| Complaint reports | Scoped filters, matching charts/table and browser print action implemented | Native print preview, pagination and saved PDF verification |
+| Demonstration data | Five visible cities with small area trees and complaint samples prepared locally | Keep examples coherent; do not rerun data-generating suites merely to inspect the app |
+| Saved notifications | Not implemented | Workflow-generated messages, ownership and read/unread state; distinct from action popups |
+| Broader operations | Core zone, meter, streetlight and policy features implemented | Maintenance assignments/history, power-command history, defined energy periods/trends and full policy edit history |
+| Broader reporting | Complaint summaries available | Energy, maintenance, policy, administrative and public case-history reports |
+| Extra patterns | Builder and Visitor proposed only | Implement with suitable reporting features and meaningful tests |
+| Verification and setup | Prior passing checks recorded in VERIFICATION.md | Adapt older admin-submission fixtures, rerun full journeys and persistence, verify clean setup/restore |
+| Submission artifacts | On hold | Consolidated report/PDF, source ZIP and video only after explicit authorization |
+
+The latest recorded application checkpoint passed 67 Java tests, six feedback lifecycle tests, six report model tests, 40 live profile/demo checks and 62 live report checks. These are dated results, not a claim that all pending browser or print checks passed. See [verification](VERIFICATION.md), [reports](REPORTS.md), [action feedback](ACTION_FEEDBACK.md) and [profile/appearance](PROFILE_AND_APPEARANCE.md).
 
 | Role | Responsibility | Access boundary |
 |---|---|---|
@@ -69,6 +89,8 @@ An account role alone is insufficient: permissions must also check its city assi
 - Use labelled, coherent demo data for a connected city journey rather than relying only on separate test datasets. Preserve existing user records.
 
 ### Dashboard charts and operational reports
+
+Complaint-summary reports are implemented. Their current filters, metric definitions and verification limits are documented in [REPORTS.md](REPORTS.md). The table below describes the broader reporting target; energy, maintenance, policy and administrative reports are still planned.
 
 Build these on the protected APIs and completed workflows, so charts and exports cannot bypass account permissions.
 
