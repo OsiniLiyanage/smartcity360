@@ -1,6 +1,6 @@
 # Interface and theme configuration
 
-SmartCity360 has two complete themes. Light mode uses light surfaces and dark text. Dark mode uses charcoal surfaces and light text. Lime green is the shared action accent, with emerald and teal for charts and subtle background gradients. The sidebar, dashboard, charts, forms, account pages and complaint controls use the same palette.
+SmartCity360 has two complete themes. Light mode uses light surfaces and dark text. Dark mode uses charcoal surfaces and light text. Lime green is the shared action accent, with emerald and teal for charts and continuous whole-page background gradients. The sidebar, dashboard, charts, forms, account pages and complaint controls use the same palette.
 
 ## Change the colors in one file
 
@@ -42,4 +42,17 @@ The user's Kumo reference supplied visual inspiration only. No template purchase
 
 ## Current product boundaries
 
-The shared dashboards, themes, action alerts, filtered complaint reports and core complaint journey are implemented. Saved notifications, broader historical trend charts and richer device maintenance workflows remain on the product roadmap. Native print-preview and Save as PDF checks are still pending. The broader login, profile and table redesign is a separate upcoming step. The assignment PDF, ZIP and video are still on hold.
+The shared dashboards, themes, action alerts, filtered complaint reports and core complaint journey are implemented. Saved notifications, broader historical trend charts and richer device maintenance workflows remain on the product roadmap. Native print-preview and Save as PDF checks are still pending. The broader profile and table redesign is a separate upcoming step. The assignment PDF, ZIP and video are still on hold.
+
+
+## Sign-in and registration scene
+
+`login.html` uses the existing city illustration across the full viewport, with one compact form above it. `auth-scene.css` owns this layout; its `--auth-*` color tokens are in `themes.css`. Both themes use one nearly opaque readable form surface over the image, with separate branding and no decorative slogan panels. The outer page does not scroll. On short screens, high zoom or when the on-screen keyboard reduces the viewport, the form itself can scroll to keep all fields reachable.
+
+Each password input has a labelled show/hide button, including registration confirmation. `auth-scene.js` resets revealed passwords when switching forms, submitting or leaving the tab. The existing authentication API, permissions and redirect behavior are unchanged. Registration explicitly declares the existing 8-128 character password requirement in its HTML.
+
+Authentication action outcomes use the existing alerts without repeating the inline status banner. Initial session-check failures still have a visible inline fallback. Native field validation and the shared validation notifications remain active. No password-recovery or remember-session feature is implied by this layout.
+
+## Continuous workspace background
+
+The emerald/teal gradient belongs to the whole page, not individual cards. Workspace sections are transparent, separated by spacing and fine rules; fields, dialogs and navigation retain readable solid surfaces. Colors remain in themes.css and layouts in refinements.css. Existing module grids and controls are preserved. Converting each module to a title/actions/filter/table layout with separate add/edit forms is still a later step, not completed by this styling change.

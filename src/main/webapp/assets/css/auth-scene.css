@@ -1,0 +1,53 @@
+/* Authentication scene. Color and font values are configured in themes.css. */
+html:has(body.auth-scene) { height:100%; overflow:hidden; }
+body.auth-page.auth-scene { height:100dvh; min-height:0; overflow:hidden; background:var(--page); isolation:isolate; }
+.scene-image { position:fixed; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; z-index:-2; }
+.auth-scene::before { content:""; position:fixed; inset:0; z-index:-1; background:linear-gradient(115deg,var(--auth-scene-shade),var(--auth-scene-clear) 55%,var(--auth-scene-shade)); }
+.scene-header { position:absolute; inset:0 0 auto; height:76px; display:flex; align-items:center; padding:0 32px; }
+.scene-header .app-brand { padding:8px 0; color:var(--auth-brand); text-shadow:0 1px 12px var(--auth-brand-shadow); }
+.scene-header .brand-number { color:inherit; }
+.scene-main { height:100%; display:grid; place-items:center; padding:82px 24px 40px; }
+.scene-card { width:min(100%,420px); min-height:0; max-height:100%; overflow:auto; overscroll-behavior:contain; padding:28px 30px 22px; border:1px solid var(--line); border-radius:8px; background:var(--auth-card); color:var(--text); box-shadow:0 16px 60px var(--auth-shadow); backdrop-filter:blur(18px); scrollbar-width:thin; }
+.scene-intro h1 { margin:0; font-size:28px; line-height:1.2; }
+.scene-intro p { margin:8px 0 22px; color:var(--muted); font-size:14px; line-height:1.5; }
+.scene-tabs { display:flex; gap:22px; border-bottom:1px solid var(--line); margin-bottom:22px; }
+.scene-tabs button { background:transparent; color:var(--muted); padding:0 0 12px; min-height:40px; border:0; border-bottom:2px solid transparent; font-weight:600; }
+.scene-tabs button[aria-pressed="true"] { color:var(--text); border-bottom-color:var(--accent-text); }
+.scene-form { display:grid; gap:16px; }
+.scene-form label { display:block; font-size:13px; font-weight:600; margin-bottom:7px; }
+.scene-form .label-hint { color:var(--muted); font-weight:400; }
+.scene-form .field { width:100%; min-height:44px; height:44px; font-size:15px; padding:10px 12px; }
+.password-field { position:relative; }
+.password-field .field { padding-right:48px; }
+.password-reveal { position:absolute; inset:0 0 0 auto; width:44px; display:grid; place-items:center; border:0; background:transparent; color:var(--muted); border-radius:5px; }
+.password-reveal:hover { color:var(--text); background:var(--surface-alt); }
+.password-reveal svg { width:20px; height:20px; }
+.password-reveal[aria-pressed="false"] .eye-slash { display:none; }
+.scene-submit { justify-content:center; width:100%; min-height:44px; margin-top:2px; }
+.scene-help { margin:17px 0 0; font-size:12px; line-height:1.6; color:var(--muted); }
+.scene-message:empty,.scene-message[data-feedback-state] { display:none; }
+.scene-message { color:var(--danger); font-size:13px; line-height:1.5; margin:0 0 14px; }
+.auth-scene .auth-theme-control { top:16px; right:32px; }
+.auth-scene .feedback-stack { top:76px; }
+.auth-scene [hidden] { display:none!important; }
+@media(max-width:560px) {
+  .scene-header { height:66px; padding:0 12px; }
+  .scene-header .app-brand { gap:5px; padding:6px 0; }
+  .scene-header .brand-symbol { width:28px; height:28px; }
+  .scene-header .brand-word { font-size:18px; }
+  .scene-header .brand-number { font-size:10px; }
+  .auth-scene .auth-theme-control { top:12px; right:12px; }
+  .auth-scene .theme-control .theme-toggle { width:94px; }
+  .scene-main { padding:72px 14px 18px; }
+  .scene-card { padding:24px 22px 20px; }
+  .scene-intro h1 { font-size:26px; }
+  .scene-form { gap:13px; }
+}
+@media(max-height:740px) {
+  .scene-main { padding-top:70px; padding-bottom:12px; }
+  .scene-card { padding-top:18px; padding-bottom:16px; }
+  .scene-intro p { margin:6px 0 14px; }
+  .scene-tabs { margin-bottom:14px; }
+  .scene-form { gap:10px; }
+  .scene-help { margin-top:12px; }
+}

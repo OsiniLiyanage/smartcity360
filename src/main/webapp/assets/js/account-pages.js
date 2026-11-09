@@ -3,15 +3,15 @@
     const page=location.pathname.split('/').pop();
     let busy=false, accounts=null, selected=null, cities=[], pageNumber=0;
     function node(tag,text,css=''){const value=document.createElement(tag);value.textContent=text;value.className=css;return value;}
-    async function act(work){if(busy)return;const feedback=SmartCityFeedback.begin();let outcome='success';busy=true;document.querySelectorAll('main button').forEach(b=>b.disabled=true);$('#message').textContent='Working...';delete $('#message').dataset.error;
+    async function act(work){if(busy)return;const feedback=SmartCityFeedback.begin();if(page==='login.html')$('#message').dataset.feedbackState='loading';let outcome='success';busy=true;document.querySelectorAll('main button').forEach(b=>b.disabled=true);$('#message').textContent='Working...';delete $('#message').dataset.error;
         try {await auth.ready;await work();}catch(error){outcome='error';$('#message').dataset.error='true';$('#message').textContent=error.name==='TimeoutError'?'The request timed out. Refresh to check the result before retrying.':error.message;}
         finally{busy=false;document.querySelectorAll('main button').forEach(b=>b.disabled=false);if(page==='accounts.html')paging();feedback.finish(outcome);}}
     if(page==='login.html') {
         for(const type of ['login','register']) $(`#show-${type}`).addEventListener('click',()=>{
             $('#login-panel').hidden=type!=='login';$('#register-panel').hidden=type!=='register';$('#message').textContent='';
             $('#show-login').setAttribute('aria-pressed',String(type==='login'));$('#show-register').setAttribute('aria-pressed',String(type==='register'));
-            $('#auth-title').textContent=type==='login'?'Good to see you.':'Your city starts here.';
-            $('#auth-description').textContent=type==='login'?'Sign in and pick up where your city left off.':'Create a resident account. Make your neighbourhood heard.';
+            $('#auth-title').textContent=type==='login'?'Sign in':'Create your account';
+            $('#auth-description').textContent=type==='login'?'Access your city workspace.':'Join your neighbourhood as a resident.';
         });
         $('#login-form').addEventListener('submit',event=>{event.preventDefault();act(async()=>{
             const result=await auth.json('auth/login','POST',{email:$('#login-email').value,password:$('#login-password').value});

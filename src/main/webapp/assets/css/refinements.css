@@ -41,9 +41,9 @@ h1,h2,h3 {font-family:var(--font-heading);letter-spacing:normal!important;font-w
   .workspace.sidebar-hidden>main,.workspace.sidebar-hidden>footer {margin-left:0;padding-top:0;}
 }
 
-/* Calm background washes with solid working surfaces. */
+/* One continuous page wash; sections use spacing and rules instead of cards. */
 body { background-color:var(--page); background-image:radial-gradient(ellipse at 14% 0%,var(--gradient-green),transparent 55%),radial-gradient(ellipse at 100% 85%,var(--gradient-teal),transparent 55%); background-attachment:fixed; }
-.workspace .panel { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:22px; }
+.workspace .panel { background:transparent; border:0; border-top:1px solid var(--line); border-radius:0; padding:22px 0; }
 .workspace .panel .panel { border:0; border-top:1px solid var(--line); padding:18px 0; }
 .eyebrow,.nav-caption,.banner-tag,.art-caption,main>p.uppercase,main>div>p.uppercase:not([id]) { display:none; }
 .uppercase { text-transform:none; letter-spacing:normal; }

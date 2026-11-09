@@ -19,7 +19,7 @@
         });
         const sidebar = document.querySelector('.app-sidebar');
         document.querySelectorAll('.app-brand').forEach(brand => {
-            brand.setAttribute('aria-label','SmartCity360 dashboard');
+            brand.setAttribute('aria-label',document.body.classList.contains('auth-page')?'SmartCity360 sign in':'SmartCity360 dashboard');
             const symbol = brand.querySelector('.brand-symbol');
             const image = document.createElement('img'); image.src='assets/images/app-icon.svg'; image.alt='';
             if(symbol) symbol.replaceChildren(image);
