@@ -21,7 +21,7 @@ public class CityService {
             City city = entityManager.find(City.class, current.get().getCityId());
             return city == null ? List.of() : List.of(city);
         }
-        return entityManager.createQuery("SELECT c FROM City c ORDER BY c.id", City.class)
+        return entityManager.createQuery("SELECT c FROM City c WHERE c.archived = false ORDER BY c.id", City.class)
                 .getResultList();
     }
 

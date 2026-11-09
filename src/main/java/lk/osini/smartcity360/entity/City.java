@@ -16,6 +16,7 @@ public class City {
 
     @Column(nullable = false, length = 100)
     private String name;
+    @Column(nullable = false) private boolean archived;
 
     protected City() {
         // Required by JPA when loading a database record.

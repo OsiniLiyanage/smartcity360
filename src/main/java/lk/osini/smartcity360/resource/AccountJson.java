@@ -11,6 +11,9 @@ final class AccountJson {
         var json=Json.createObjectBuilder().add("id",user.getId()).add("email",user.getEmail()).add("displayName",user.getDisplayName())
                 .add("role",user.getRole().name()).add("enabled",user.isEnabled()).add("passwordChangeRequired",user.isPasswordChangeRequired())
                 .add("version",user.getVersion()).add("createdAt",user.getCreatedAt().toString());
+        json.add("username", user.getUsername() == null ? "" : user.getUsername());
+        json.add("phone", user.getPhone() == null ? "" : user.getPhone());
+        json.add("avatar", user.getAvatar() == null ? "" : user.getAvatar());
         if(user.getCityId()==null) json.addNull("cityId"); else json.add("cityId",user.getCityId()); return json.build();
     }
     static JsonObject body(JsonValue value) { if(!(value instanceof JsonObject body))throw new BadRequestException("Provide a JSON object.");return body; }

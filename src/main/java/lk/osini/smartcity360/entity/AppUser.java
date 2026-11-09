@@ -13,6 +13,15 @@ public class AppUser {
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20) private Role role;
     @Column(name = "city_id") private Long cityId;
     private boolean enabled;
+    @Column(length = 30) private String username;
+    @Column(length = 16) private String phone;
+    @Column(columnDefinition = "TEXT") private String avatar;
+    public String getUsername() { return username; }
+    public String getPhone() { return phone; }
+    public String getAvatar() { return avatar; }
+    public void details(String username, String phone, String avatar) {
+        this.username = username; this.phone = phone; this.avatar = avatar;
+    }
     @Column(name = "password_change_required") private boolean passwordChangeRequired;
     @Column(name = "security_version") private long securityVersion;
     @Version private long version;

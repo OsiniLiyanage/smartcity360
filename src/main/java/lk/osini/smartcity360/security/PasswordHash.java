@@ -11,8 +11,8 @@ public final class PasswordHash {
     private static final SecureRandom RANDOM = new SecureRandom();
     private PasswordHash() { }
     public static void validate(String password) {
-        if (password == null || password.length() < 12 || password.length() > 128 || password.isBlank())
-            throw new IllegalArgumentException("Use a password of 12 to 128 characters.");
+        if (password == null || password.length() < 8 || password.length() > 128 || password.isBlank())
+            throw new IllegalArgumentException("Use a password of 8 to 128 characters.");
     }
     public static String hash(String password) {
         validate(password); byte[] salt = new byte[16]; RANDOM.nextBytes(salt);

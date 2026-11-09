@@ -7,9 +7,9 @@ import lk.osini.smartcity360.entity.Complaint;
 /** Explicit endpoint allowlist. Unknown resource methods are denied, including for admins. */
 public final class AccessRules {
     private AccessRules() { }
-    private static final Set<String> ALL = Set.of("CityResource.list", "AreaResource.tree", "ComplaintResource.list", "ComplaintResource.detail", "ComplaintResource.create",
-            "AuthResource.logout", "AuthResource.profile", "AuthResource.password", "ComplaintResource.message");
-    private static final Set<String> RESIDENT = Set.of("ComplaintResource.requestReopen");
+    private static final Set<String> ALL = Set.of("CityResource.list", "AreaResource.tree", "ComplaintResource.list", "ComplaintResource.detail",
+            "AuthResource.logout", "AuthResource.profile", "AuthResource.details", "AuthResource.password", "ComplaintResource.message");
+    private static final Set<String> RESIDENT = Set.of("ComplaintResource.requestReopen", "ComplaintResource.create");
     private static final Set<String> STAFF = Set.of("ZoneResource.tree", "ZoneResource.usage", "MeterResource.list", "MeterResource.readings", "MeterResource.submit", "MeterResource.recover",
             "StreetlightResource.specifications", "StreetlightResource.list", "StreetlightResource.detail", "StreetlightResource.update",
             "PolicyResource.list", "PolicyResource.detail", "PolicyResource.evaluate", "PolicyResource.history",

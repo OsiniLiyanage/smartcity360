@@ -1,0 +1,4 @@
+ALTER TABLE app_user ADD COLUMN IF NOT EXISTS username VARCHAR(30);
+ALTER TABLE app_user ADD COLUMN IF NOT EXISTS phone VARCHAR(16);
+ALTER TABLE app_user ADD COLUMN IF NOT EXISTS avatar TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS app_user_username_unique ON app_user(lower(username)) WHERE username IS NOT NULL;

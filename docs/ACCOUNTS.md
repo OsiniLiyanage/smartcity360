@@ -18,6 +18,7 @@ Residents can select **Create resident account**. Public registration cannot cho
 | Action | Resident | Local staff | Supervisor | City manager | System admin |
 |---|---|---|---|---|---|
 | Profile and password | Own | Own | Own | Own | Own |
+| Submit a complaint | Yes | No | No | No | No |
 | Complaint visibility | Own records | Local tier | Local and supervisor tiers | All city tiers | All cities |
 | Work notes, resolution and escalation | No | Accessible tier | Accessible tiers | All city tiers | All cities |
 | View operational hierarchy, meters, lights and policies | No | Assigned city | Assigned city | Assigned city | All cities |
@@ -31,13 +32,13 @@ Staff have exactly one assigned city. Residents can choose a city and area for r
 
 ## Complaint identity and privacy
 
-The reporter's display name and user ID come from the signed-in session. A request cannot impersonate someone by sending `residentName`. Resident submissions have an account owner. Existing demonstrations and staff/admin submissions are unclaimed operational records; matching names never grants resident ownership.
+The reporter's display name and user ID come from the signed-in resident session. A request cannot impersonate someone by sending `residentName`. New submissions are resident-only. Historical unclaimed operational records remain accessible under the existing staff rules; matching names never grants resident ownership.
 
 Residents see only their own cases and public progress summaries. Staff work notes remain internal. Events record the actual actor ID, with a name snapshot for staff history. Residents see **You** or **City team** instead of staff identities. Routing is still the class-taught Chain of Responsibility; it assigns an authority tier. Authorized managers can separately allocate an eligible employee while preserving team coverage.
 
 ## Sessions and passwords
 
-- Passwords use PBKDF2-HMAC-SHA256 with a fresh random salt and 600,000 iterations. Password length is 12 to 128 characters; spaces are preserved.
+- Passwords use PBKDF2-HMAC-SHA256 with a fresh random salt and 600,000 iterations. Password length is 8 to 128 characters; spaces are preserved.
 - Server sessions use HttpOnly, SameSite=Strict cookies, a 30-minute idle timeout and an eight-hour absolute lifetime. Payara sets Secure dynamically on HTTPS; this local demonstration uses loopback HTTP.
 - Sign-in rotates the session. Writes require a session-specific CSRF token, including registration and sign-in. Responses are marked no-store.
 - Sign-out invalidates the current session. Password changes and account access/status changes invalidate previous sessions for the affected account on their next request.

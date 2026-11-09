@@ -121,6 +121,7 @@ public class ComplaintService {
 
     @Transactional
     public Detail create(long cityId, Long zoneId, String resident, String subject, String description, Severity severity) {
+        if (!current.resident()) throw new ForbiddenException("Sign in as a resident to submit a complaint.");
         city(cityId);
         if (zoneId != null) {
             ZoneEntity zone = em.find(ZoneEntity.class, zoneId);

@@ -1,4 +1,11 @@
 (() => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const style = document.createElement('link');
+        style.rel = 'stylesheet'; style.href = 'assets/css/refinements.css?v=2';
+        document.head.append(style);
+        const script = document.createElement('script');
+        script.src = 'assets/js/refinements.js?v=2'; document.head.append(script);
+    });
     const key='smartcity.theme';
     let saved;try{saved=localStorage.getItem(key);}catch{}
     const preferred=matchMedia('(prefers-color-scheme: dark)');

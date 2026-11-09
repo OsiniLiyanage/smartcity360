@@ -1,10 +1,10 @@
 # Interface and theme configuration
 
-SmartCity360 has two complete themes. Light mode uses light surfaces and dark text. Dark mode uses dark surfaces and light text. Lime is the shared action accent. The sidebar, dashboard cards, charts, forms, account pages and complaint controls use the same palette.
+SmartCity360 has two complete themes. Light mode uses light surfaces and dark text. Dark mode uses charcoal surfaces and light text. Blue is the shared action accent. The sidebar, dashboard, charts, forms, account pages and complaint controls use the same palette.
 
 ## Change the colors in one file
 
-Edit `src/main/webapp/assets/css/themes.css`. It contains the light and dark values for all application color tokens. The main choices are:
+Edit `src/main/webapp/assets/css/refinements.css` for the final screen palettes and configurable typography. This layer overrides the earlier palette in `themes.css`; semantic feedback and print colors still inherit from that base file. See [profile and appearance configuration](PROFILE_AND_APPEARANCE.md). The main tokens are:
 
 | Token | Purpose |
 |---|---|

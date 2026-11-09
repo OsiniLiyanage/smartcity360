@@ -40,4 +40,9 @@ public class AuthResource {
         accounts.password(text(data,"currentPassword"),text(data,"newPassword")); SessionSupport.logout(request);
         return Json.createObjectBuilder().add("signedOut",true).build();
     }
+    @PUT @Path("profile-details") @Consumes(MediaType.APPLICATION_JSON)
+    public JsonObject details(JsonValue payload) {
+        var data = body(payload);
+        return user(accounts.details(text(data,"username"), text(data,"phone"), text(data,"avatar")));
+    }
 }

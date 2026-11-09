@@ -6,7 +6,7 @@ The complaints page is `http://localhost:9080/smartcity360/complaints.html`, als
 
 1. Run the database helper with `-Action Setup` to apply the numbered scripts through `009_complaint_follow_up.sql` to an existing installation.
 2. Build/deploy normally. After changing UI classes, run `npm run build:css` before `mvn package`.
-3. Sign in, open Complaints, choose a city and submit a demo complaint with a subject, description and severity. The reporter identity comes from the account.
+3. Sign in as a resident, open Complaints, choose a city and submit a demo complaint with a subject, description and severity. The reporter identity comes from the account. Staff and administrators review records and cannot submit a new resident complaint.
 4. LOW routes to local staff, MEDIUM to a supervisor, HIGH to a city manager. Inspect **Handling history** to see forwarding.
 5. As authorized staff or admin, enter a private work note and select **Start work**. Add resolution details and select **Mark resolved**. A resolved complaint can be reopened with another note.
 6. For an unresolved LOW/MEDIUM complaint, choose a higher severity and record a reason. Escalation preserves history, routes again and resets work status to ASSIGNED for the new team.

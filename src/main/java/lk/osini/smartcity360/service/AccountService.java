@@ -17,6 +17,21 @@ public class AccountService {
     public record Page(List<AppUser> items, long total) { }
     public record Issued(AppUser user, String temporaryPassword) { }
     public AppUser find(long id) { return em.find(AppUser.class, id); }
+    @Transactional public AppUser details(String username, String phone, String avatar) {
+        try {
+            username = ProfileDetails.username(username);
+            phone = ProfileDetails.phone(phone);
+            avatar = ProfileDetails.avatar(avatar);
+        } catch (IllegalArgumentException error) { throw new BadRequestException(error.getMessage()); }
+        em.createNativeQuery("SELECT 1 FROM pg_advisory_xact_lock(360007)").getResultList();
+        AppUser user = lockedCurrent();
+        if (username != null && em.createQuery("SELECT COUNT(u) FROM AppUser u WHERE u.username = :name AND u.id <> :id", Long.class)
+                .setParameter("name", username).setParameter("id", user.getId()).getSingleResult() > 0)
+            throw new ClientErrorException("That username is already in use.", 409);
+        user.details(username, phone, avatar);
+        em.flush(); event(user.getId(), user.getId(), "PROFILE_UPDATED");
+        return user;
+    }
     public AppUser authenticate(String email, String password) {
         String key = email == null ? "" : email.strip().toLowerCase(Locale.ROOT);
         var users = em.createQuery("SELECT u FROM AppUser u WHERE u.email=:email", AppUser.class).setParameter("email",key).setMaxResults(1).getResultList();
