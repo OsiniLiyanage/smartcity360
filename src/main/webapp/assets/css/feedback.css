@@ -1,0 +1,24 @@
+.feedback-stack { position:fixed; z-index:100; top:72px; right:20px; width:min(390px,calc(100vw - 32px)); max-height:calc(100dvh - 90px); overflow-y:auto; display:grid; gap:10px; pointer-events:none; }
+.feedback-toast { display:flex; align-items:flex-start; gap:12px; padding:16px; border:1px solid var(--line); border-left:4px solid var(--accent-text); border-radius:6px; background:var(--surface); color:var(--text); box-shadow:0 6px 24px var(--shadow); pointer-events:auto; animation:feedback-enter 180ms ease-out; }
+.feedback-icon { flex:0 0 23px; width:23px; height:23px; border:1px solid currentColor; border-radius:50%; display:grid; place-items:center; color:var(--accent-text); font-weight:700; font-size:13px; }
+.feedback-content { flex:1; min-width:0; }
+.feedback-title { display:block; font-size:14px; line-height:1.5; }
+.feedback-text { margin:5px 0 0; color:var(--muted); font-size:13px; line-height:1.6; overflow-wrap:anywhere; }
+.feedback-dismiss { display:grid; place-items:center; flex:0 0 28px; width:28px; height:28px; padding:0; background:transparent; color:var(--muted); border:0; border-radius:4px; font-size:22px; line-height:1; }
+.feedback-dismiss:hover { background:var(--surface-alt); color:var(--text); }
+.feedback-success { border-left-color:var(--success); }
+.feedback-success .feedback-icon { color:var(--success); }
+.feedback-error { border-left-color:var(--danger); }
+.feedback-error .feedback-icon { color:var(--danger); }
+.feedback-warning { border-left-color:var(--warning); }
+.feedback-warning .feedback-icon { color:var(--warning); }
+.feedback-loading .feedback-icon { border:2px solid var(--line); border-top-color:var(--accent-text); animation:feedback-spin .8s linear infinite; }
+[data-feedback-state]:not(:empty) { padding:12px 14px; border-left:3px solid var(--line); background:var(--surface-alt); color:var(--muted); border-radius:3px; }
+[data-feedback-state=success]:not(:empty) { border-color:var(--success); }
+[data-feedback-state=error]:not(:empty) { border-color:var(--danger); color:var(--danger); }
+button[aria-busy=true] { cursor:progress; }
+@keyframes feedback-enter { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes feedback-spin { to { transform:rotate(360deg); } }
+@media(max-width:560px) { .feedback-stack { top:70px; right:12px; width:calc(100vw - 24px); } .feedback-toast { padding:12px; } }
+@media(prefers-reduced-motion:reduce) { .feedback-toast,.feedback-loading .feedback-icon { animation:none; } }
+@media print { .feedback-stack { display:none !important; } }

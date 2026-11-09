@@ -12,14 +12,14 @@ async function request(path, method = 'GET', body) {
     return value;
 }
 async function act(action) {
-    if (busy) return; busy = true; controls(); $('#message').textContent = 'Working…';
+    if (busy) return; const feedback = SmartCityFeedback.begin(); let outcome = 'success'; busy = true; controls(); $('#message').textContent = 'Working…';
     try { await action(); }
-    catch (error) { $('#message').textContent = error.name === 'TimeoutError' ? 'The request timed out. Refresh to check whether it was saved before retrying.' : error.message; }
-    finally { busy = false; controls(); }
+    catch (error) { outcome = 'error'; $('#message').textContent = error.name === 'TimeoutError' ? 'The request timed out. Refresh to check whether it was saved before retrying.' : error.message; }
+    finally { busy = false; controls(); feedback.finish(outcome); }
 }
 function element(tag, text, css = '') { const node = document.createElement(tag); node.textContent = text; node.className = css; return node; }
 function controls() {
-    document.querySelectorAll('button, input, select, textarea').forEach(node => { node.disabled = busy || !ready; });
+    document.querySelectorAll('main button, main input, main select, main textarea').forEach(node => { node.disabled = busy || !ready; });
     $('#city-select').disabled = busy || !$('#city-select').options.length;
     $('#refresh').disabled = busy || !cityId;
     $('#refresh-detail').disabled = busy || !selected;

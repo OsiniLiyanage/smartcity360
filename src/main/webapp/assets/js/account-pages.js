@@ -3,9 +3,9 @@
     const page=location.pathname.split('/').pop();
     let busy=false, accounts=null, selected=null, cities=[], pageNumber=0;
     function node(tag,text,css=''){const value=document.createElement(tag);value.textContent=text;value.className=css;return value;}
-    async function act(work){if(busy)return;busy=true;document.querySelectorAll('main button').forEach(b=>b.disabled=true);$('#message').textContent='Working...';delete $('#message').dataset.error;
-        try {await auth.ready;await work();}catch(error){$('#message').dataset.error='true';$('#message').textContent=error.name==='TimeoutError'?'The request timed out. Refresh to check the result before retrying.':error.message;}
-        finally{busy=false;document.querySelectorAll('main button').forEach(b=>b.disabled=false);if(page==='accounts.html')paging();}}
+    async function act(work){if(busy)return;const feedback=SmartCityFeedback.begin();let outcome='success';busy=true;document.querySelectorAll('main button').forEach(b=>b.disabled=true);$('#message').textContent='Working...';delete $('#message').dataset.error;
+        try {await auth.ready;await work();}catch(error){outcome='error';$('#message').dataset.error='true';$('#message').textContent=error.name==='TimeoutError'?'The request timed out. Refresh to check the result before retrying.':error.message;}
+        finally{busy=false;document.querySelectorAll('main button').forEach(b=>b.disabled=false);if(page==='accounts.html')paging();feedback.finish(outcome);}}
     if(page==='login.html') {
         for(const type of ['login','register']) $(`#show-${type}`).addEventListener('click',()=>{
             $('#login-panel').hidden=type!=='login';$('#register-panel').hidden=type!=='register';$('#message').textContent='';
@@ -15,12 +15,12 @@
         });
         $('#login-form').addEventListener('submit',event=>{event.preventDefault();act(async()=>{
             const result=await auth.json('auth/login','POST',{email:$('#login-email').value,password:$('#login-password').value});
-            $('#login-password').value='';location.replace(result.user.passwordChangeRequired?'account.html':'home.html');
+            $('#login-password').value='';SmartCityFeedback.flash('signed-in');location.replace(result.user.passwordChangeRequired?'account.html':'home.html');
         });});
         $('#register-form').addEventListener('submit',event=>{event.preventDefault();act(async()=>{
             if($('#register-password').value!==$('#register-confirm').value)throw new Error('The passwords do not match.');
             await auth.json('auth/register','POST',{email:$('#register-email').value,displayName:$('#register-name').value,password:$('#register-password').value});
-            $('#register-password').value='';$('#register-confirm').value='';location.replace('home.html');
+            $('#register-password').value='';$('#register-confirm').value='';SmartCityFeedback.flash('registered');location.replace('home.html');
         });});
     }
     if(page==='account.html') {
@@ -30,7 +30,7 @@
         $('#password-form').addEventListener('submit',event=>{event.preventDefault();act(async()=>{
             if($('#new-password').value!==$('#confirm-password').value)throw new Error('The new passwords do not match.');
             await auth.json('auth/password','PUT',{currentPassword:$('#current-password').value,newPassword:$('#new-password').value});
-            $('#password-form').reset();location.replace('login.html');
+            $('#password-form').reset();SmartCityFeedback.flash('password-changed');location.replace('login.html');
         });});
     }
     function cityChoice(role,selector){$(selector).disabled=!['LOCAL_STAFF','SUPERVISOR','CITY_MANAGER'].includes(role);if($(selector).disabled)$(selector).value='';}

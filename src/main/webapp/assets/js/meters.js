@@ -19,14 +19,15 @@ async function request(path, method = 'GET', body) {
 }
 async function act(action) {
     if (busy) return;
+    const feedback = SmartCityFeedback.begin(); let outcome = 'success';
     busy = true; $('#message').textContent = 'Working…'; controls();
     try { await action(); }
-    catch (error) { $('#message').textContent = error.name === 'TimeoutError'
+    catch (error) { outcome = 'error'; $('#message').textContent = error.name === 'TimeoutError'
         ? 'Request timed out. Refresh to check whether it was saved before retrying.' : error.message; }
-    finally { busy = false; controls(); }
+    finally { busy = false; controls(); feedback.finish(outcome); }
 }
 function controls() {
-    document.querySelectorAll('button, input, select').forEach(control => { control.disabled = busy; });
+    document.querySelectorAll('main button, main input, main select').forEach(control => { control.disabled = busy; });
     $('#city-select').disabled = busy || !$('#city-select').options.length;
     $('#meter-select').disabled = busy || !meters.length;
     $('#meter-form').querySelectorAll('button, input, select').forEach(control => {

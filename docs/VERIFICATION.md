@@ -342,3 +342,19 @@ Initially the local runtime was unavailable. PostgreSQL and Payara were started;
 Screenshots: [light sign-in](evidence/signin-light.png), [dark sign-in](evidence/signin-dark.png), [light dashboard](evidence/dashboard-light.png), [dark dashboard](evidence/dashboard-dark.png). Mobile screenshot output was unusually downscaled by the browser tool, so mobile conclusions rely on rendered DOM dimensions, visibility, field colors and actual interaction checks rather than a high-resolution screenshot claim. No real-device or cross-browser certification was performed.
 
 After the full passing Java run, subsequent packaging skipped repeating unchanged Java tests for frontend-only theme and error-message refinements. This checkpoint did not rerun the other four pattern HTTP suites or perform another database restart comparison. Prior evidence remains dated above. Reporting/notifications and final acceptance work remain pending; submission PDF/ZIP/video preparation remains on hold.
+
+## Profiles, appearance and action feedback - 9 November 2026
+
+The current application adds optional username, phone and resized profile photographs, an eight-character minimum password, resident-only complaint submission, archived demonstration cities, separate neutral light/dark palettes, configurable system fonts, a desktop icon rail and a browser favicon. See PROFILE_AND_APPEARANCE.md and ACTION_FEEDBACK.md for behavior and configuration.
+
+Verification on the combined checkout:
+- Maven package: 67 Java tests passed, no failures or errors; WAR deployed successfully.
+- Feedback lifecycle: six deterministic Node tests passed, covering microtask timing, delayed loading, result messages, dismissal, persistence, expiry and validation warnings. These use a minimal DOM, not a browser renderer.
+- Report calculations: six Node tests passed.
+- Live profile/demo checks: 40 passed across five role logins, visible city counts, non-resident submission denial, field rejection, username conflicts and JPEG persistence.
+- Live report checks: 62 passed using retained accounts, including ownership and city/tier restrictions. No new cities were seeded for these checks.
+- JavaScript syntax and whitespace checks passed.
+
+Earlier browser checks in this milestone observed both neutral themes, desktop icon collapse, mobile drawer navigation, profile save, font switching and the eight-character password field minimum. The 390-pixel mobile viewport had no page-wide horizontal overflow in the checked complaint/profile pages. Mobile screenshots were downscaled, so sizing conclusions use rendered DOM measurements.
+
+The final notification integration has not completed a real-browser visual pass: browser automation timed out during this continuation. Native print preview, pagination and Save as PDF also remain unverified as documented in REPORTS.md. No new screenshot, physical print, restart-persistence test or all-pattern HTTP regression is claimed here. Older HTTP fixtures that submit complaints as an admin need a resident submitting client under the new permission rule; historical results above predate that change.

@@ -15,14 +15,15 @@ async function request(path, method = 'GET', body) {
 }
 async function act(action) {
     if (busy) return;
+    const feedback = SmartCityFeedback.begin(); let outcome = 'success';
     busy = true; $('#message').textContent = 'Working…'; controls();
     try { await action(); }
-    catch (error) { $('#message').textContent = error.name === 'TimeoutError'
+    catch (error) { outcome = 'error'; $('#message').textContent = error.name === 'TimeoutError'
         ? 'The request timed out. Refresh to check whether it was saved before retrying.' : error.message; }
-    finally { busy = false; controls(); }
+    finally { busy = false; controls(); feedback.finish(outcome); }
 }
 function controls() {
-    document.querySelectorAll('button, input, select, textarea').forEach(node => { node.disabled = busy; });
+    document.querySelectorAll('main button, main input, main select, main textarea').forEach(node => { node.disabled = busy; });
     $('#city-select').disabled = busy || !$('#city-select').options.length;
     $('#light-form').querySelectorAll('button, input, select').forEach(node => { node.disabled = busy || !ready || !streets.length || !specifications.length; });
     $('#previous').disabled = busy || !ready || page === 0;

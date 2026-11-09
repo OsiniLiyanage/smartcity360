@@ -17,12 +17,14 @@
     }
     async function act(work) {
         if (busy) return;
+        const feedback = SmartCityFeedback.begin(); let outcome = 'success';
         busy = true; invalidate('Loading saved data...'); delete $('#message').dataset.error; controls();
         try { await work(); }
         catch (error) {
+            outcome = 'error';
             invalidate(); $('#message').dataset.error = 'true';
             $('#message').textContent = error.name === 'TimeoutError' ? 'The report could not load in time. Generate again to retry.' : error.message;
-        } finally { busy = false; controls(); }
+        } finally { busy = false; controls(); feedback.finish(outcome); }
     }
     function filters() { return Object.fromEntries(['from','to','status','severity','area'].map(key => [key,$(`#report-${key}`).value])); }
     function bars(selector, entries) {

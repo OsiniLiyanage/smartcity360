@@ -47,12 +47,16 @@
         return response;
     };
     state.json=async(path,method='GET',body)=>{
+        const profileFeedback = path === 'auth/profile-details' ? window.SmartCityFeedback?.begin(document.querySelector('#profile-feedback')) : null;
+        try {
         const response=await state.fetch(`api/${path}`,{method,headers:body===undefined?{}:{'Content-Type':'application/json'},
             body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
         const value=await response.json().catch(()=>null);
         if(response.status===401 && path==='auth/login')throw new Error('Email or password is incorrect. Check your details and try again.');
         if(!response.ok)throw new Error(value?.error || `Request failed (${response.status}).`);
+        profileFeedback?.finish('success','Contact details and photo saved.');
         return value;
+        } catch(error) { profileFeedback?.finish('error',error.name === 'TimeoutError' ? 'The save timed out. Reload your profile to check whether it was saved before retrying.' : error.message); throw error; }
     };
     window.SmartCityAuth=state;
 })();

@@ -31,7 +31,7 @@
         const person=element('a','sidebar-person');person.href='account.html';const initials=auth.user.displayName.trim().split(/\s+/).slice(0,2).map(n=>n[0]).join('');
         const who=element('span','person-text');who.append(element('strong','',auth.user.displayName),element('small','',auth.roleNames[role]));person.append(element('span','avatar',initials),who);sidebar.append(person);
         const out=element('button','sidebar-signout');out.type='button';out.append(icon('out'),element('span','','Sign out'));
-        out.addEventListener('click',async()=>{out.disabled=true;try{await auth.json('auth/logout','POST');location.replace('login.html');}catch(error){out.disabled=false;alert(error.message);}});sidebar.append(out);
+        out.addEventListener('click',async()=>{const feedback=SmartCityFeedback.begin();out.disabled=true;try{await auth.json('auth/logout','POST');feedback.finish('success','Signed out.');SmartCityFeedback.flash('signed-out');location.replace('login.html');}catch(error){out.disabled=false;feedback.finish('error',error.message);}});sidebar.append(out);
         const toggle=element('button','sidebar-toggle');toggle.type='button';toggle.setAttribute('aria-label','Show sidebar');toggle.setAttribute('aria-controls',sidebar.id);toggle.append(icon('menu'));
         const overlay=element('button','sidebar-overlay');overlay.type='button';overlay.setAttribute('aria-label','Close navigation');overlay.tabIndex=-1;
         document.body.prepend(sidebar,toggle,overlay);

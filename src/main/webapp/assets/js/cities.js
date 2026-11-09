@@ -12,7 +12,7 @@ async function request(path, method = 'GET', body) {
     const response = await SmartCityAuth.fetch(`api/${path}`, {
         method,
         headers: body === undefined ? {} : {'Content-Type': 'application/json'},
-        body: body === undefined ? undefined : JSON.stringify(body)
+        body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(15000)
     });
     const result = await response.json().catch(() => null);
     if (!response.ok) throw new Error(result?.error || `Request failed (${response.status}). Please try again.`);
@@ -23,16 +23,17 @@ async function request(path, method = 'GET', body) {
 // Serialize page actions so a slow response cannot overwrite a different city's view.
 async function act(operation) {
     if (busy) return;
+    const feedback = SmartCityFeedback.begin(); let outcome = 'success';
     busy = true;
     $('#message').textContent = 'Working…';
     syncControls();
     try { await operation(); }
-    catch (error) { $('#message').textContent = error.message; }
-    finally { busy = false; syncControls(); }
+    catch (error) { outcome = 'error'; $('#message').textContent = error.name === 'TimeoutError' ? 'The request timed out. Refresh to check whether it was saved before retrying.' : error.message; }
+    finally { busy = false; syncControls(); feedback.finish(outcome); }
 }
 
 function syncControls() {
-    document.querySelectorAll('button, input, select').forEach(control => { control.disabled = busy; });
+    document.querySelectorAll('main button, main input, main select').forEach(control => { control.disabled = busy; });
     $('#city-select').disabled = busy || $('#city-select').options.length === 0;
     for (const id of ['#power-on', '#power-off']) $(id).disabled = busy || !selected?.buildingCount;
 }
