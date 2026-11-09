@@ -1,0 +1,56 @@
+/* Color configuration. Edit these two palettes to recolor the whole application.
+   Keep accent-ink readable against accent. All surfaces and chart colors use these tokens. */
+:root, :root[data-theme="light"] {
+  color-scheme: light;
+  --page: #f2f4ee;
+  --surface: #ffffff;
+  --surface-alt: #eaf0e2;
+  --text: #172015;
+  --muted: #58634f;
+  --line: #cbd5c1;
+  --accent: #c6f432;
+  --accent-hover: #b5e323;
+  --accent-ink: #17210a;
+  --accent-text: #3e5d0a;
+  --accent-soft: #edf6d5;
+  --accent-line: #9eae71;
+  --chart-track: #dfe7d3;
+  --focus: #526f0c;
+  --focus-halo: #749b2233;
+  --shadow: #24360d18;
+  --image-shade: #ffffffc9;
+  --image-line: #17201533;
+  --danger: #a92f2f;
+  --danger-soft: #fff0ee;
+  --warning: #775100;
+  --warning-soft: #fff3d3;
+  --success: #316123;
+  --success-soft: #edf7e6;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0e120d;
+  --surface: #181e15;
+  --surface-alt: #232c1d;
+  --text: #eef3e7;
+  --muted: #afbba2;
+  --line: #3b4831;
+  --accent: #c6f432;
+  --accent-hover: #d7ff65;
+  --accent-ink: #17210a;
+  --accent-text: #d0ec8d;
+  --accent-soft: #2a391a;
+  --accent-line: #667b41;
+  --chart-track: #35422a;
+  --focus: #c6f432;
+  --focus-halo: #c6f43230;
+  --shadow: #00000040;
+  --image-shade: #10160ddd;
+  --image-line: #eef3e733;
+  --danger: #ffb0a8;
+  --danger-soft: #3b201d;
+  --warning: #f4d38d;
+  --warning-soft: #352d18;
+  --success: #b5de9d;
+  --success-soft: #20341b;
+}

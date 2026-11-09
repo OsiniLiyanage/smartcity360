@@ -21,16 +21,6 @@
             if(page==='policies.html') deny('#policy-form,#new-policy,#noise-example,#parking-example');
         }
     }
-    function accountBar() {
-        const bar=document.createElement('div');bar.className='mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-5 py-3 text-sm';
-        const who=document.createElement('span');who.className='mr-auto text-slate-600';who.textContent=`${state.user.displayName} | ${roleNames[state.user.role]}`;bar.append(who);
-        for(const [href,label] of [['home.html','Home'],['account.html','My account'],...(state.user.role==='SYSTEM_ADMIN'?[['accounts.html','Manage users']]:[])]) {
-            const a=document.createElement('a');a.href=href;a.textContent=label;a.className='font-semibold text-teal-800';bar.append(a);
-        }
-        const out=document.createElement('button');out.type='button';out.textContent='Sign out';out.className='secondary';
-        out.addEventListener('click',async()=>{out.disabled=true;try {await state.json('auth/logout','POST');location.replace('login.html');}catch(error){out.disabled=false;alert(error.message);}});
-        bar.append(out);document.querySelector('main').before(bar);
-    }
     state.ready=(async()=>{
         try {
             const response=await nativeFetch('api/auth/session',{cache:'no-store',signal:AbortSignal.timeout(15000)});
@@ -41,7 +31,7 @@
                 if(state.user.passwordChangeRequired && page!=='account.html') {location.replace('account.html');return state.user;}
                 if(page==='login.html') {location.replace('home.html');return state.user;}
                 if(state.user.role==='RESIDENT' && staffPages.includes(page) || page==='accounts.html' && state.user.role!=='SYSTEM_ADMIN') {location.replace('home.html');return state.user;}
-                accountBar();permissions();
+                SmartCityUI.mount(state);permissions();
             }
             return state.user;
         } catch(error) {
@@ -60,6 +50,7 @@
         const response=await state.fetch(`api/${path}`,{method,headers:body===undefined?{}:{'Content-Type':'application/json'},
             body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
         const value=await response.json().catch(()=>null);
+        if(response.status===401 && path==='auth/login')throw new Error('Email or password is incorrect. Check your details and try again.');
         if(!response.ok)throw new Error(value?.error || `Request failed (${response.status}).`);
         return value;
     };

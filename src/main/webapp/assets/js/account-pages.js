@@ -3,12 +3,15 @@
     const page=location.pathname.split('/').pop();
     let busy=false, accounts=null, selected=null, cities=[], pageNumber=0;
     function node(tag,text,css=''){const value=document.createElement(tag);value.textContent=text;value.className=css;return value;}
-    async function act(work){if(busy)return;busy=true;document.querySelectorAll('main button').forEach(b=>b.disabled=true);$('#message').textContent='Working...';
-        try {await auth.ready;await work();}catch(error){$('#message').textContent=error.name==='TimeoutError'?'The request timed out. Refresh to check the result before retrying.':error.message;}
+    async function act(work){if(busy)return;busy=true;document.querySelectorAll('main button').forEach(b=>b.disabled=true);$('#message').textContent='Working...';delete $('#message').dataset.error;
+        try {await auth.ready;await work();}catch(error){$('#message').dataset.error='true';$('#message').textContent=error.name==='TimeoutError'?'The request timed out. Refresh to check the result before retrying.':error.message;}
         finally{busy=false;document.querySelectorAll('main button').forEach(b=>b.disabled=false);if(page==='accounts.html')paging();}}
     if(page==='login.html') {
         for(const type of ['login','register']) $(`#show-${type}`).addEventListener('click',()=>{
             $('#login-panel').hidden=type!=='login';$('#register-panel').hidden=type!=='register';$('#message').textContent='';
+            $('#show-login').setAttribute('aria-pressed',String(type==='login'));$('#show-register').setAttribute('aria-pressed',String(type==='register'));
+            $('#auth-title').textContent=type==='login'?'Good to see you.':'Your city starts here.';
+            $('#auth-description').textContent=type==='login'?'Sign in and pick up where your city left off.':'Create a resident account. Make your neighbourhood heard.';
         });
         $('#login-form').addEventListener('submit',event=>{event.preventDefault();act(async()=>{
             const result=await auth.json('auth/login','POST',{email:$('#login-email').value,password:$('#login-password').value});
@@ -70,14 +73,31 @@
         }));
     }
     if(page==='home.html') {
+        const statusNames={UNASSIGNED:'Needs assignment',ASSIGNED:'Assigned',IN_PROGRESS:'In progress',RESOLVED:'Resolved'};
+        const roleCopy={RESIDENT:['RESIDENT DASHBOARD','Your neighbourhood, your voice.','Report an issue or follow the progress of your own complaints.','My complaints'],LOCAL_STAFF:['LOCAL STAFF DASHBOARD','Your city work, in one place.','Review your local queue and keep everyday services moving.','Open work queue'],SUPERVISOR:['SUPERVISOR DASHBOARD','Keep your team moving.','Review local and supervisor cases across your assigned city.','Review complaints'],CITY_MANAGER:['CITY MANAGER DASHBOARD','A clearer view of your city.','Oversee city cases, service conditions and operational policies.','Review city queue'],SYSTEM_ADMIN:['ADMIN DASHBOARD','A connected city starts here.','Manage access and work across your city workspaces.','Open complaint queue']};
+        function workspaces(){
+            const items=[['complaints.html',auth.user.role==='RESIDENT'?'My complaints':'Complaint queue','Report, track and review local issues.','complaints'],['account.html','Your profile','Keep your name and sign-in details up to date.','profile']];
+            if(auth.user.role!=='RESIDENT')items.splice(1,0,['./','City zones','Explore the areas and buildings in your city.','city'],['meters.html','Energy meters','Record usage and review meter readings.','meters'],['streetlights.html','Streetlights','Keep track of lights and reported faults.','lights'],['policies.html','City policies','Evaluate observations against city rules.','policies']);
+            if(auth.user.role==='SYSTEM_ADMIN')items.unshift(['accounts.html','Manage users','Provision accounts and manage city access.','users']);
+            $('#work-shortcuts').replaceChildren(...items.map(([href,title,copy,key])=>{const a=node('a','','shortcut');a.href=href;a.append(SmartCityUI.icon(key),node('strong',title),node('p',copy));return a;}));
+        }
         async function summary(){const records=await auth.json(`cities/${$('#home-city').value}/complaints`);
             document.querySelectorAll('a[href^="complaints.html"]').forEach(link=>{link.href=`complaints.html?city=${$('#home-city').value}`;});
             $('#total').textContent=records.length;$('#open').textContent=records.filter(r=>r.status!=='RESOLVED').length;$('#resolved').textContent=records.filter(r=>r.status==='RESOLVED').length;
-            $('#message').textContent='Summary updated from your accessible complaint records.';}
-        act(async()=>{if(!auth.user)return;$('#welcome').textContent=`Welcome, ${auth.user.displayName}`;
-            $('#scope').textContent=auth.user.role==='RESIDENT'?'Track your own complaints and manage your account.':'Work with the city records your role is authorized to access.';
+            const resolved=records.filter(r=>r.status==='RESOLVED').length,rate=records.length?Math.round(resolved/records.length*100):0;
+            $('#resolved-rate').textContent=`${rate}%`;$('#status-ring').style.setProperty('--resolved',`${rate}%`);
+            $('#status-ring').setAttribute('role','img');$('#status-ring').setAttribute('aria-label',`${resolved} of ${records.length} accessible complaints resolved (${rate} percent).`);
+            $('#status-legend').replaceChildren(...Object.entries(statusNames).map(([status,label])=>{const li=node('li','');li.append(node('span',label),node('strong',String(records.filter(r=>r.status===status).length)));return li;}));
+            $('#status-note').textContent=records.length?'Current status of accessible complaints.':'No complaints in this city yet. No resolution rate is available.';
+            if(!records.length)$('#resolved-rate').textContent='0';
+            $('#recent-complaints').replaceChildren(...records.slice(0,5).map(record=>{const a=node('a','','case-row');a.href=`complaints.html?city=${$('#home-city').value}&complaint=${record.id}`;
+                const body=node('span','','case-body');body.append(node('span',record.subject,'case-title'),node('span',`${record.severity.toLowerCase()} priority | #${record.id}`,'case-meta'));a.append(node('span',`#${record.id}`,'case-number'),body,node('span',statusNames[record.status]||record.status,'case-status'));return a;}));
+            if(!records.length)$('#recent-complaints').append(node('p','Nothing in your queue for this city yet. New complaints will appear here.','empty-queue'));
+            $('#message').textContent='Updated from your saved records. Only complaints you can access are included.';}
+        act(async()=>{if(!auth.user)return;const copy=roleCopy[auth.user.role];$('#dashboard-role').textContent=copy[0];$('#welcome').textContent=`Hello, ${auth.user.displayName}.`;
+            $('#scope').textContent=copy[1];$('#banner-description').textContent=copy[2];$('#primary-work-link').replaceChildren(document.createTextNode(copy[3]+' '),SmartCityUI.icon('arrow'));workspaces();
             cities=await auth.json('cities');$('#home-city').replaceChildren(...cities.map(c=>new Option(c.name,String(c.id))));
-            if(cities.length)await summary();else $('#message').textContent='No cities are available yet. A system admin can create one in City zones.';});
+            if(cities.length)await summary();else {$('#home-city').disabled=true;$('#message').textContent='No cities are available yet. A system admin can create one in City zones.';$('#recent-complaints').append(node('p','Your workspace is ready. Complaints will appear when a city is available.','empty-queue'));}});
         $('#home-city').addEventListener('change',()=>act(summary));
     }
 })();

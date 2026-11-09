@@ -4,12 +4,14 @@ const names = {LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High', LOCAL_STAFF: 'Local s
     UNASSIGNED: 'Needs assignment', IN_PROGRESS: 'In progress', RESOLVED: 'Resolved',
     RESIDENT: 'Resident submission', DEMO_OPERATOR: 'Demo operator', SUBMITTED: 'Submitted',
     FORWARDED: 'Forwarded', UNHANDLED: 'Unhandled', STATUS_CHANGED: 'Work updated',
-    REOPENED: 'Reopened', ESCALATED: 'Escalated'};
+    REOPENED: 'Reopened', ESCALATED: 'Escalated', EMPLOYEE_ASSIGNED:'Employee assigned',EMPLOYEE_UNASSIGNED:'Allocation cleared',
+    RESIDENT_MESSAGE:'Resident message',STAFF_REPLY:'Public staff reply',REOPEN_REQUESTED:'Reopening requested',REOPEN_APPROVED:'Reopening approved',REOPEN_DECLINED:'Reopening declined'};
 let cityId = Number(new URLSearchParams(location.search).get('city')) || null;
 let ready = false;
 let busy = false;
 let complaints = [];
 let selected = null;
+let candidatePage=0, candidatesComplete=false;
 
 async function request(path, method = 'GET', body) {
     const response = await SmartCityAuth.fetch(`api/${path}`, {
@@ -25,18 +27,21 @@ async function act(operation) {
     if (busy) return;
     busy = true;
     $('#message').textContent = 'Working…';
+    delete $('#message').dataset.error;
     controls();
     try { await operation(); }
     catch (error) {
+        $('#message').dataset.error='true';
         $('#message').textContent = error.name === 'TimeoutError'
             ? 'The request timed out. Refresh to check whether it was saved before trying again.' : error.message;
     } finally { busy = false; controls(); }
 }
 function controls() {
-    document.querySelectorAll('button, input, textarea, select').forEach(element => { element.disabled = busy; });
+    document.querySelectorAll('main button, main input, main textarea, main select').forEach(element => { element.disabled = busy; });
     $('#city-select').disabled = busy || !$('#city-select').options.length;
     $('#complaint-form').querySelectorAll('button, input, textarea, select').forEach(element => { element.disabled = busy || !ready; });
     $('#refresh-detail').disabled = busy || !selected;
+    $('#load-assignees').disabled=busy||candidatesComplete;
 }
 function element(tag, text, className = '') {
     const node = document.createElement(tag);
@@ -85,6 +90,18 @@ function detail(item) {
     $('#detail-severity').textContent = names[item.severity];
     $('#detail-team').textContent = names[item.assignedTo] || 'No team assigned';
     $('#detail-status').textContent = names[item.status];
+    $('#reopen-pending').hidden=!item.reopenRequested;
+    $('#assignment-panel').hidden=!item.canAssign;
+    $('#public-message-panel').hidden=!item.canMessage;
+    $('#public-message-panel h3').textContent=SmartCityAuth.user.role==='RESIDENT'?'Contact your city team':'Conversation with the resident';
+    $('#request-reopen-panel').hidden=!item.canRequestReopen;
+    $('#review-reopen-panel').hidden=!item.canReviewReopen;
+    for(const form of ['assignment','public-message','request-reopen','review-reopen'])$(`#${form}-form`).reset();
+    candidatePage=0;candidatesComplete=false;
+    $('#load-assignees').textContent='Load eligible employees';
+    $('#assigned-user').replaceChildren(new Option('No individual employee',''));
+    if(item.assignee){$('#assigned-user').add(new Option(item.assignee.displayName+(item.assignee.eligible?'':' (no longer eligible)'),String(item.assignee.id)));$('#assigned-user').value=String(item.assignee.id);}
+    $('#current-assignee').textContent=item.assignee?`Currently allocated to ${item.assignee.displayName}.${item.assignee.eligible?'':' This account is no longer eligible. Reassign or clear this allocation.'}`:'No individual employee is allocated yet.';
     $('#work-panel').hidden = !item.canWork || item.status === 'UNASSIGNED';
     $('#work-action').textContent = item.status === 'RESOLVED' ? 'Reopen complaint'
         : item.status === 'IN_PROGRESS' ? 'Mark resolved' : 'Start work';
@@ -132,7 +149,7 @@ async function loadCities() {
     const chosen = records.find(item => item.id === cityId) || records[0];
     $('#city-select').replaceChildren(...records.map(item => new Option(item.name, String(item.id))));
     if (chosen) $('#city-select').value = String(chosen.id);
-    await loadCity(chosen?.id ?? null, selected?.id);
+    await loadCity(chosen?.id ?? null, selected?.id || Number(new URLSearchParams(location.search).get("complaint")) || null);
 }
 async function saved(item, message) {
     detail(item);
@@ -187,6 +204,20 @@ $('#escalate-form').addEventListener('submit', event => {
         await saved(item, `Complaint #${item.id} escalated and assigned to ${names[item.assignedTo] || 'manual review'}.`);
     });
 });
+$('#load-assignees').addEventListener('click',()=>act(async()=>{
+    const rows=await request(`cities/${cityId}/complaints/${selected.id}/assignees?page=${candidatePage}`);
+    for(const person of rows)if(![...$('#assigned-user').options].some(o=>o.value===String(person.id)))$('#assigned-user').add(new Option(`${person.displayName} (${names[person.role]})`,String(person.id)));
+    candidatePage++;candidatesComplete=rows.length<25;$('#load-assignees').textContent=candidatesComplete?'All eligible employees loaded':'Load more employees';
+    $('#message').textContent=rows.length?'Eligible employees loaded. Choose an employee and enter a reason.':'No more eligible employees. An admin can check staff city and role assignments.';
+}));
+for(const [form,path,method,payload,notice]of [
+    ['assignment','assignment','PUT',()=>({assignedUserId:$('#assigned-user').value?Number($('#assigned-user').value):null,note:$('#assignment-note').value}),'Employee assignment saved.'],
+    ['public-message','messages','POST',()=>({message:$('#public-message').value}),'Message sent. It is visible to the resident and authorized staff.'],
+    ['request-reopen','reopen-request','POST',()=>({note:$('#reopen-reason').value}),'Reopening requested. The city team will review it.'],
+    ['review-reopen','reopen-request','PUT',()=>({approve:$('#reopen-decision').value==='approve',note:$('#review-explanation').value}),'Review decision saved with its public explanation.']
+])$(`#${form}-form`).addEventListener('submit',event=>{event.preventDefault();act(async()=>{
+    const item=await request(`cities/${cityId}/complaints/${selected.id}/${path}`,method,{...payload(),version:selected.version});await saved(item,notice);
+});});
 act(async () => {
     await loadCities();
     $('#message').textContent = ready ? 'Choose a complaint or submit a new one.' : 'Create a city in City zones to begin.';

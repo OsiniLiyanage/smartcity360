@@ -1,27 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"><script src="assets/js/theme.js?v=themes3"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SmartCity360 | Complaints</title>
-    <link rel="stylesheet" href="assets/css/app.css?v=20261108-accounts2">
-    <script src="assets/js/auth.js?v=20261108-accounts2" defer></script><script src="assets/js/complaints.js?v=20261108-accounts2" defer></script>
+    <link rel="stylesheet" href="assets/css/app.css?v=themes3">
+    <link rel="stylesheet" href="assets/css/themes.css?v=themes3"><link rel="stylesheet" href="assets/css/design.css?v=themes3"><script src="assets/js/shell.js?v=themes3" defer></script><script src="assets/js/auth.js?v=themes3" defer></script><script src="assets/js/complaints.js?v=themes3" defer></script>
 </head>
-<body>
-    <header class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5">
-            <a href="./" class="text-xl font-bold tracking-tight text-slate-900">SmartCity<span class="text-teal-700">360</span></a>
-            <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">Local demonstration</span>
-        </div>
-    </header>
-    <nav aria-label="Main navigation" class="mx-auto flex max-w-7xl flex-wrap gap-5 border-b border-slate-200 px-5 py-3 text-sm">
-        <a href="./" class="text-slate-600 hover:text-teal-800">City zones</a>
-        <a href="complaints.html" aria-current="page" class="font-semibold text-teal-800">Complaints</a>
-        <a href="meters.html" class="text-slate-600 hover:text-teal-800">Energy meters</a>
-        <a href="streetlights.html" class="text-slate-600 hover:text-teal-800">Streetlights</a>
-        <a href="policies.html" class="text-slate-600 hover:text-teal-800">City policies</a>
-    </nav>
-    <main class="mx-auto max-w-7xl px-5 py-8">
+<body class="workspace">
+
+
+    <main id="main-content" tabindex="-1" class="mx-auto max-w-7xl px-5 py-8">
         <p class="mb-2 text-xs font-bold uppercase tracking-widest text-teal-700">Resident services</p>
         <h1 class="text-3xl font-bold tracking-tight text-slate-900">Every concern has a next step.</h1>
         <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Submit a complaint, follow its route to the responsible team, and record the work through to resolution.</p>
@@ -67,10 +56,15 @@
                         <div><dt class="text-xs text-slate-500">Assigned team</dt><dd id="detail-team" class="mt-1 font-semibold"></dd></div>
                         <div><dt class="text-xs text-slate-500">Work status</dt><dd id="detail-status" class="mt-1 font-semibold"></dd></div>
                     </dl>
+                    <p id="reopen-pending" hidden class="pending-reopen">A reopening request is awaiting review. The case remains resolved until a decision is recorded.</p>
+                    <section id="assignment-panel" hidden class="workflow-panel"><h3>Employee assignment</h3><p id="current-assignee"></p><p>Private team information. Choose an eligible employee from the responsible team, or clear the allocation.</p><form id="assignment-form"><div><label for="assigned-user" class="label">Assigned employee</label><select id="assigned-user" class="field"><option value="">No individual employee</option></select></div><button id="load-assignees" type="button" class="secondary">Load eligible employees</button><div><label for="assignment-note" class="label">Assignment reason (staff only)</label><textarea id="assignment-note" class="field" rows="2" required maxlength="1000"></textarea></div><button class="button" type="submit">Save assignment</button></form></section>
+                    <section id="public-message-panel" hidden class="workflow-panel"><h3>Conversation with the resident</h3><p class="public-label">Public to the resident and authorized city staff. Do not include private staff notes here.</p><form id="public-message-form"><div><label for="public-message" class="label">Message / public reply</label><textarea id="public-message" class="field" rows="3" required maxlength="1000"></textarea></div><button class="button" type="submit">Send message</button></form></section>
+                    <section id="request-reopen-panel" hidden class="workflow-panel"><h3>Still need help?</h3><p>Explain what remains unresolved. Your request will be reviewed by the city team.</p><form id="request-reopen-form"><div><label for="reopen-reason" class="label">Reason for reopening</label><textarea id="reopen-reason" class="field" rows="3" required maxlength="1000"></textarea></div><button class="secondary" type="submit">Request reopening</button></form></section>
+                    <section id="review-reopen-panel" hidden class="workflow-panel"><h3>Review reopening request</h3><p>Your decision and explanation will be visible to the resident.</p><form id="review-reopen-form"><div><label for="reopen-decision" class="label">Decision</label><select id="reopen-decision" class="field"><option value="approve">Approve and resume work</option><option value="decline">Decline and keep resolved</option></select></div><div><label for="review-explanation" class="label">Public explanation</label><textarea id="review-explanation" class="field" rows="3" required maxlength="1000"></textarea></div><button class="button" type="submit">Save review decision</button></form></section>
                     <section id="work-panel" class="border-t border-slate-100 pt-5">
                         <h3 class="font-semibold">Record work</h3>
                         <form id="work-form" class="mt-3 space-y-3">
-                            <div><label for="work-note" class="label">Work note / resolution details</label><textarea id="work-note" rows="2" required maxlength="1000" class="field"></textarea></div>
+                            <div><label for="work-note" class="label">Private work note / resolution details</label><textarea id="work-note" rows="2" required maxlength="1000" class="field"></textarea></div>
                             <button id="work-action" type="submit" class="button">Start work</button>
                         </form>
                         <p class="mt-3 text-xs text-slate-500">Your account is recorded with each action. Work notes stay private to authorized staff; residents see status updates.</p>
