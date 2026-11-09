@@ -55,4 +55,8 @@ Authentication action outcomes use the existing alerts without repeating the inl
 
 ## Continuous workspace background
 
-The emerald/teal gradient belongs to the whole page, not individual cards. Workspace sections are transparent, separated by spacing and fine rules; fields, dialogs and navigation retain readable solid surfaces. Colors remain in themes.css and layouts in refinements.css. Existing module grids and controls are preserved. Converting each module to a title/actions/filter/table layout with separate add/edit forms is still a later step, not completed by this styling change.
+The emerald/teal gradient belongs to the whole page, not individual cards. Workspace sections are transparent, separated by spacing and fine rules; fields, dialogs and navigation retain readable solid surfaces. Colors remain in themes.css and layouts in refinements.css. Existing module grids and controls are preserved. User management now uses a title/actions/filter/table layout with separate add/edit dialogs. Converting the remaining modules is still pending.
+
+## Records and separate forms
+
+The user-management page is the first completed records-layout conversion: one table, compact top actions, expandable filters, pagination, and separate native dialogs for creating accounts, editing access and reviewing account activity. It follows the reference structure without adding a framework. See [account workflows](ACCOUNTS.md). Other modules still need their own structural conversion; shared transparent-panel styling alone does not complete that work.

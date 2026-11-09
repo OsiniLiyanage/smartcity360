@@ -10,8 +10,15 @@ import static lk.osini.smartcity360.resource.AccountJson.*;
 @Path("admin/accounts") @Produces(MediaType.APPLICATION_JSON)
 public class AccountResource {
     @Inject private AccountService accounts;
-    @GET public JsonObject list(@QueryParam("page") @DefaultValue("0") int page) {
-        var result=accounts.list(page);var items=Json.createArrayBuilder();result.items().forEach(row->items.add(user(row)));
+    @GET public JsonObject list(@QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("q") String search, @QueryParam("role") String role,
+            @QueryParam("status") String status, @QueryParam("city") String city) {
+        Long cityId = null;
+        if (city != null && !city.isBlank()) {
+            try { cityId = Long.valueOf(city); }
+            catch (NumberFormatException error) { throw new BadRequestException("Choose a valid city."); }
+        }
+        var result=accounts.list(page,search,role,status,cityId);var items=Json.createArrayBuilder();result.items().forEach(row->items.add(user(row)));
         return Json.createObjectBuilder().add("items",items).add("total",result.total()).add("page",page).add("pageSize",25).build();
     }
     @POST @Consumes(MediaType.APPLICATION_JSON) public Response create(JsonValue payload) {

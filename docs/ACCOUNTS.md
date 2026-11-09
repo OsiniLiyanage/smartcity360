@@ -65,3 +65,15 @@ Password recovery and email verification/delivery are not implemented. There is 
 - [Payara deployment descriptor elements](https://docs.azul.com/payara-community/technical-documentation/payara-server-documentation/application-deployment/elements-of-deployment-descriptors.html)
 
 Authentication is supporting application infrastructure. It is not presented as one of the assessed design patterns or as an authentication lesson from the supplied class notes.
+
+## User-management records workspace
+
+Manage users opens a full-width account table with name, email, role, assigned city, active status and a labelled Edit action. Add user and Edit access open native modal dialogs. Account activity opens its own read-only dialog instead of competing with the main table. The current administrator has no self-edit action; the Java service also rejects self-access changes.
+
+Search matches name/email, ignoring case and surrounding whitespace. Expand Filters to intersect role, active/disabled status and assigned city. Apply/Clear reset pagination. The API filters before counting and paging (25 records per page), so searches include users beyond the currently displayed page. Percent and underscore are literal characters. The applied-filter summary and counts describe the rendered results; a failed request preserves the preceding results. Existing unfiltered API requests remain supported.
+
+`GET api/admin/accounts` accepts `page`, `q` (up to 254 characters), `role`, `status` (`active` or `disabled`) and `city` (positive ID). Both row and count queries use the same parameterized predicates and remain system-admin-only. City selectors list visible cities; editing existing staff with an archived assignment preserves that assignment as a labelled option.
+
+Dialogs support Escape and Cancel and restore focus when closed. Closing is blocked during a pending save to avoid losing a result. The generated temporary password stays inside the creation dialog until it closes, then its text is cleared. API failures keep the entered form values. Notification alerts move into the active dialog so they remain accessible above the modal. The responsive table scrolls within its own container; forms scroll internally on short screens. Palette/font configuration stays in themes.css; records.css owns the layout and users.js owns this page.
+
+Run `node scripts/verify-user-filters.mjs` against the running local application to check full-result filtering, pagination, wildcard literals, invalid inputs and role restrictions using retained local verification accounts. It does not create users or modify access. Existing provisioning, CSRF, version checks, temporary-password generation and session invalidation are unchanged by the layout revision.

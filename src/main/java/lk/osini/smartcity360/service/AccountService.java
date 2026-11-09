@@ -78,11 +78,35 @@ public class AccountService {
         if (version != user.getVersion()) throw new ClientErrorException("This account changed. Refresh before saving.",409);
         scope(role,cityId); user.permissions(role,cityId,enabled); em.flush(); event(current.get().getId(),id,"ACCESS_UPDATED"); return user;
     }
-    public Page list(int page) {
+    public Page list(int page, String search, String roleName, String status, Long cityId) {
         if (!current.admin()) throw new ForbiddenException();
         if (page < 0 || page > 100000) throw new BadRequestException("Choose a valid page.");
-        return new Page(em.createQuery("SELECT u FROM AppUser u ORDER BY u.id",AppUser.class).setFirstResult(page*25).setMaxResults(25).getResultList(),
-                em.createQuery("SELECT COUNT(u) FROM AppUser u",Long.class).getSingleResult());
+        String query = search == null ? "" : search.strip().toLowerCase(Locale.ROOT);
+        if (query.length() > 254) throw new BadRequestException("Search must be 254 characters or fewer.");
+        Map<String,Object> parameters = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+        if (!query.isEmpty()) {
+            // LOCATE treats percent and underscore as ordinary search characters.
+            where.append(" AND (LOCATE(:search,LOWER(u.displayName)) > 0 OR LOCATE(:search,LOWER(u.email)) > 0)");
+            parameters.put("search",query);
+        }
+        if (roleName != null && !roleName.isBlank()) {
+            try { parameters.put("role",Role.valueOf(roleName)); }
+            catch (IllegalArgumentException error) { throw new BadRequestException("Choose a valid role."); }
+            where.append(" AND u.role = :role");
+        }
+        if (status != null && !status.isBlank()) {
+            if (!status.equals("active") && !status.equals("disabled")) throw new BadRequestException("Choose a valid account status.");
+            where.append(" AND u.enabled = :enabled"); parameters.put("enabled",status.equals("active"));
+        }
+        if (cityId != null) {
+            if (cityId <= 0) throw new BadRequestException("Choose a valid city.");
+            where.append(" AND u.cityId = :city"); parameters.put("city",cityId);
+        }
+        var rows = em.createQuery("SELECT u FROM AppUser u" + where + " ORDER BY u.id",AppUser.class);
+        var count = em.createQuery("SELECT COUNT(u) FROM AppUser u" + where,Long.class);
+        parameters.forEach((name,value) -> { rows.setParameter(name,value); count.setParameter(name,value); });
+        return new Page(rows.setFirstResult(page*25).setMaxResults(25).getResultList(),count.getSingleResult());
     }
     public List<Object[]> events() {
         if (!current.admin()) throw new ForbiddenException();

@@ -1,0 +1,50 @@
+/* Shared records layout. Palette and fonts remain in themes.css. */
+.records-page .records-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:32px; }
+.records-page .records-heading h1 { margin:0; font-size:26px; line-height:1.3; }
+.records-heading p,.record-help { color:var(--muted); font-size:13px; line-height:1.6; margin:8px 0 0; }
+.records-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.records-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 0; border-top:1px solid var(--line); }
+.records-search { display:flex; flex:1; max-width:480px; gap:8px; }
+.records-search .field { min-width:0; }
+.records-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:end; gap:18px; padding:18px 0; border-bottom:1px solid var(--line); }
+.records-filters>.records-actions { grid-column:1 / -1; justify-content:flex-end; }
+.records-summary { margin:8px 0 18px; color:var(--muted); font-size:13px; overflow-wrap:anywhere; }
+.records-table-scroll { overflow-x:auto; width:100%; }
+.records-table { width:100%; border-collapse:collapse; font-size:13px; text-align:left; }
+.records-table th { font-weight:600; color:var(--muted); white-space:nowrap; padding:14px 12px; background:var(--surface-alt); border-bottom:1px solid var(--line); }
+.records-table td { padding:17px 12px; border-bottom:1px solid var(--line); vertical-align:middle; overflow-wrap:anywhere; max-width:260px; min-width:110px; }
+.records-table th:first-child,.records-table td:first-child { padding-left:12px; }
+.records-table tbody tr:hover { background:var(--surface-alt); }
+.records-table td .record-name { display:block; font-weight:600; }
+.record-subtitle { display:block; margin-top:5px; color:var(--muted); font-size:12px; }
+.record-badge { display:inline-block; padding:4px 9px; border-radius:4px; font-size:12px; white-space:nowrap; background:var(--surface-alt); color:var(--muted); }
+.record-badge.active { color:var(--success); background:var(--success-soft); }
+.record-edit { border:0; background:transparent; color:var(--accent-text); padding:8px; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
+.records-pagination { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:20px; color:var(--muted); font-size:13px; }
+.records-page #message:empty,.records-page #message[data-feedback-state] { display:none; }
+.record-dialog { position:fixed; inset:0; margin:auto; width:min(520px,calc(100vw - 28px)); max-height:calc(100dvh - 32px); overflow:auto; padding:24px; color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 20px 80px var(--shadow); }
+.record-dialog::backdrop { background:var(--auth-shadow); backdrop-filter:blur(3px); }
+.dialog-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:22px; }
+.dialog-heading h2 { margin:0; font-size:20px; line-height:1.4; }
+.dialog-close { display:grid; place-items:center; min-width:36px; height:36px; border:0; background:transparent; color:var(--muted); font-size:25px; }
+.dialog-close:hover { background:var(--surface-alt); }
+.record-form { display:grid; gap:18px; }
+.record-form .field { width:100%; }
+.record-dialog .dialog-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:8px; padding-top:20px; border-top:1px solid var(--line); }
+.record-checkbox { display:flex; align-items:center; gap:10px; font-size:14px; }
+#edit-name { margin:0 0 18px; overflow-wrap:anywhere; }
+.issued-password { padding:16px; margin:18px 0; background:var(--surface-alt); overflow-wrap:anywhere; font-family:monospace; }
+.activity-dialog { width:min(860px,calc(100vw - 28px)); }
+.record-dialog .feedback-stack { top:12px; right:12px; max-height:calc(100dvh - 24px); }
+.records-page [hidden] { display:none!important; }
+@media(max-width:800px) {
+ .records-page .records-heading { align-items:flex-start; flex-direction:column; margin-bottom:24px; }
+ .records-toolbar { flex-wrap:wrap; }
+ .records-search { flex-basis:100%; max-width:none; }
+ .records-filters { grid-template-columns:1fr; }
+ .records-table { min-width:760px; }
+ .records-pagination { flex-wrap:wrap; }
+ .record-dialog { padding:20px; }
+}
+
+.records-page .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
