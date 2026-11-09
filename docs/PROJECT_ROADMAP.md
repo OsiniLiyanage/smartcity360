@@ -10,7 +10,7 @@ Finish the application first. Do not start assembling the consolidated PDF, prep
 
 Operational reports inside SmartCity360 are authorized application features. Printing such a report, including the browser's Save as PDF option, is separate from assembling the assignment's consolidated report. The submission-artifact hold still applies.
 
-The five pattern implementations and the account/access foundation are working. Resident signup, sign-in, profile/password changes, admin provisioning, five roles, city restrictions and complaint ownership are implemented. Work events now use authenticated actors and resident history excludes internal notes. The home screen has real complaint counts. The chain still assigns an authority tier rather than an individual employee. Charts, reports and the remaining workflows below are not yet complete. See [accounts](ACCOUNTS.md) and [verification](VERIFICATION.md).
+The five pattern implementations and the account/access foundation are working. Resident signup, sign-in, profile/password changes, admin provisioning, five roles, city restrictions and complaint ownership are implemented. Work events now use authenticated actors and resident history excludes internal notes. The home screen has real complaint counts. The chain assigns an authority tier, and authorized managers can now allocate a named employee. Resident messages, public staff replies and reopening review are integrated. Dashboards include scoped counts, a resolution chart and recent cases. Complete operational reports, richer trend charts and the remaining workflows below are not yet complete. See [accounts](ACCOUNTS.md) and [verification](VERIFICATION.md).
 
 ## Recommended roles
 
@@ -43,7 +43,7 @@ An account role alone is insufficient: permissions must also check its city assi
 - Adapt existing live verification scripts to authenticated test users and add tests for denied access, ownership, role escalation attempts, cross-city access, logout and disabled accounts.
 - Completion: two residents cannot read each other's private cases; staff permissions and city boundaries are enforced even through direct API requests; signing out or disabling an account prevents further authorized actions.
 
-### 2. Complete resident and complaint workflows
+### 2. Resident and complaint workflows - core journey integrated
 
 - Resident home with their open/resolved cases and notifications; complaint submission linked to an area and reporting category.
 - Preserve the Chain of Responsibility for routing to authority tiers, then allow authorized assignment to an individual staff member.

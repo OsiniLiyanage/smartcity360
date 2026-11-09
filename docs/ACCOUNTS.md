@@ -33,7 +33,7 @@ Staff have exactly one assigned city. Residents can choose a city and area for r
 
 The reporter's display name and user ID come from the signed-in session. A request cannot impersonate someone by sending `residentName`. Resident submissions have an account owner. Existing demonstrations and staff/admin submissions are unclaimed operational records; matching names never grants resident ownership.
 
-Residents see only their own cases and public progress summaries. Staff work notes remain internal. Events record the actual actor ID, with a name snapshot for staff history. Residents see **You** or **City team** instead of staff identities. Routing is still the class-taught Chain of Responsibility; it assigns an authority tier, not yet an individual employee.
+Residents see only their own cases and public progress summaries. Staff work notes remain internal. Events record the actual actor ID, with a name snapshot for staff history. Residents see **You** or **City team** instead of staff identities. Routing is still the class-taught Chain of Responsibility; it assigns an authority tier. Authorized managers can separately allocate an eligible employee while preserving team coverage.
 
 ## Sessions and passwords
 
@@ -55,7 +55,7 @@ For restart verification, run `node scripts/verify-account-persistence.mjs snaps
 
 All live feature scripts now sign in through `scripts/auth-client.mjs`. For the local server they use `.local/bootstrap-admin.json`; alternatively supply `SMARTCITY_EMAIL` and `SMARTCITY_PASSWORD` privately through the environment. Non-local targets require explicit credentials. Do not place credentials in committed commands or documentation.
 
-Password recovery and email verification/delivery are not implemented. There is no pretend reset-email confirmation. Named employee assignment, resident replies/reopening requests, notifications, charts and printable operational reports remain later product milestones. The home screen currently displays real accessible complaint counts, not the final dashboard.
+Password recovery and email verification/delivery are not implemented. There is no pretend reset-email confirmation. Named employee assignment, public resident/staff messages and reopening review now have integrated screens. Dashboards display authorized complaint counts, recent cases and a status chart. Notifications, historical trend charts and printable operational reports remain later product milestones.
 
 ## Implementation references
 

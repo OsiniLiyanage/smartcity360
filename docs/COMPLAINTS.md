@@ -40,11 +40,11 @@ A resident can request reopening only for their own resolved complaint, with one
 
 Existing authorized staff can still reopen through the status endpoint. If a resident request is pending, this records acceptance and clears the flag. Its work note remains private. That preserves existing staff workflows alongside the new review route.
 
-Messages and reasons require 1-1000 characters after trimming. Every write requires the latest complaint `version`. The service locks and refreshes the complaint before checking access, version and workflow state. Each accepted message changes the complaint activity timestamp, making JPA advance the version even for consecutive messages. A stale retry returns 409. Refresh the detail/history after a lost response before choosing whether to resubmit. Concurrent review requests use the same lock and version checks, so only one decision should commit; live database verification remains required.
+Messages and reasons require 1-1000 characters after trimming. Every write requires the latest complaint `version`. The service locks and refreshes the complaint before checking access, version and workflow state. Each accepted message changes the complaint activity timestamp, making JPA advance the version even for consecutive messages. A stale retry returns 409. Refresh the detail/history after a lost response before choosing whether to resubmit. Concurrent review requests use the same lock and version checks, so only one decision commits. The live integration check confirmed one 200 and one 409 for concurrent decisions using the same version.
 
 All summaries include `reopenRequested`. Detail adds `canMessage`, `canRequestReopen` and `canReviewReopen` for frontend controls. These flags reflect the authorized detail response; Java independently checks permissions on writes. The frontend must visibly identify public messages and review explanations, render their text safely, refresh the saved version after each action, and keep the existing private work-note control separate.
 
-Migration 009 defaults the pending flag to false for older complaints and widens history actor names to the account display-name limit of 100 characters. Apply migrations 008 and 009 before deploying this backend. Frontend controls are pending integration.
+Migration 009 defaults the pending flag to false for older complaints and widens history actor names to the account display-name limit of 100 characters. Apply migrations 008 and 009 before deploying this backend. Frontend controls are integrated: employee selection, public messages, resident reopening and manager review. See the integration checkpoint in VERIFICATION.md.
 
 ### Named employee allocation
 
@@ -58,7 +58,7 @@ Escalation clears the employee allocation and records that release in history. D
 
 The migration adds a nullable foreign key and index, preserving older complaints as unallocated. Assignment holds a read lock on the candidate account and a write lock on the complaint while validating eligibility/version and recording its history in one transaction. The account lock is acquired first to keep simultaneous account changes ordered consistently.
 
-Frontend controls for these endpoints are pending integration. Apply the migration before deploying Java code that maps the new column.
+The complaint detail screen includes these controls for authorized roles. Apply the migration before deploying Java code that maps the new column.
 
 Resident name is 1–100 characters; subject 1–160; description 1–2000; work/escalation note 1–1000. Text is trimmed, JSON value types are checked, and null/array/scalar request bodies are rejected with 400. Cross-city or missing targets return 404. Invalid work transitions and stale versions return 409.
 
@@ -80,7 +80,15 @@ Status/escalation updates acquire a row lock, refresh current data and compare t
 - `node scripts/verify-complaints.mjs` runs the live complaint regression checks. It creates two labelled demo cities and four complaints per successful run and retains them for inspection.
 - `.local/complaint-verification.json` stores a private snapshot for restart verification.
 - Queue filtering/search runs in the browser over records the current user may access; pagination is not implemented.
-- No real authority receives a notification. New submissions and work updates record authenticated identities; old ownerless demonstrations stay unclaimed. Resident messages, public staff replies and reopening requests have backend endpoints. Frontend integration and notifications remain pending.
-- Named staff allocation has backend endpoints; its frontend integration and live HTTP verification remain pending. Runtime chain editing and manual assignment of an unhandled complaint are not implemented. The default chain covers every supported severity; a shortened chain's explicit unhandled result is covered by unit tests.
+- No real authority receives a notification. New submissions and work updates record authenticated identities; old ownerless demonstrations stay unclaimed. Resident messages, public staff replies and reopening requests have backend endpoints. Frontend integration is complete; notifications remain pending.
+- Named staff allocation has backend endpoints; its frontend integration and live HTTP verification are recorded in the 9 November checkpoint. Runtime chain editing and manual assignment of an unhandled complaint are not implemented. The default chain covers every supported severity; a shortened chain's explicit unhandled result is covered by unit tests.
 
 The separate [Part C report draft](report/PART_C_CHAIN_OF_RESPONSIBILITY.md) contains the assessment answers and supporting UML source.
+
+## Using the integrated complaint screen
+
+Open a complaint from Dashboard or Complaint queue. Supervisors and higher roles can load eligible employees, select a name (or clear allocation), enter a private assignment reason and save. The list loads 25 candidates at a time. Existing tier-based team coverage still applies.
+
+Use **Message / public reply** for text the resident may read. Use **Private work note / resolution details** for staff-only information. The owning resident can message the team and, after resolution, request reopening. Authorized managers review the request using a decision and public explanation. Pending requests remain resolved until approved. The screen refreshes the saved version after each accepted action; a stale conflict asks for refreshed details rather than silently retrying.
+
+`node scripts/verify-complaint-follow-up.mjs` reuses private demo accounts, creates a labelled case, and checks allocation, messages, private history, repeated/stale requests, review validation, concurrency, escalation release and city/tier boundaries. No passwords are printed or committed.

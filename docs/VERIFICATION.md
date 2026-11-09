@@ -310,3 +310,35 @@ The initial comparison attempt ran while Payara's port was open but the WAR was 
 ### Remaining product work
 
 Named employee assignment, resident replies/reopening requests, notifications, fuller operations history, charts and printable operational reports remain to be built. The home screen has actual accessible complaint counts only. Email verification, password recovery and email delivery are not implemented. The class pattern report drafts remain earlier source material for later reconciliation, not a finished submission document.
+
+
+## Themes and complaint integration checkpoint - 9 November 2026
+
+The preserved interface redesign now includes separate complete light/dark palettes, a remembered theme switch, a responsive sidebar, Dashboard and Profile for all five roles, role-specific work links, local city imagery, scoped complaint counts, a numeric-backed status ring and recent cases. All editable color values live in `assets/css/themes.css`; layout styles reference these tokens.
+
+The existing backend commits `a30a77d` and `4824233` were preserved. A successful remote fetch confirmed both were already on GitHub before this work. Additive database scripts 008 and 009 were applied before deploying the current Java mappings. Existing data was preserved.
+
+| Check | Actual result |
+|---|---|
+| Java build | 62 JUnit tests passed, zero failures/errors; WAR packaged and deployed |
+| Live assignment/follow-up suite | 48 checks passed against PostgreSQL, including concurrent review returning one 200 and one 409 |
+| Existing complaint regression | 46 checks passed after integration |
+| Existing account sign-in | Admin, both residents, local staff, supervisor and city manager verified; no passwords changed |
+| Browser login | Local staff, supervisor, resident, city manager and admin reached their role dashboard |
+| Browser complaint journey | Supervisor cleared/reassigned an employee, sent a public reply, started/resolved work; resident requested reopening; city manager approved and resumed work |
+| Resident privacy in browser | Public reply visible; private work notes and employee assignment controls absent |
+| Desktop layouts | 1280px theme/navigation/form checks; screenshots inspected for both sign-in and dashboard themes |
+| Mobile layouts | 390 x 844 CSS viewport: navigation drawer, profile, complaints, admin, city, meters, lights and policies checked; no horizontal overflow in checked pages |
+| Theme persistence | Choice survived page navigation and reload; mobile and desktop switch controls worked |
+| Form states | Staff city selection disabled for non-staff role; busy/error recovery checked; failed sign-in now has a friendly error |
+| Color contrast | 14 configured text/background pairs passed 4.5:1; lowest measured pair 5.45:1 |
+
+Dark operational/admin pages had no visible white panel/input surfaces in the computed-style audit. Light pages used the light palette. Both theme palettes cover lists, form fields, feedback states and chart surfaces. Native browser validation/dialog styling follows `color-scheme`; no custom modal dialog workflow was added or claimed.
+
+The browser verification used retained case 20 in account demonstration city 20. The API verification retained its labelled integration case and the existing regression script retained its own labelled cities. Browser actions added public/private demonstration history and left case 20 in progress after the manager approved reopening. The data is test material, not a real municipal complaint.
+
+Initially the local runtime was unavailable. PostgreSQL and Payara were started; all saved staff credentials then authenticated successfully. This proves the current logins work, not the exact cause of a previous user sign-in failure. Browser tabs share the same login session on one origin; sign out before checking a different role.
+
+Screenshots: [light sign-in](evidence/signin-light.png), [dark sign-in](evidence/signin-dark.png), [light dashboard](evidence/dashboard-light.png), [dark dashboard](evidence/dashboard-dark.png). Mobile screenshot output was unusually downscaled by the browser tool, so mobile conclusions rely on rendered DOM dimensions, visibility, field colors and actual interaction checks rather than a high-resolution screenshot claim. No real-device or cross-browser certification was performed.
+
+After the full passing Java run, subsequent packaging skipped repeating unchanged Java tests for frontend-only theme and error-message refinements. This checkpoint did not rerun the other four pattern HTTP suites or perform another database restart comparison. Prior evidence remains dated above. Reporting/notifications and final acceptance work remain pending; submission PDF/ZIP/video preparation remains on hold.
