@@ -30,7 +30,16 @@ workspace. These follow the existing API permissions.
 
 ## Manual acceptance for the records layout
 
-This layout revision has not been run through automated or browser tests.
+The 10 November button fix corrected a partial deployment: the new HTML had
+been packaged with the old script, which lacked dialog-button handlers. The
+completed page, script and stylesheet were rebuilt and redeployed together,
+and the script URL was updated to avoid a cached partial version.
+
+Run `node scripts/verify-streetlight-assets.mjs` after deployment to check
+that the served page and its referenced assets match local source. Focused
+admin/staff API reads and sharing permissions passed. The sampled city had
+no streetlights, so detail reads and save actions were not exercised. Actual
+browser interaction and the manual checklist below remain to be confirmed.
 
 1. Choose a city, search the current page, filter by state and clear the filters.
    Confirm totals stay city-wide and pagination still moves through records.
