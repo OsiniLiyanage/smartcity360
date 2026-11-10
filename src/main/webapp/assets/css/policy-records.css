@@ -1,0 +1,23 @@
+/* All colors and fonts follow the shared theme configuration. */
+.policy-city { display:flex; align-items:end; gap:12px; margin-bottom:24px; }
+.policy-city>div { width:min(380px,100%); min-width:0; }
+.policy-footnote { margin-top:26px; }
+.policy-detail { width:min(960px,calc(100vw - 28px)); }
+.policy-editor { width:min(650px,calc(100vw - 28px)); }
+.policy-expression { white-space:pre-wrap; overflow-wrap:anywhere; padding:16px; margin:20px 0; background:var(--surface-alt); border:1px solid var(--line); font-size:14px; line-height:1.7; }
+.policy-detail-actions { margin-top:22px; }
+.policy-history-title { margin:32px 0 0; font-size:17px; }
+.policy-detail .records-table-scroll { margin-top:16px; }
+.policy-records .record-form { margin-top:22px; }
+.policy-guide { margin-top:20px; padding:16px 0; border-top:1px solid var(--line); }
+.policy-guide summary { cursor:pointer; font-size:14px; font-weight:600; }
+.policy-guide .records-actions { margin-top:14px; }
+.policy-syntax { white-space:pre-wrap; overflow-wrap:anywhere; font-size:13px; color:var(--accent-text); line-height:1.6; }
+.policy-result { border-top:1px solid var(--line); margin-top:22px; padding-top:18px; }
+.policy-result h3 { font-size:17px; margin:0; }
+.policy-result p,#history-content p { font-size:14px; line-height:1.7; overflow-wrap:anywhere; }
+.policy-records .record-dialog .records-table td { min-width:90px; }
+@media(max-width:800px) {
+ .policy-city { flex-wrap:wrap; }
+ .policy-records .record-dialog .records-table { min-width:640px; }
+}

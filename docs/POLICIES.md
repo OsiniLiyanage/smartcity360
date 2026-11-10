@@ -7,7 +7,7 @@ Part E lets staff save a small text rule, evaluate it against observations for a
 Apply the numbered database scripts through `006_policies.sql` using the database helper's `Setup` action, build the WAR and deploy. Existing records remain intact. Start PostgreSQL before Payara.
 
 1. Choose a city. Add a district, street or building in City zones if the city has no zones yet.
-2. Select **Overnight noise limit** or **Daytime parking permission** to open a new draft, or write your own rule.
+2. Choose **New policy** to open the editor. Select **Overnight noise limit** or **Daytime parking permission** as a starting example, or write your own rule.
 3. Set its name, category and meaning. **A violation is detected** means true indicates a violation; **The activity is permitted** means true grants permission under this fictional rule.
 4. Check syntax and review the explicit grouping. This check saves nothing.
 5. Save the active policy. Select an observation zone, provide all required observation values and optionally add a note.
@@ -15,6 +15,25 @@ Apply the numbered database scripts through `006_policies.sql` using the databas
 7. Edit and save the rule, then evaluate again. Earlier history keeps the previous rule and outcome. Unsaved edits disable evaluation in the screen.
 
 Policies can be made inactive to prevent new evaluations without deleting history. The page shows the revision supplied by the server. If another request changes a policy, an old edit or evaluation is rejected with 409; reload the saved policy before retrying. Reloading or selecting a different policy replaces the current draft.
+
+## Records layout checkpoint
+
+The inventory has search, category/status filters and 25-row display pagination.
+Search loads all API pages before filtering. Policy details, creating/editing,
+evaluation and historical-result inspection use separate dialogs. History
+continues to use server pagination and saved revision snapshots.
+
+System admins and city managers create/edit policies and check rule syntax.
+Local staff and supervisors can view and evaluate within their assigned city.
+Residents cannot access this workspace. Navigation now includes Policies for
+all roles already authorized by the backend; the permission rules are unchanged.
+
+The preceding implementation pass reported successful browser creation, editing,
+evaluation, search and empty-filter checks. Its history check retained revision 1
+after the policy changed to revision 2. Those checks are recorded as prior-pass
+evidence, not repeated browser acceptance. Final desktop/mobile checks in both
+themes, all-role button visibility, nested-dialog focus/closing and multi-page
+history remain pending after browser automation timed out.
 
 ## Language
 

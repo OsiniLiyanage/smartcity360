@@ -1,65 +1,54 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><script src="assets/js/theme.js?v=meter-nav1"></script><meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8"><script src="assets/js/theme.js?v=policy-nav1"></script><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SmartCity360 | City policies</title>
-    <link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=scene3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><script src="assets/js/feedback.js?v=green1" defer></script><script src="assets/js/shell.js?v=green1" defer></script><script src="assets/js/auth.js?v=session2" defer></script><script src="assets/js/policies.js?v=green1" defer></script>
-</head>
-<body class="workspace">
+    <link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=scene3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><script src="assets/js/feedback.js?v=green1" defer></script><script src="assets/js/shell.js?v=green1" defer></script><script src="assets/js/auth.js?v=session2" defer></script><script src="assets/js/policies.js?v=records1" defer></script>
 
+<link rel="stylesheet" href="assets/css/records.css?v=records3"><link rel="stylesheet" href="assets/css/policy-records.css?v=records1">
+</head><body class="workspace records-page policy-records"><main id="main-content" tabindex="-1">
+<header class="records-heading"><div><h1>City policies</h1><p>Browse rules, check observations and review saved results.</p></div><button id="new-policy" type="button" class="button" data-roles="CITY_MANAGER SYSTEM_ADMIN">+ New policy</button></header>
+<p id="message" role="status" aria-live="polite"></p>
+<div class="policy-city"><div><label for="city-select" class="label">City</label><select id="city-select" class="field"></select></div><button id="refresh" type="button" class="secondary">Refresh</button></div>
+<div class="records-toolbar"><div class="records-search"><label for="policy-search" class="sr-only">Search policy names and rules</label><input id="policy-search" type="search" class="field" maxlength="150" placeholder="Search policy names or rules"><button id="clear-filters" type="button" class="secondary">Clear</button></div><button id="toggle-filters" type="button" class="secondary" aria-expanded="false" aria-controls="policy-filters">Filters</button></div>
+<div id="policy-filters" class="records-filters" hidden><div><label for="category-filter" class="label">Category</label><select id="category-filter" class="field"><option value="">All categories</option><option value="NOISE">Noise</option><option value="PARKING">Parking</option><option value="CUSTOM">Custom</option></select></div><div><label for="status-filter" class="label">Status</label><select id="status-filter" class="field"><option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div>
+<p id="policy-count" class="records-summary" aria-live="polite"></p>
+<div class="records-table-scroll" tabindex="0" role="region" aria-label="Policy records"><table class="records-table"><caption class="sr-only">Policies in the selected city</caption><thead><tr><th scope="col">Policy</th><th scope="col">Category</th><th scope="col">Status</th><th scope="col">Revision</th><th scope="col">Updated</th><th scope="col">Action</th></tr></thead><tbody id="policies"></tbody></table></div>
+<footer class="records-pagination"><p id="page-label"></p><div class="records-actions"><button id="previous" type="button" class="secondary">Previous</button><button id="next" type="button" class="secondary">Next</button></div></footer>
+<p class="record-help policy-footnote">Example rules are fictional. Evaluations use the observations you enter and preserve the rule revision used.</p>
 
-    <main id="main-content" tabindex="-1" class="mx-auto max-w-7xl px-5 py-8">
-        <p class="mb-2 text-xs font-bold uppercase tracking-widest text-teal-700">City policies</p>
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Write a rule. Check an observation.</h1>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Manage noise and parking rules, check observations for a city zone and keep a record of the rule used for every result. Example thresholds are fictional.</p>
-        <p id="message" role="status" aria-live="polite" class="my-5 min-h-6 text-sm text-teal-800"></p>
-        <div class="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <aside class="space-y-5">
-                <section class="panel"><label for="city-select" class="label">Choose a city</label><select id="city-select" class="field"></select><button id="refresh" type="button" class="secondary mt-3 w-full">Refresh policies</button></section>
-                <section class="panel" aria-labelledby="list-heading"><div class="flex items-center justify-between gap-3"><h2 id="list-heading" class="text-lg font-semibold">Saved policies</h2><button id="new-policy" type="button" class="secondary">New</button></div>
-                    <p id="policy-count" class="my-3 text-xs text-slate-500"></p><div id="policies" class="space-y-2"></div>
-                    <div class="mt-4 flex items-center justify-between gap-2"><button id="previous" type="button" class="secondary">Previous</button><span id="page-label" class="text-xs text-slate-500"></span><button id="next" type="button" class="secondary">Next</button></div>
-                </section>
-                <section class="panel"><h2 class="font-semibold">Start with an example</h2><p class="my-3 text-xs leading-5 text-slate-500">Each example opens a new draft. Review its meaning before saving.</p>
-                    <button id="noise-example" type="button" class="secondary w-full">Overnight noise limit</button><button id="parking-example" type="button" class="secondary mt-3 w-full">Daytime parking permission</button>
-                </section>
-            </aside>
-            <div class="min-w-0 space-y-5">
-                <section class="panel" aria-labelledby="editor-title"><div class="flex flex-wrap items-center justify-between gap-3"><h2 id="editor-title" class="text-lg font-semibold">New policy</h2><button id="refresh-detail" type="button" class="secondary">Reload saved policy</button></div>
-                    <p id="revision" class="my-3 text-xs text-slate-500"></p>
-                    <form id="policy-form" class="space-y-4">
+<dialog id="policy-detail" class="record-dialog policy-detail" aria-labelledby="detail-title"><header class="dialog-heading"><h2 id="detail-title">Policy details</h2><button type="button" class="dialog-close" data-close aria-label="Close policy details">&#215;</button></header>
+<p id="detail-meta" class="record-help"></p><pre id="detail-rule" class="policy-expression"></pre><p id="detail-meaning" class="record-help"></p>
+<div class="records-actions policy-detail-actions"><button id="edit-policy" type="button" class="secondary" data-roles="CITY_MANAGER SYSTEM_ADMIN">Edit policy</button><button id="evaluate-policy" type="button" class="button">Evaluate observation</button><button id="refresh-detail" type="button" class="secondary">Reload saved policy</button></div><p id="detail-hint" class="record-help"></p>
+<h3 class="policy-history-title">Evaluation history</h3><p class="record-help">Each result keeps the original rule and observations.</p>
+<div class="records-table-scroll" tabindex="0" role="region" aria-label="Evaluation history"><table class="records-table"><caption class="sr-only">Saved evaluation results</caption><thead><tr><th scope="col">Result</th><th scope="col">Zone</th><th scope="col">Revision</th><th scope="col">Evaluated</th><th scope="col">Action</th></tr></thead><tbody id="history"></tbody></table></div>
+<footer class="records-pagination"><span id="history-page"></span><div class="records-actions"><button id="history-previous" type="button" class="secondary">Previous results</button><button id="history-next" type="button" class="secondary">Next results</button></div></footer></dialog>
+
+<dialog id="editor-dialog" class="record-dialog policy-editor" aria-labelledby="editor-title"><header class="dialog-heading"><h2 id="editor-title">New policy</h2><button type="button" class="dialog-close" data-close aria-label="Close policy editor">&#215;</button></header>
+<p id="revision" class="record-help"></p><details id="policy-examples" class="policy-guide"><summary>Start from an example</summary><div class="records-actions"><button id="noise-example" type="button" class="secondary">Overnight noise limit</button><button id="parking-example" type="button" class="secondary">Daytime parking permission</button></div><p class="record-help">Examples create a new draft. Review before saving.</p></details>
+<form id="policy-form" class="record-form">
                         <div><label for="policy-name" class="label">Policy name</label><input id="policy-name" class="field" required maxlength="80" placeholder="e.g. Overnight noise limit"></div>
                         <div class="grid gap-4 sm:grid-cols-2"><div><label for="category" class="label">Category</label><select id="category" class="field"><option value="NOISE">Noise</option><option value="PARKING">Parking</option><option value="CUSTOM">Custom</option></select></div>
                             <div><label for="meaning" class="label">When this rule is true</label><select id="meaning" class="field"><option value="VIOLATION">A violation is detected</option><option value="PERMITTED">The activity is permitted</option></select></div></div>
                         <div><label for="expression" class="label">Rule expression</label><textarea id="expression" class="field font-mono" rows="3" maxlength="1000" required placeholder="noise > 65 AND (hour >= 22 OR hour < 6)"></textarea></div>
                         <label class="flex items-center gap-3 text-sm"><input id="active" type="checkbox" checked> Active for new evaluations</label>
-                        <div class="flex flex-wrap gap-3"><button type="submit" class="button">Save policy</button><button id="validate" type="button" class="secondary">Check rule syntax</button></div>
-                    </form>
-                    <p id="syntax" role="status" class="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-teal-800"></p>
-                    <details class="mt-4 rounded-lg bg-slate-50 p-4"><summary class="cursor-pointer text-sm font-semibold">Rule language guide</summary>
+                        <div class="flex flex-wrap gap-3"><button type="button" class="secondary" data-close>Cancel</button><button type="submit" class="button">Save policy</button><button id="validate" type="button" class="secondary">Check rule syntax</button></div>
+                    </form><p id="syntax" role="status" class="policy-syntax"></p><details class="policy-guide"><summary class="cursor-pointer text-sm font-semibold">Rule language guide</summary>
                         <div class="mt-3 space-y-2 text-xs leading-6 text-slate-600"><p>Fields: <code>noise</code> in dB (0-200, up to 3 decimals), <code>hour</code> (whole hour, 0-23), <code>parkingMinutes</code> (whole minutes, 0-10080).</p>
                             <p>Compare a field with a number using <code>&gt; &gt;= &lt; &lt;= == !=</code>. Combine comparisons with uppercase <code>AND</code>, <code>OR</code> and <code>NOT</code>. Field names are case-sensitive.</p>
                             <p><code>NOT</code> binds first, then <code>AND</code>, then <code>OR</code>. Parentheses change grouping. For overnight hours use <code>hour &gt;= 22 OR hour &lt; 6</code>.</p>
                             <p>Rules support numeric comparisons only. They cannot run code, call functions or compare dates. Limit: 1,000 characters, 200 tokens, 20 nested groups/negations.</p>
                         </div>
-                    </details>
-                </section>
-                <section class="panel" aria-labelledby="evaluate-heading"><h2 id="evaluate-heading" class="text-lg font-semibold">Evaluate an observation</h2><p id="evaluation-hint" class="my-3 text-sm leading-6 text-slate-500">Save or select an active policy to begin.</p>
-                    <form id="evaluation-form" class="space-y-4">
+                    </details></dialog>
+
+<dialog id="evaluation-dialog" class="record-dialog policy-editor" aria-labelledby="evaluate-heading"><header class="dialog-heading"><h2 id="evaluate-heading">Evaluate an observation</h2><button type="button" class="dialog-close" data-close aria-label="Close evaluation">&#215;</button></header><p id="evaluation-hint" class="record-help"></p>
+<form id="evaluation-form" class="record-form">
                         <div><label for="zone-select" class="label">Observation zone</label><select id="zone-select" class="field" required></select></div>
                         <div class="grid gap-4 sm:grid-cols-3"><div><label for="noise" class="label">Noise (dB)</label><input id="noise" type="number" min="0" max="200" step="0.001" class="field"></div>
                             <div><label for="hour" class="label">Local hour (0-23)</label><input id="hour" type="number" min="0" max="23" step="1" class="field"></div>
                             <div><label for="parkingMinutes" class="label">Parking minutes</label><input id="parkingMinutes" type="number" min="0" max="10080" step="1" class="field"></div></div>
                         <div><label for="observation-note" class="label">Observation note (optional)</label><textarea id="observation-note" rows="2" maxlength="500" class="field" placeholder="e.g. Demonstration observation near the library"></textarea></div>
-                        <button type="submit" class="button">Evaluate and save result</button>
-                    </form>
-                    <div id="result" hidden class="mt-5 rounded-xl bg-teal-50 p-4"><h3 id="result-title" class="font-semibold text-teal-900"></h3><p id="result-description" class="mt-2 text-sm leading-6 text-teal-900"></p></div>
-                </section>
-                <section class="panel" aria-labelledby="history-heading"><h2 id="history-heading" class="text-lg font-semibold">Evaluation history</h2><p class="my-3 text-xs leading-5 text-slate-500">Each result keeps its original rule, meaning and observations. Editing a policy does not rewrite earlier results.</p><div id="history" class="space-y-3"></div>
-                    <div class="mt-4 flex items-center justify-between gap-3"><button id="history-previous" type="button" class="secondary">Previous results</button><span id="history-page" class="text-xs text-slate-500"></span><button id="history-next" type="button" class="secondary">Next results</button></div>
-                </section>
-            </div>
-        </div>
-    </main>
-</body>
-</html>
+                        <footer class="dialog-actions"><button type="button" class="secondary" data-close>Close</button><button type="submit" class="button">Evaluate and save result</button></footer>
+                    </form><section id="result" hidden class="policy-result"><h3 id="result-title"></h3><p id="result-description"></p></section></dialog>
+<dialog id="history-detail" class="record-dialog" aria-labelledby="history-title"><header class="dialog-heading"><h2 id="history-title">Saved evaluation</h2><button type="button" class="dialog-close" data-close aria-label="Close saved evaluation">&#215;</button></header><div id="history-content"></div><footer class="dialog-actions"><button type="button" class="secondary" data-close>Close</button></footer></dialog>
+</main></body></html>

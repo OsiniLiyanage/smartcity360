@@ -51,10 +51,10 @@
         const role = SmartCityAuth.user.role;
         const rolePages = {
             RESIDENT:['home.html','account.html','complaints.html','reports.html'],
-            LOCAL_STAFF:['home.html','account.html','complaints.html','meters.html','streetlights.html','reports.html'],
-            SUPERVISOR:['home.html','account.html','complaints.html','index.html','meters.html','streetlights.html','reports.html'],
+            LOCAL_STAFF:['home.html','account.html','complaints.html','meters.html','streetlights.html','policies.html','reports.html'],
+            SUPERVISOR:['home.html','account.html','complaints.html','index.html','meters.html','streetlights.html','policies.html','reports.html'],
             CITY_MANAGER:['home.html','account.html','complaints.html','index.html','meters.html','streetlights.html','policies.html','reports.html'],
-            SYSTEM_ADMIN:['home.html','account.html','complaints.html','index.html','meters.html','streetlights.html','accounts.html','reports.html']
+            SYSTEM_ADMIN:['home.html','account.html','complaints.html','index.html','meters.html','streetlights.html','policies.html','accounts.html','reports.html']
         };
         function trimNavigation() {
             document.querySelectorAll('.sidebar-link,.shortcut').forEach(link => {
