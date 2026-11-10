@@ -24,9 +24,9 @@
         });});
     }
     if(page==='account.html') {
-        act(async()=>{if(!auth.user)return;$('#display-name').value=auth.user.displayName;$('#account-details').textContent=`${auth.user.email} | ${auth.roleNames[auth.user.role]}`;
+        act(async()=>{if(!auth.user)return;$('#display-name').value=auth.user.displayName;
             $('#message').textContent=auth.user.passwordChangeRequired?'Change your temporary password before opening your workspace.':'Manage your profile and sign-in password.';});
-        $('#profile-form').addEventListener('submit',event=>{event.preventDefault();act(async()=>{await auth.json('auth/profile','PUT',{displayName:$('#display-name').value});$('#message').textContent='Profile saved. Your updated name appears on your next page visit.';});});
+        $('#profile-form').addEventListener('submit',event=>{event.preventDefault();act(async()=>{const updated=await auth.json('auth/profile','PUT',{displayName:$('#display-name').value});Object.assign(auth.user,updated);window.dispatchEvent(new Event('smartcity:profile-updated'));$('#message').textContent='Your name has been saved.';});});
         $('#password-form').addEventListener('submit',event=>{event.preventDefault();act(async()=>{
             if($('#new-password').value!==$('#confirm-password').value)throw new Error('The new passwords do not match.');
             await auth.json('auth/password','PUT',{currentPassword:$('#current-password').value,newPassword:$('#new-password').value});

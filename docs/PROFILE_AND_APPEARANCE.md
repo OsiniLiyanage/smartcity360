@@ -33,3 +33,10 @@ Navigation visibility does not replace server authorization or revoke otherwise 
 `city.archived` hides older demonstration cities from the global city selector without deleting records. Staff assigned to an archived city can still access that city, preserving their saved work. Existing direct record access continues to use the established role rules. New cities default to visible. Archiving is currently a database maintenance operation, not a new UI feature.
 
 Demo account credentials, local seed/reset scripts and database backups are deliberately excluded from version control. The shared local demonstration password is not a production default and is not installed by a migration.
+
+
+## Profile workspace
+
+Profile has an overview with a circular photo area, display name, role and saved contact details. An empty photo uses a person icon. Upload/Change photo buttons open the file picker; the raw file field is hidden. Selected files preview immediately, but the explicit save is required to persist the photo. Removing an existing picture is also a pending change until saved. Choosing the same file again is supported.
+
+Details, Security and Appearance controls show separate settings sections. Display name uses the existing profile endpoint; username, phone and photo use the existing profile-details endpoint. Successful saves update the overview and sidebar immediately. A required temporary-password change opens Security automatically. The frontend retains the existing JPEG/PNG/WebP size validation, square crop, JPEG conversion and server validation. `profile.css` and `profile.js` own this page; the shared refinement script supplies the configured font selector.

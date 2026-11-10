@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><script src="assets/js/theme.js?v=scene3"></script><meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8"><script src="assets/js/theme.js?v=profile1"></script><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SmartCity360 | City policies</title>
     <link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=scene3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><script src="assets/js/feedback.js?v=green1" defer></script><script src="assets/js/shell.js?v=green1" defer></script><script src="assets/js/auth.js?v=green1" defer></script><script src="assets/js/policies.js?v=green1" defer></script>
 </head>
@@ -37,7 +37,7 @@
                     </form>
                     <p id="syntax" role="status" class="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-teal-800"></p>
                     <details class="mt-4 rounded-lg bg-slate-50 p-4"><summary class="cursor-pointer text-sm font-semibold">Rule language guide</summary>
-                        <div class="mt-3 space-y-2 text-xs leading-6 text-slate-600"><p>Fields: <code>noise</code> in dB (0â€“200, up to 3 decimals), <code>hour</code> (whole hour, 0â€“23), <code>parkingMinutes</code> (whole minutes, 0â€“10080).</p>
+                        <div class="mt-3 space-y-2 text-xs leading-6 text-slate-600"><p>Fields: <code>noise</code> in dB (0-200, up to 3 decimals), <code>hour</code> (whole hour, 0-23), <code>parkingMinutes</code> (whole minutes, 0-10080).</p>
                             <p>Compare a field with a number using <code>&gt; &gt;= &lt; &lt;= == !=</code>. Combine comparisons with uppercase <code>AND</code>, <code>OR</code> and <code>NOT</code>. Field names are case-sensitive.</p>
                             <p><code>NOT</code> binds first, then <code>AND</code>, then <code>OR</code>. Parentheses change grouping. For overnight hours use <code>hour &gt;= 22 OR hour &lt; 6</code>.</p>
                             <p>Rules support numeric comparisons only. They cannot run code, call functions or compare dates. Limit: 1,000 characters, 200 tokens, 20 nested groups/negations.</p>
@@ -48,7 +48,7 @@
                     <form id="evaluation-form" class="space-y-4">
                         <div><label for="zone-select" class="label">Observation zone</label><select id="zone-select" class="field" required></select></div>
                         <div class="grid gap-4 sm:grid-cols-3"><div><label for="noise" class="label">Noise (dB)</label><input id="noise" type="number" min="0" max="200" step="0.001" class="field"></div>
-                            <div><label for="hour" class="label">Local hour (0â€“23)</label><input id="hour" type="number" min="0" max="23" step="1" class="field"></div>
+                            <div><label for="hour" class="label">Local hour (0-23)</label><input id="hour" type="number" min="0" max="23" step="1" class="field"></div>
                             <div><label for="parkingMinutes" class="label">Parking minutes</label><input id="parkingMinutes" type="number" min="0" max="10080" step="1" class="field"></div></div>
                         <div><label for="observation-note" class="label">Observation note (optional)</label><textarea id="observation-note" rows="2" maxlength="500" class="field" placeholder="e.g. Demonstration observation near the library"></textarea></div>
                         <button type="submit" class="button">Evaluate and save result</button>

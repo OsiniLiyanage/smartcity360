@@ -50,7 +50,7 @@
         const style = document.createElement('link');
         style.rel = 'stylesheet'; style.href = 'assets/css/refinements.css?v=scene3'; document.head.append(style);
         const script = document.createElement('script');
-        script.src = 'assets/js/refinements.js?v=scene3'; document.head.append(script);
+        script.src = 'assets/js/refinements.js?v=profile1'; document.head.append(script);
         if (!document.body.classList.contains('workspace')) mount(document.body).classList.add('auth-theme-control');
     });
 })();
