@@ -109,13 +109,11 @@ body { background-color:var(--page); background-image:radial-gradient(ellipse at
 .workspace .banner-copy h2 {color:var(--banner-ink);}
 .workspace .banner-copy p {color:var(--banner-muted);font-size:14px;}
 .workspace .banner-copy {max-width:480px;}
-.workspace .metric-card {background:var(--card-lime);border-color:var(--accent-line);}
-.workspace .metric-card:nth-child(2) {background:var(--card-green);}
-.workspace .metric-card:nth-child(3) {background:var(--surface);border-top:4px solid var(--accent);}
+.workspace .metric-card,.workspace .metric-card:nth-child(2),.workspace .metric-card:nth-child(3) {background:var(--summary-surface);border:1px solid var(--component-line);border-top:3px solid var(--accent);}
 .workspace .metric-card>div {font-size:14px;color:var(--text);}
 .workspace .metric-card p {font-size:12px;}
 .workspace table {background:var(--surface);color:var(--text);}
-.workspace table thead th {background:var(--table-heading);color:var(--text);font-weight:600;border-bottom:2px solid var(--accent-line);padding:14px 16px;}
+.workspace table thead th {background:var(--table-heading);color:var(--text);font-weight:600;border-bottom:1px solid var(--component-line);padding:14px 16px;}
 .workspace table tbody td {border-bottom:1px solid var(--line);padding:14px 16px;}
 .workspace table tbody tr:nth-child(even) {background:var(--table-stripe);}
 .workspace table tbody tr:hover {background:var(--table-hover);}

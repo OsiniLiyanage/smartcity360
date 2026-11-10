@@ -92,5 +92,5 @@
 
 /* Cohesive lime accents and readable photographic banner. */
 :root {--banner-base:#173b2b;--banner-fade:#173b2bdf;--banner-clear:#173b2b18;--banner-ink:#f5faee;--banner-muted:#dceacb;}
-:root,:root[data-theme="light"] {--table-heading:#e4efbb;--table-stripe:#f0f5e6;--table-hover:#e5f2c1;--card-lime:#d9edaa;--card-green:#e6efcd;}
-:root[data-theme="dark"] {--table-heading:#354b28;--table-stripe:#243b2c;--table-hover:#384f2b;--card-lime:#3b5125;--card-green:#2b4430;}
+:root,:root[data-theme="light"] {--table-heading:#d1e7dd;--table-stripe:#edf5f1;--table-hover:#dceee5;--summary-surface:#e2f0e8;--component-line:#a8cabc;}
+:root[data-theme="dark"] {--table-heading:#2c4b40;--table-stripe:#233d33;--table-hover:#335448;--summary-surface:#29473b;--component-line:#517565;}
