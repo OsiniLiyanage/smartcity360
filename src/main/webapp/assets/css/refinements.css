@@ -82,3 +82,23 @@ body { background-color:var(--page); background-image:radial-gradient(ellipse at
 @media(max-width:800px) { .workspace>main { padding-top:76px; } .auth-theme-control { top:12px; right:12px; } }
 @media(prefers-reduced-motion:reduce) { .theme-toggle .theme-thumb { transition:none; } }
 @media print { body { background-image:none !important; } .theme-control,.profile-appearance { display:none !important; } }
+/* Dashboard cards and coordinated action surfaces. */
+.workspace .metric-card {border:1px solid var(--line);border-radius:14px;padding:24px;background:var(--secondary-soft);box-shadow:0 6px 20px var(--shadow);color:var(--text);}
+.workspace .metric-card:nth-child(2) {background:var(--warning-soft);}
+.workspace .metric-card:nth-child(3) {background:var(--success-soft);}
+.workspace .metric-card strong {color:var(--text);}
+.workspace .metric-card p,.workspace .metric-card>div {color:var(--muted);}
+.workspace .metric-mark {background:var(--surface);color:var(--secondary);border:1px solid var(--line);}
+.workspace .metric-card:nth-child(2) .metric-mark {color:var(--warning);}
+.workspace .metric-card:nth-child(3) .metric-mark {color:var(--success);}
+.workspace .dashboard-lower>.panel {background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:0 6px 20px var(--shadow);}
+.workspace .shortcut {background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;}
+.workspace .shortcut:hover {background:var(--secondary-soft);border-color:var(--secondary);}
+.button {background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:8px;}
+.button:hover:not(:disabled) {background:var(--accent-hover);border-color:var(--accent-hover);}
+.secondary {background:var(--secondary-soft);color:var(--secondary);border:1px solid var(--line);border-radius:8px;}
+.secondary:hover:not(:disabled) {border-color:var(--secondary);background:var(--surface-alt);}
+.button:disabled,.secondary:disabled {opacity:.5;cursor:not-allowed;}
+.button:focus-visible,.secondary:focus-visible {outline:2px solid var(--focus);outline-offset:3px;}
+.app-sidebar>.theme-control {width:100%;align-self:center;justify-content:center;}
+.app-sidebar .theme-control .theme-toggle {margin-left:auto;margin-right:auto;float:none;}
