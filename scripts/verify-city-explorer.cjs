@@ -1,0 +1,11 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const {key,path,listing}=require('../src/main/webapp/assets/js/city-explorer-model.js');
+const building={id:1,type:'BUILDING',name:'Library',children:[]};
+const street={id:2,type:'STREET',name:'Library Road',children:[building]};
+const district={id:1,type:'DISTRICT',name:'Central',children:[street]};
+const root={id:1,type:'CITY',name:'Colombo',children:[district]};
+test('Breadcrumbs retain all ancestors and distinguish overlapping IDs',()=>{assert.deepEqual(path(root,key(building)).map(key),['CITY:1','DISTRICT:1','STREET:2','BUILDING:1']);assert.deepEqual(path(root,'CITY:1'),[root]);});
+test('Removed or missing selection can be detected without a fabricated path',()=>{assert.equal(path(root,'BUILDING:404'),null);assert.equal(path(null,'CITY:1'),null);});
+test('Search stays within the current folder and ignores case and surrounding spaces',()=>{assert.equal(listing(root,'Library').total,0);assert.deepEqual(listing(street,'  LIBRARY ').rows,[building]);assert.equal(listing(building).total,0);});
+test('Pagination includes every sibling once, clamps page after filtering and never mutates source',()=>{const folder={children:Array.from({length:52},(_,i)=>({id:i,type:'BUILDING',name:`Building ${i}`}))};const before=JSON.stringify(folder);const ids=[0,1,2].flatMap(p=>listing(folder,'',p).rows.map(n=>n.id));assert.deepEqual(ids,Array.from({length:52},(_,i)=>i));assert.equal(listing(folder,'Building 51',2).page,0);assert.equal(listing(folder,'',99).rows.length,2);assert.equal(JSON.stringify(folder),before);});
+test('Empty results have a usable first page; negative pages cannot wrap to last items',()=>{assert.deepEqual(listing(null),{rows:[],total:0,page:0,pages:1});assert.equal(listing(street,'unknown',4).page,0);assert.deepEqual(listing(street,'',-1).rows,[building]);});

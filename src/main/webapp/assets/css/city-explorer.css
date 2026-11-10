@@ -1,0 +1,37 @@
+/* City explorer layout; use the shared palette and records components. */
+.city-selector { display:flex; align-items:end; gap:12px; padding-bottom:24px; border-bottom:1px solid var(--line); }
+.city-selector>div { width:min(380px,100%); }
+.explorer-breadcrumbs { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:22px 0; font-size:13px; }
+.explorer-breadcrumbs button { border:0; background:transparent; color:var(--accent-text); padding:6px 2px; text-decoration:underline; text-underline-offset:3px; overflow-wrap:anywhere; }
+.explorer-breadcrumbs span { color:var(--muted); overflow-wrap:anywhere; }
+.explorer-breadcrumbs [aria-current] { color:var(--text); font-weight:600; }
+.explorer-heading { display:flex; justify-content:space-between; align-items:center; gap:18px; margin:8px 0 20px; }
+.explorer-heading h2 { margin:0; font-size:23px; overflow-wrap:anywhere; }
+.explorer-heading p { color:var(--muted); font-size:13px; margin:8px 0 0; }
+.city-explorer .records-toolbar { border-top:0; padding-top:0; }
+.city-explorer .records-table td { min-width:90px; }
+.zone-open { display:flex; align-items:center; gap:12px; padding:6px 0; width:100%; text-align:left; border:0; background:transparent; color:var(--text); }
+.zone-open:hover .zone-label { color:var(--accent-text); text-decoration:underline; }
+.zone-open svg { width:24px; height:24px; flex-shrink:0; color:var(--secondary); }
+.zone-open .zone-label { overflow-wrap:anywhere; }
+.zone-arrow { margin-left:auto; color:var(--muted); }
+.explorer-footnote { color:var(--muted); font-size:12px; line-height:1.6; margin:26px 0 0; }
+.explorer-empty { padding:44px 0; color:var(--muted); }
+.zone-detail-dialog { width:min(620px,calc(100vw - 28px)); }
+.zone-facts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin:24px 0; padding-bottom:24px; border-bottom:1px solid var(--line); }
+.zone-facts dt { font-size:12px; color:var(--muted); margin-bottom:8px; }
+.zone-facts dd { margin:0; font-size:17px; overflow-wrap:anywhere; }
+.zone-facts dd.record-help { font-size:12px; margin-top:6px; }
+.zone-detail-dialog h3 { font-size:16px; margin:0 0 8px; }
+.zone-detail-dialog section { margin:24px 0; }
+.zone-detail-dialog .record-form { margin-top:16px; }
+.zone-detail-dialog .record-form>.button { justify-self:start; }
+.zone-detail-dialog .records-actions { margin:14px 0; }
+#selected-path,#add-location { overflow-wrap:anywhere; }
+#add-location { margin-bottom:20px; }
+@media(max-width:800px) {
+ .explorer-heading { flex-direction:column; align-items:flex-start; }
+ .city-explorer .records-table { min-width:590px; }
+ .city-selector>div { min-width:0; }
+ .zone-facts { grid-template-columns:1fr 1fr; }
+}
