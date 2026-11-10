@@ -17,8 +17,8 @@
 :root[data-font="humanist"] { --font-body: var(--font-humanist); }
 :root, :root[data-theme="light"] {
   color-scheme: light;
-  --page: #f5f8f4;
-  --surface: #ffffff;
+  --page: #e7f0ea;
+  --surface: #f4faf6;
   --surface-alt: #edf3ed;
   --text: #1b2922;
   --muted: #52645b;
@@ -49,13 +49,13 @@
   --auth-scene-shade: #07181088;
   --auth-scene-clear: #edf3ed12;
   --auth-shadow: #10251c30;
-  --gradient-green: #9edbba50;
-  --gradient-teal: #98d9d63b;
+  --gradient-green: #77d5a785;
+  --gradient-teal: #72cbd380;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --page: #101714;
-  --surface: #18221d;
+  --page: #192d28;
+  --surface: #20372f;
   --surface-alt: #213029;
   --text: #edf4ef;
   --muted: #afc2b7;
@@ -86,6 +86,6 @@
   --auth-scene-shade: #07181099;
   --auth-scene-clear: #10171426;
   --auth-shadow: #00000066;
-  --gradient-green: #27845a38;
-  --gradient-teal: #268c912e;
+  --gradient-green: #3b986d70;
+  --gradient-teal: #3489a06b;
 }
