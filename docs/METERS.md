@@ -34,9 +34,13 @@ within their permitted city. Residents have no access to this workspace.
 
 ## Manual layout checklist
 
-The 10 November records revision has basic JavaScript syntax, HTML control
-reference and packaging checks. Browser interaction and write workflows have
-not been rechecked for this layout.
+The 10 November records revision was checked with a real administrator session:
+saved reading submission, nested credential dialog, missing/invalid credential
+feedback, recovery, corrupted-copy rejection and persistence after reload.
+Desktop and 390px mobile layouts were sampled in both themes. API checks covered
+all five roles and city boundaries. The checklist remains useful for later changes;
+multi-page lists, all-role visual acceptance and credential replacement were not
+retested in this pass.
 
 1. Search meters by name/building, open one and use Back to meters. Check
    pagination where there are more than 25 meters or readings.
@@ -52,6 +56,23 @@ not been rechecked for this layout.
 5. Check Close/Escape, alerts, both themes and mobile table scrolling. Local
    staff should not see registration or credential replacement. Avoid replacing
    a credential solely for a visual check: it invalidates the previous value.
+
+## Sample library meters
+
+`node scripts/seed-sample-meters.mjs` previews one library meter in each of the
+five existing sample cities. Add `--apply` to save. It uses the existing local
+administrator helper (or `SMARTCITY_EMAIL` and `SMARTCITY_PASSWORD`). It refuses
+non-local servers and does not create cities, reset records or replace credentials.
+An initial reading copies the building's current usage so city totals stay the same.
+Existing meters/readings are kept. Newly issued credentials are saved privately in
+ignored `.local/sample-meter-credentials.json`, never printed or committed.
+If an existing meter has no locally saved credential, its empty history is left alone.
+These are current sample submissions, not invented historical readings.
+
+Saved-reading inspection now enables recovery immediately after a reload. A rejected
+meter credential displays its error without redirecting a signed-in user to login;
+an expired account session still redirects. `node scripts/verify-auth-session.cjs`
+checks that distinction and session-verification outages with four focused tests.
 
 ## API
 
