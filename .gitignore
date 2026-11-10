@@ -13,6 +13,10 @@ node_modules/
 .local/
 out/
 
+# Generated private submission documents (source remains under docs/submission/)
+/SmartCity360_Project_Document*.docx
+/docs/submission/generated/
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
