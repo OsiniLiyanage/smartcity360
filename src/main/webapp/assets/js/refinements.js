@@ -54,7 +54,7 @@
             LOCAL_STAFF:['home.html','account.html','complaints.html','meters.html','streetlights.html','reports.html'],
             SUPERVISOR:['home.html','account.html','complaints.html','index.html','meters.html','streetlights.html','reports.html'],
             CITY_MANAGER:['home.html','account.html','complaints.html','index.html','meters.html','streetlights.html','policies.html','reports.html'],
-            SYSTEM_ADMIN:['home.html','account.html','complaints.html','index.html','streetlights.html','accounts.html','reports.html']
+            SYSTEM_ADMIN:['home.html','account.html','complaints.html','index.html','meters.html','streetlights.html','accounts.html','reports.html']
         };
         function trimNavigation() {
             document.querySelectorAll('.sidebar-link,.shortcut').forEach(link => {
