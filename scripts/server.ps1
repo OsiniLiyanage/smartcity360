@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('Setup', 'Start', 'Stop', 'Deploy', 'Status', 'Version')]
+    [ValidateSet('Setup', 'Start', 'Stop', 'Deploy', 'RepairDeploy', 'Status', 'Version')]
     [string]$Action = 'Status',
     [string]$PayaraHome = (Join-Path $PSScriptRoot '..\..\tools\payara7'),
     [string]$JavaHome = 'C:\Program Files\Java\jdk-21'
@@ -73,13 +73,25 @@ switch ($Action) {
     'Status' {
         Invoke-Payara -Arguments @('list-domains', '--domaindir', $domains)
     }
-    'Deploy' {
+    { $_ -in 'Deploy', 'RepairDeploy' } {
         $war = Join-Path $projectRoot 'target\smartcity360.war'
         if (-not (Test-Path -LiteralPath $war)) {
             throw 'Build the application with mvn package before deploying.'
         }
-        Invoke-Payara -Arguments @('--host', '127.0.0.1', '--port', '9048',
-            'deploy', '--force=true', '--name', 'smartcity360',
-            '--contextroot', 'smartcity360', $war)
+        $remoteArguments = @('--host', '127.0.0.1', '--port', '9048')
+        # Read the local domain registration even when a broken application did
+        # not load at startup and cannot appear in the live application list.
+        [xml]$deploymentConfig = Get-Content -LiteralPath $domainConfig -Raw
+        $existing = $deploymentConfig.SelectSingleNode('/domain/applications/application[@name="smartcity360"]')
+        if ($Action -eq 'RepairDeploy' -and $null -ne $existing) {
+            Write-Host 'Removing the old application registration before reinstalling the WAR. PostgreSQL records are preserved.'
+            Invoke-Payara -Arguments ($remoteArguments + @('undeploy', 'smartcity360'))
+            $existing = $null
+        }
+        if ($null -ne $existing) {
+            Invoke-Payara -Arguments ($remoteArguments + @('redeploy', '--name', 'smartcity360', $war))
+        } else {
+            Invoke-Payara -Arguments ($remoteArguments + @('deploy', '--name', 'smartcity360', '--contextroot', 'smartcity360', $war))
+        }
     }
 }

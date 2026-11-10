@@ -6,6 +6,9 @@ Create city hierarchies, process meter readings with optional authentication/com
 
 ## Requirements
 
+For the one-command IntelliJ workflow and deployment repair, see
+[Run from IntelliJ](docs/INTELLIJ_RUN.md).
+
 - JDK 21
 - Maven
 - Payara Community 7, compatible with Jakarta EE 11
