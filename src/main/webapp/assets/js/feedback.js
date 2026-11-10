@@ -48,13 +48,14 @@
         inline(target,'loading');
         trigger?.setAttribute('aria-busy','true'); form?.setAttribute('aria-busy','true');
         let loading, finished = false;
-        const timer = action ? setTimeout(() => { loading = show('loading','Please wait while this action finishes.'); },400) : null;
+        const timer = null;
         return {finish(kind = 'success',message = target?.textContent) {
             if (finished) return; finished = true; clearTimeout(timer); loading?.close();
             trigger?.removeAttribute('aria-busy'); form?.removeAttribute('aria-busy');
             inline(target,action ? kind : (kind === 'error' ? 'error' : 'info'));
             if (target) target.dataset.feedbackMessage = message || '';
-            if ((action || kind === 'error') && message && !/^(Working|Loading)(\.{3}|\u2026| saved data)/.test(message)) show(kind,message);
+            const saved = action?.type === 'submit' && /\b(saved|created|updated|registered|submitted|resolved|assigned|changed|sent|completed)\b/i.test(message || '');
+            if ((kind === 'error' || kind === 'warning' || saved) && message) show(kind,message);
         }};
     }
     function flash(key) { if (Object.hasOwn(flashMessages,key)) try { sessionStorage.setItem('smartcity.feedback',key); } catch {} }
@@ -63,7 +64,7 @@
         if (!(element instanceof Element) || element.closest('.feedback-stack')) return;
         const button = event.submitter || element.closest('button');
         if (type === 'click' && !button) return;
-        interaction = {button,form:element.closest('form')};
+        interaction = {type,button,form:element.closest('form')};
         // Native event listeners can have a microtask checkpoint between capture and bubble.
         // Retain the triggering action until the next task, or until begin consumes it.
         const active = interaction; setTimeout(() => { if (interaction === active) interaction = null; },0);
@@ -78,7 +79,7 @@
     function ready() {
         mount();
         let key; try { key = sessionStorage.getItem('smartcity.feedback'); sessionStorage.removeItem('smartcity.feedback'); } catch {}
-        if (Object.hasOwn(flashMessages,key)) show('success',flashMessages[key]);
+        if (Object.hasOwn(flashMessages,key) && !['signed-in','signed-out'].includes(key)) show('success',flashMessages[key]);
     }
     window.SmartCityFeedback = {show,begin,flash};
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',ready); else ready();

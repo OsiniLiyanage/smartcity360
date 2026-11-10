@@ -33,16 +33,16 @@ function fixture(){
 }
 function text(card){return card.children[1].children[1].textContent;}
 test('capture survives microtasks; success appears only after finish',async()=>{
- const f=fixture();f.capture();await Promise.resolve();const action=f.api.begin();
+ const f=fixture();f.capture('submit');await Promise.resolve();const action=f.api.begin();
  assert.equal(f.cards().length,0);assert.equal(f.button.attributes['aria-busy'],'true');
  action.finish('success','Profile saved.');assert.equal(text(f.cards()[0]),'Profile saved.');
  assert.equal(f.button.attributes['aria-busy'],undefined);assert.equal(f.message.dataset.feedbackState,'success');
  action.finish('error','Should not appear');assert.equal(f.cards().length,1);
 });
-test('slow action shows loading then replaces it with its result',()=>{
+test('slow routine actions remain quiet',()=>{
  const f=fixture();f.capture();const action=f.api.begin();f.advance(399);assert.equal(f.cards().length,0);
- f.advance(1);assert.equal(f.cards()[0].className,'feedback-toast feedback-loading');
- action.finish('success','Updated.');assert.equal(f.cards().length,1);assert.equal(text(f.cards()[0]),'Updated.');
+ f.advance(1);assert.equal(f.cards().length,0);
+ action.finish('success','Updated.');assert.equal(f.cards().length,0);
 });
 test('background loads stay quiet and earlier clicks expire',()=>{
  const f=fixture();f.api.begin().finish('success','Loaded.');assert.equal(f.cards().length,0);
