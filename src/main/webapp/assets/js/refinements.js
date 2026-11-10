@@ -9,7 +9,7 @@
     if (!Object.hasOwn(fonts, chosen)) chosen = 'classic';
     setFont(chosen);
     const favicon = document.createElement('link');
-    favicon.rel = 'icon'; favicon.type = 'image/svg+xml'; favicon.href = 'assets/images/app-icon.svg';
+    favicon.rel = 'icon'; favicon.type = 'image/svg+xml'; favicon.href = 'assets/images/app-icon.svg?v=city2';
     document.head.append(favicon);
     async function mount() {
         await window.SmartCityAuth?.ready;
@@ -21,7 +21,7 @@
         document.querySelectorAll('.app-brand').forEach(brand => {
             brand.setAttribute('aria-label',document.body.classList.contains('auth-page')?'SmartCity360 sign in':'SmartCity360 dashboard');
             const symbol = brand.querySelector('.brand-symbol');
-            const image = document.createElement('img'); image.src='assets/images/app-icon.svg'; image.alt='';
+            const image = document.createElement('img'); image.src='assets/images/app-icon.svg?v=city2'; image.alt='';
             if(symbol) symbol.replaceChildren(image);
         });
         const introduction=document.querySelector('.auth-art-copy h1');
