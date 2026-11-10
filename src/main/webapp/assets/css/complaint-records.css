@@ -1,0 +1,19 @@
+/* Complaint records and separate forms. Shared tokens remain in themes.css. */
+.complaint-records .records-toolbar { align-items:flex-end; flex-wrap:wrap; }
+.case-city { min-width:200px; flex:0 1 240px; }
+.complaint-records .records-search { min-width:180px; }
+.case-dialog { width:min(820px,calc(100vw - 28px)); }
+.case-body { padding:0; border:0; background:transparent; }
+.case-body h2 { font-size:23px; line-height:1.4; }
+.case-body .workflow-panel { padding:20px 0; }
+.case-body form .button,.case-body form .secondary { justify-self:start; }
+.complaint-records .record-dialog .field { width:100%; }
+#submit-city { margin:0 0 18px; }
+.complaint-records .records-table td:first-child { min-width:85px; }
+.complaint-records .records-table td:nth-child(2) { min-width:180px; }
+@media(max-width:800px) {
+ .complaint-records>main { padding-left:20px; padding-right:20px; }
+ .case-city { flex-basis:100%; }
+ .complaint-records .records-search { flex-basis:100%; }
+ .complaint-records .records-table { min-width:850px; }
+}

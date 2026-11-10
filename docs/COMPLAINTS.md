@@ -60,9 +60,9 @@ The migration adds a nullable foreign key and index, preserving older complaints
 
 The complaint detail screen includes these controls for authorized roles. Apply the migration before deploying Java code that maps the new column.
 
-Resident name is 1–100 characters; subject 1–160; description 1–2000; work/escalation note 1–1000. Text is trimmed, JSON value types are checked, and null/array/scalar request bodies are rejected with 400. Cross-city or missing targets return 404. Invalid work transitions and stale versions return 409.
+Resident name is 1â€“100 characters; subject 1â€“160; description 1â€“2000; work/escalation note 1â€“1000. Text is trimmed, JSON value types are checked, and null/array/scalar request bodies are rejected with 400. Cross-city or missing targets return 404. Invalid work transitions and stale versions return 409.
 
-Allowed work transitions: ASSIGNED → IN_PROGRESS → RESOLVED; RESOLVED → IN_PROGRESS reopens work. Severity escalation is separate from those transitions. Do not retry a timed-out submission blindly: refresh the queue first to check whether it was saved.
+Allowed work transitions: ASSIGNED â†’ IN_PROGRESS â†’ RESOLVED; RESOLVED â†’ IN_PROGRESS reopens work. Severity escalation is separate from those transitions. Do not retry a timed-out submission blindly: refresh the queue first to check whether it was saved.
 
 ## Persistence and consistency
 
@@ -92,3 +92,10 @@ Open a complaint from Dashboard or Complaint queue. Supervisors and higher roles
 Use **Message / public reply** for text the resident may read. Use **Private work note / resolution details** for staff-only information. The owning resident can message the team and, after resolution, request reopening. Authorized managers review the request using a decision and public explanation. Pending requests remain resolved until approved. The screen refreshes the saved version after each accepted action; a stale conflict asks for refreshed details rather than silently retrying.
 
 `node scripts/verify-complaint-follow-up.mjs` reuses private demo accounts, creates a labelled case, and checks allocation, messages, private history, repeated/stale requests, review validation, concurrency, escalation release and city/tier boundaries. No passwords are printed or committed.
+
+
+## Records workspace
+
+The complaints page now opens with a full-width records table. City selection, subject/reference search, expandable status and severity filters, and 25-row pagination apply to the complete authorized city response. Search also accepts a leading `#` before a reference. Only residents get the New complaint action, which opens a separate modal form. Selecting a table reference opens case details, handling history and the existing permitted workflow controls in a separate dialog. Dashboard/report deep links continue to open the selected case.
+
+Dialog Escape does not collapse navigation. Closing is blocked during a pending request, action alerts appear inside the active dialog, and the case remains open after a workflow action. The underlying API permission and private-note rules are unchanged. Layout rules are in `assets/css/complaint-records.css`; shared record styles and all color/font tokens remain in their existing configuration files.

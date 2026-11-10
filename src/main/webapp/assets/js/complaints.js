@@ -11,6 +11,7 @@ let ready = false;
 let busy = false;
 let complaints = [];
 let selected = null;
+let recordPage = 0, filteredCount = 0;
 let candidatePage=0, candidatesComplete=false;
 
 async function request(path, method = 'GET', body) {
@@ -27,7 +28,7 @@ async function act(operation) {
     if (busy) return;
     const feedback = SmartCityFeedback.begin(); let outcome = 'success';
     busy = true;
-    $('#message').textContent = 'Working…';
+    $('#message').textContent = 'WorkingÃ¢â‚¬Â¦';
     delete $('#message').dataset.error;
     controls();
     try { await operation(); }
@@ -44,6 +45,9 @@ function controls() {
     $('#complaint-form').querySelectorAll('button, input, textarea, select').forEach(element => { element.disabled = busy || !ready; });
     $('#refresh-detail').disabled = busy || !selected;
     $('#load-assignees').disabled=busy||candidatesComplete;
+    $('#new-complaint').disabled=busy||!ready;
+    $('#case-previous').disabled=busy||recordPage===0;
+    $('#case-next').disabled=busy||(recordPage+1)*25>=filteredCount;
 }
 function element(tag, text, className = '') {
     const node = document.createElement(tag);
@@ -51,32 +55,58 @@ function element(tag, text, className = '') {
     node.className = className;
     return node;
 }
+function openDialog(dialog, opener) {
+    const stack=document.querySelector('.feedback-stack');
+    if(stack)dialog.append(stack);
+    dialog.addEventListener('close',()=>{
+        if(stack?.parentElement===dialog)document.body.append(stack);
+        requestAnimationFrame(()=>{
+            if(!document.querySelector('dialog[open]')) {
+                if(opener?.isConnected&&!opener.disabled)opener.focus();else $('#search').focus();
+            }
+        });
+    },{once:true});
+    dialog.showModal();
+    dialog.querySelector('[data-dialog-title]').focus();
+}
+for(const dialog of document.querySelectorAll('.record-dialog')) {
+    dialog.addEventListener('keydown',event=>{if(event.key==='Escape')event.stopPropagation();});
+    dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
+    dialog.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>{if(!busy)dialog.close();}));
+}
 function list() {
-    const query = $('#search').value.trim().toLocaleLowerCase();
-    const status = $('#status-filter').value;
-    const shown = complaints.filter(item => (!status || item.status === status)
+    const query = $('#search').value.trim().toLocaleLowerCase().replace(/^#/, '');
+    const status = $('#status-filter').value, severity=$('#severity-filter').value;
+    const shown = complaints.filter(item => (!status || item.status === status) && (!severity || item.severity === severity)
         && `${item.id} ${item.subject}`.toLocaleLowerCase().includes(query));
-    $('#queue-count').textContent = `${shown.length} of ${complaints.length} complaints`;
-    const container = $('#complaint-list');
-    container.replaceChildren();
-    if (!shown.length) container.append(element('p', ready ? 'No complaints match this view.' : 'Choose a city to load complaints.', 'py-5 text-sm text-slate-500'));
-    for (const item of shown) {
-        const button = element('button', '', 'tree-node');
-        button.type = 'button';
-        button.setAttribute('aria-pressed', String(item.id === selected?.id));
-        button.setAttribute('aria-label', `Complaint ${item.id}: ${item.subject}`);
-        const text = element('span', '', 'min-w-0');
-        text.append(element('span', `#${item.id} · ${item.subject}`, 'block break-words font-semibold'),
-            element('span', `${names[item.severity]} · ${names[item.assignedTo] || 'No team assigned'}`, 'mt-1 block text-xs text-slate-500'));
-        button.append(text, element('span', names[item.status], 'badge'));
-        button.addEventListener('click', () => act(async () => {
-            // Avoid leaving a different complaint actionable while this detail loads.
-            detail(null);
-            detail(await request(`cities/${cityId}/complaints/${item.id}`));
-            list();
-            $('#message').textContent = `Opened complaint #${item.id}.`;
-        }));
-        container.append(button);
+    filteredCount=shown.length;
+    recordPage=Math.min(recordPage,Math.max(0,Math.ceil(filteredCount/25)-1));
+    const active=[names[status],names[severity]].filter(Boolean);
+    $('#queue-count').textContent = `${shown.length} of ${complaints.length} complaints${active.length?' | '+active.join(' | '):''}`;
+    $('#case-filter-toggle').textContent=`Filters${active.length?' ('+active.length+')':''}`;
+    $('#case-page-info').textContent=`${shown.length?recordPage*25+1:0}-${Math.min((recordPage+1)*25,shown.length)} of ${shown.length} | Page ${recordPage+1} of ${Math.max(1,Math.ceil(shown.length/25))}`;
+    const container = $('#complaint-list'); container.replaceChildren();
+    if (!shown.length) {
+        const row=element('tr',''),cell=element('td',ready?'No complaints match these filters.':'Choose a city to load complaints.');
+        cell.colSpan=7;row.append(cell);container.append(row);
+    }
+    for (const item of shown.slice(recordPage*25,(recordPage+1)*25)) {
+        const row=element('tr',''),reference=element('td',''),button=element('button',`#${item.id}`,'record-edit');
+        button.type='button';button.setAttribute('aria-label',`Open complaint ${item.id}: ${item.subject}`);
+        button.addEventListener('click',()=>{
+            detail(null);$('#detail-empty').textContent='Loading complaint...';
+            openDialog($('#case-dialog'),button);
+            act(async()=>{
+                try {detail(await request(`cities/${cityId}/complaints/${item.id}`));}
+                catch(error){$('#detail-empty').textContent='Could not load this complaint. Close this dialog and try again.';throw error;}
+                $('#message').textContent=`Opened complaint #${item.id}.`;
+            });
+        });
+        reference.append(button);
+        const statusCell=element('td','');statusCell.append(element('span',names[item.status],'record-badge'+(item.status==='RESOLVED'?' active':'')));
+        row.append(reference,element('td',item.subject),element('td',item.zoneId===null?'Whole city':([...$('#area-select').options].find(option=>option.value===String(item.zoneId))?.textContent||`Area #${item.zoneId}`)),element('td',names[item.severity]),
+            element('td',names[item.assignedTo]||'Not assigned'),statusCell,element('td',new Date(item.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})));
+        container.append(row);
     }
     controls();
 }
@@ -87,7 +117,7 @@ function detail(item) {
     if (!item) return;
     $('#detail-reference').textContent = `Complaint #${item.id}`;
     $('#detail-subject').textContent = item.subject;
-    $('#detail-meta').textContent = `${item.residentName} · ${item.zoneName} · Submitted ${new Date(item.createdAt).toLocaleString()}`;
+    $('#detail-meta').textContent = `${item.residentName} Ã‚Â· ${item.zoneName} Ã‚Â· Submitted ${new Date(item.createdAt).toLocaleString()}`;
     $('#detail-description').textContent = item.description;
     $('#detail-severity').textContent = names[item.severity];
     $('#detail-team').textContent = names[item.assignedTo] || 'No team assigned';
@@ -116,7 +146,7 @@ function detail(item) {
     $('#history').replaceChildren();
     for (const event of item.history) {
         const entry = element('li', '', 'text-sm');
-        entry.append(element('p', `${names[event.type] || event.type} · ${names[event.actor] || event.actor}`, 'font-semibold'),
+        entry.append(element('p', `${names[event.type] || event.type} Ã‚Â· ${names[event.actor] || event.actor}`, 'font-semibold'),
             element('p', event.message, 'mt-1 whitespace-pre-wrap break-words leading-6 text-slate-600'),
             element('p', new Date(event.occurredAt).toLocaleString(), 'mt-1 text-xs text-slate-500'));
         $('#history').append(entry);
@@ -125,6 +155,7 @@ function detail(item) {
 }
 async function loadCity(id, keepId = null) {
     cityId = id;
+    recordPage = 0;
     ready = false;
     complaints = [];
     detail(null);
@@ -171,8 +202,16 @@ $('#refresh').addEventListener('click', () => act(async () => {
 $('#refresh-detail').addEventListener('click', () => act(async () => {
     await saved(await request(`cities/${cityId}/complaints/${selected.id}`), 'Details refreshed.');
 }));
-$('#status-filter').addEventListener('change', list);
-$('#search').addEventListener('input', list);
+for(const id of ['status-filter','severity-filter'])$(`#${id}`).addEventListener('change',()=>{recordPage=0;list();});
+$('#search').addEventListener('input',()=>{recordPage=0;list();});
+$('#case-filter-toggle').addEventListener('click',()=>{const show=$('#case-filters').hidden;$('#case-filters').hidden=!show;$('#case-filter-toggle').setAttribute('aria-expanded',String(show));});
+$('#clear-case-filters').addEventListener('click',()=>{for(const id of ['search','status-filter','severity-filter'])$(`#${id}`).value='';recordPage=0;list();});
+for(const [id,delta] of [['case-previous',-1],['case-next',1]])$(`#${id}`).addEventListener('click',()=>{recordPage+=delta;list();});
+$('#new-complaint').addEventListener('click',()=>{
+    if(SmartCityAuth.user?.role!=='RESIDENT'||!ready)return;
+    $('#complaint-form').reset();$('#submit-city').textContent=`City: ${$('#city-select').selectedOptions[0].textContent}`;
+    openDialog($('#submit-dialog'),$('#new-complaint'));
+});
 $('#complaint-form').addEventListener('submit', event => {
     event.preventDefault();
     act(async () => {
@@ -183,8 +222,12 @@ $('#complaint-form').addEventListener('submit', event => {
         });
         $('#complaint-form').reset();
         $('#status-filter').value = '';
+        $('#severity-filter').value = '';
         $('#search').value = '';
+        recordPage=0;
         await saved(item, `Complaint #${item.id} saved. ${item.assignedTo ? `Assigned to ${names[item.assignedTo]}.` : 'Needs manual assignment.'}`);
+        $('#submit-dialog').close();
+        openDialog($('#case-dialog'),$('#new-complaint'));
     });
 });
 $('#work-form').addEventListener('submit', event => {
@@ -222,5 +265,6 @@ for(const [form,path,method,payload,notice]of [
 });});
 act(async () => {
     await loadCities();
-    $('#message').textContent = ready ? 'Choose a complaint or submit a new one.' : 'Create a city in City zones to begin.';
+    if(selected)openDialog($('#case-dialog'),$('#search'));
+    $('#message').textContent = ready ? '' : 'No accessible cities are available.';
 });
