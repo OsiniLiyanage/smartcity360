@@ -14,7 +14,15 @@ h1,h2,h3 {font-family:var(--font-heading);letter-spacing:normal!important;font-w
 .sidebar-link {border-radius:5px;}
 .app-sidebar {transition:width 450ms ease,transform 450ms ease;overflow-x:hidden;}
 .workspace>main,.workspace>footer {transition:margin-left 450ms ease;}
-.sidebar-brand-row {margin-bottom:30px;}
+.sidebar-brand-row {margin-bottom:18px;}
+.app-sidebar .sidebar-person {margin:0 0 18px;padding:14px 8px 18px;border-top:0;border-bottom:1px solid var(--line);flex-shrink:0;}
+.sidebar-person .avatar {width:40px;height:40px;color:var(--muted);}
+.sidebar-person .avatar>svg {width:25px;height:25px;}
+.sidebar-person .person-text {flex:1;overflow:hidden;}
+.sidebar-person .person-text strong {font-size:13px;max-width:100%;}
+.sidebar-person .person-text small {font-size:11px;}
+.app-sidebar>.theme-control {margin-top:auto;flex-shrink:0;}
+.app-sidebar>.sidebar-signout {flex-shrink:0;}
 .sidebar-link span,.person-text {white-space:nowrap;}
 .brand-symbol {border-radius:5px;}
 .brand-symbol img {width:100%;height:100%;}

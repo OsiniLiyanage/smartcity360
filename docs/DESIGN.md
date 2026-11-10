@@ -60,3 +60,13 @@ The emerald/teal gradient belongs to the whole page, not individual cards. Works
 ## Records and separate forms
 
 The user-management page is the first completed records-layout conversion: one table, compact top actions, expandable filters, pagination, and separate native dialogs for creating accounts, editing access and reviewing account activity. It follows the reference structure without adding a framework. See [account workflows](ACCOUNTS.md). Other modules still need their own structural conversion; shared transparent-panel styling alone does not complete that work.
+
+## Sidebar identity
+
+The signed-in user's photo, display name and role appear below the application
+brand and above the navigation links. Selecting this area opens Profile. Until
+a photo is saved, a person icon fills the portrait area. The collapsed desktop
+rail keeps the portrait and an accessible name; the mobile drawer uses the full
+identity layout. The remembered sun/moon switch and sign-out remain below the
+navigation. On short screens the sidebar scrolls so all controls stay reachable.
+These layout changes do not change role permissions or stored profile data.

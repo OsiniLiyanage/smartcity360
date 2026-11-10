@@ -65,11 +65,16 @@
         trimNavigation();
         const shortcuts = document.querySelector('#work-shortcuts');
         if(shortcuts) new MutationObserver(trimNavigation).observe(shortcuts,{childList:true});
+        const person = sidebar.querySelector('.sidebar-person');
+        sidebar.insertBefore(person, sidebar.querySelector('.sidebar-nav'));
+        person.title = `${SmartCityAuth.user.displayName} | ${SmartCityAuth.roleNames[role]}`;
         const savedAvatar = SmartCityAuth.user.avatar;
         if (savedAvatar) {
             const avatar = sidebar.querySelector('.avatar');
             const image = document.createElement('img'); image.src = savedAvatar; image.alt = '';
             image.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%'; avatar.replaceChildren(image);
+        } else {
+            person.querySelector('.avatar').replaceChildren(SmartCityUI.icon('profile'));
         }
         if (location.pathname.endsWith('account.html')) {
             const font=document.querySelector('#interface-font');
