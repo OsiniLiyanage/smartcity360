@@ -43,7 +43,13 @@
         const headers=new Headers(options.headers || {});
         if(!['GET','HEAD'].includes((options.method||'GET').toUpperCase()))headers.set('X-CSRF-Token',state.csrfToken);
         const response=await nativeFetch(input,{...options,headers,cache:'no-store'});
-        if(response.status===401 && page!=='login.html')location.replace('login.html');
+        if(response.status===401 && page!=='login.html') {
+            // A rejected meter credential is distinct from an expired user session.
+            try {
+                const session=await nativeFetch('api/auth/session',{cache:'no-store',signal:AbortSignal.timeout(15000)});
+                if(session.ok && !(await session.json()).user)location.replace('login.html');
+            } catch { /* Keep the original error visible if session verification is unavailable. */ }
+        }
         return response;
     };
     state.json=async(path,method='GET',body)=>{

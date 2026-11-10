@@ -146,7 +146,7 @@ function renderReadings() {
     for (const reading of readings.slice(readingPage*25,(readingPage+1)*25)) {
         const row = element('tr',''), action = element('td',''), button = element('button','Inspect','record-edit'); button.type = 'button';
         button.setAttribute('aria-label',`Inspect reading ${reading.id}`);
-        button.addEventListener('click', () => { if (!busy) { detail(reading); openDialog($('#reading-detail'),button); } });
+        button.addEventListener('click', () => { if (!busy) { detail(reading); controls(); openDialog($('#reading-detail'),button); } });
         action.append(button); row.append(element('td',`#${reading.id}`),element('td',`${numbers.format(reading.usageKwh)} kWh`),element('td',new Date(reading.receivedAt).toLocaleString()),element('td',layers(reading)),action); list.append(row);
     }
     if (!readings.length) { const row=element('tr',''),cell=element('td','No saved readings to display.');cell.colSpan=5;row.append(cell);list.append(row); }
