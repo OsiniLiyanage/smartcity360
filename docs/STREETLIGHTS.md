@@ -14,7 +14,38 @@ Run the database helper's `Setup` action to apply numbered SQL files through `00
 6. Save and inspect the inventory and city summary. Other lights retain their individual settings even when they share a specification.
 7. Run the separate sharing demonstration with 10,000, 50,000 or 100,000 temporary lights. It creates no database records.
 
-The page displays 25 records at a time. Street assignment is fixed after registration. There is currently no deletion, bulk control or maintenance-history screen. Fault notes describe the current state, not an audit trail.
+The page displays a table of 25 records at a time. Search by pole label,
+location or model and the state filter apply only to the current page; the
+summary totals always describe the whole city. Use Previous/Next to browse
+other pages. Registration, light editing, new lamp specifications and the
+sharing demonstration each open in a separate dialog. Street assignment is
+fixed after registration. There is currently no deletion, bulk control or
+maintenance-history screen. Fault notes describe the current state, not an
+audit trail.
+
+Registration is available to supervisors, city managers and system admins.
+New specifications and the sharing demonstration are admin-only. Local staff
+can view and update lights in their permitted city. Residents cannot use this
+workspace. These follow the existing API permissions.
+
+## Manual acceptance for the records layout
+
+This layout revision has not been run through automated or browser tests.
+
+1. Choose a city, search the current page, filter by state and clear the filters.
+   Confirm totals stay city-wide and pagination still moves through records.
+2. Register a light with an authorized account. The form should be separate
+   from the table, and successful registration should open the new light's
+   details. Try a duplicate label and an empty required field.
+3. Open an existing light, change power or fault status and save. A fault needs
+   a note. Reload to confirm persistence; clear the fault and confirm its note
+   clears. Restore any values changed only for checking.
+4. As admin, open Add specification and Specification sharing. Confirm the
+   demonstration reports zero new database records. Local staff should not
+   see these actions or Register streetlight.
+5. Check both themes and a narrow viewport. Table scrolling should stay inside
+   its container. Escape/Close should dismiss dialogs, restore focus and leave
+   alerts usable. Cancel should not save an edited value.
 
 ## What is shared
 

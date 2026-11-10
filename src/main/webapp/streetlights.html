@@ -3,75 +3,41 @@
 <head>
     <meta charset="UTF-8"><script src="assets/js/theme.js?v=profile1"></script><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SmartCity360 | Streetlights</title>
-    <link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=scene3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><script src="assets/js/feedback.js?v=green1" defer></script><script src="assets/js/shell.js?v=green1" defer></script><script src="assets/js/auth.js?v=green1" defer></script><script src="assets/js/streetlights.js?v=green1" defer></script>
+    <link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=scene3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><script src="assets/js/feedback.js?v=green1" defer></script><script src="assets/js/shell.js?v=green1" defer></script><script src="assets/js/auth.js?v=green1" defer></script><script src="assets/js/streetlights.js?v=lights1" defer></script>
+<link rel="stylesheet" href="assets/css/records.css?v=records3"><link rel="stylesheet" href="assets/css/streetlight-records.css?v=lights1">
 </head>
-<body class="workspace">
-
-
-    <main id="main-content" tabindex="-1" class="mx-auto max-w-7xl px-5 py-8">
-        <p class="mb-2 text-xs font-bold uppercase tracking-widest text-teal-700">Street lighting</p>
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Shared specifications. Individual control.</h1>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Manage each light's location, power and faults. Lights with the same model, wattage and colour share their lamp specification.</p>
-        <p id="message" role="status" aria-live="polite" class="my-5 min-h-6 text-sm text-teal-800"></p>
-        <div class="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <aside class="space-y-5">
-                <section class="panel"><label for="city-select" class="label">Choose a city</label><select id="city-select" class="field"></select><button id="refresh" type="button" class="secondary mt-3 w-full">Refresh streetlights</button></section>
-                <section class="panel" aria-labelledby="add-heading">
-                    <h2 id="add-heading" class="mb-4 text-lg font-semibold">Register a streetlight</h2>
-                    <form id="light-form" class="space-y-4">
+<body class="workspace records-page streetlight-records">
+<main id="main-content" tabindex="-1">
+<header class="records-heading"><div><h1>Streetlights</h1><p>Manage locations, lamp specifications and faults.</p></div><div class="records-actions"><button id="new-spec" type="button" class="secondary" data-roles="SYSTEM_ADMIN">Add specification</button><button id="open-demo" type="button" class="secondary" data-roles="SYSTEM_ADMIN">Specification sharing</button><button id="new-light" type="button" class="button" data-roles="SUPERVISOR CITY_MANAGER SYSTEM_ADMIN">+ Register streetlight</button></div></header>
+<p id="message" role="status" aria-live="polite"></p>
+<div class="lighting-city"><div><label for="city-select" class="label">City</label><select id="city-select" class="field"></select></div><button id="refresh" type="button" class="secondary">Refresh</button></div>
+<dl class="lighting-summary" aria-label="Whole city lighting totals"><div><dt>Registered lights</dt><dd id="total">0</dd></div><div><dt>Working and on</dt><dd id="on">0</dd></div><div><dt>Faults reported</dt><dd id="faulty">0</dd></div><div><dt>Simulated rated load</dt><dd id="load">0 W</dd></div></dl>
+<div class="records-toolbar"><div class="records-search"><label for="light-search" class="sr-only">Search this page by pole, location or model</label><input id="light-search" type="search" maxlength="150" class="field" placeholder="Search this page"><button id="clear-search" type="button" class="secondary">Clear</button></div><div class="lighting-state"><label for="state-filter" class="label">State on this page</label><select id="state-filter" class="field"><option value="">All states</option><option value="ON">On</option><option value="OFF">Off</option><option value="FAULT">Fault reported</option></select></div></div>
+<p id="filter-summary" class="records-summary" aria-live="polite"></p>
+<div class="records-table-scroll" tabindex="0" role="region" aria-label="Streetlight inventory"><table class="records-table"><caption class="sr-only">Streetlights in the selected city</caption><thead><tr><th scope="col">Pole</th><th scope="col">Street and location</th><th scope="col">Specification</th><th scope="col">State</th><th scope="col">Action</th></tr></thead><tbody id="lights"></tbody></table></div>
+<footer class="records-pagination"><p id="page-label" aria-live="polite"></p><div class="records-actions"><button id="previous" type="button" class="secondary">Previous</button><button id="next" type="button" class="secondary">Next</button></div></footer>
+<p class="record-help lighting-footnote">Totals cover the whole city. Search and state filters apply to the current page. Rated load assumes healthy lights run at rated wattage; it is simulated, not measured energy usage.</p>
+<dialog id="register-dialog" class="record-dialog" aria-labelledby="register-dialog-heading"><header class="dialog-heading"><h2 id="register-dialog-heading">Register streetlight</h2><button type="button" class="dialog-close" data-close aria-label="Close register streetlight">&#215;</button></header><section><form id="light-form" class="record-form">
                         <div><label for="street-select" class="label">Street</label><select id="street-select" class="field" required></select></div>
                         <div><label for="pole-label" class="label">Pole label</label><input id="pole-label" class="field" required maxlength="60" placeholder="e.g. SL-001"></div>
                         <div><label for="location" class="label">Location on street</label><input id="location" class="field" required maxlength="150" placeholder="e.g. Opposite the library"></div>
                         <div><label for="spec-select" class="label">Lamp specification</label><select id="spec-select" class="field" required></select></div>
-                        <button type="submit" class="button w-full">Register streetlight</button>
-                    </form>
-                    <p id="street-hint" class="mt-3 text-xs leading-5 text-slate-500"></p>
-                </section>
-                <details class="panel"><summary class="cursor-pointer text-sm font-semibold">Add a lamp specification</summary>
-                    <p class="my-3 text-xs leading-5 text-slate-500">Specifications are shared across cities. Existing specifications stay unchanged; choose a different one to reconfigure an individual light.</p>
-                    <form id="spec-form" class="space-y-3">
+                        <footer class="dialog-actions"><button type="button" class="secondary" data-close>Close</button><button type="submit" class="button">Register streetlight</button></footer></form><p id="street-hint" class="record-help"></p></section></dialog>
+<dialog id="spec-dialog" class="record-dialog" aria-labelledby="spec-dialog-heading"><header class="dialog-heading"><h2 id="spec-dialog-heading">Add lamp specification</h2><button type="button" class="dialog-close" data-close aria-label="Close add lamp specification">&#215;</button></header><section><p class="record-help">Specifications are shared across cities. Saving a matching configuration reuses the existing specification.</p><form id="spec-form" class="record-form">
                         <div><label for="model" class="label">Model</label><input id="model" required maxlength="100" class="field"></div>
                         <div><label for="watts" class="label">Rated watts</label><input id="watts" type="number" min="1" max="1000" step="1" required class="field"></div>
                         <div><label for="colour" class="label">Light colour</label><select id="colour" class="field"><option value="WARM_WHITE">Warm white</option><option value="NEUTRAL_WHITE">Neutral white</option><option value="COOL_WHITE">Cool white</option></select></div>
-                        <button type="submit" class="secondary w-full">Save specification</button>
-                    </form>
-                </details>
-            </aside>
-            <div class="min-w-0 space-y-5">
-                <section class="panel" aria-label="City lighting summary"><dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                    <div><dt class="text-xs text-slate-500">Registered lights</dt><dd id="total" class="mt-2 text-2xl font-semibold">0</dd></div>
-                    <div><dt class="text-xs text-slate-500">Working and on</dt><dd id="on" class="mt-2 text-2xl font-semibold">0</dd></div>
-                    <div><dt class="text-xs text-slate-500">Faults reported</dt><dd id="faulty" class="mt-2 text-2xl font-semibold">0</dd></div>
-                    <div><dt class="text-xs text-slate-500">Simulated rated load</dt><dd id="load" class="mt-2 text-2xl font-semibold">0 W</dd></div>
-                </dl><p class="mt-4 text-xs leading-5 text-slate-500">Rated load assumes healthy lights run at their rated wattage; off or faulty lights contribute zero. This is a simulation, not measured energy usage.</p></section>
-                <section class="panel" aria-labelledby="inventory-heading">
-                    <h2 id="inventory-heading" class="mb-4 text-lg font-semibold">Streetlight inventory</h2><div id="lights" class="space-y-2"></div>
-                    <div class="mt-4 flex items-center justify-between gap-3"><button id="previous" type="button" class="secondary">Previous</button><span id="page-label" class="text-xs text-slate-500"></span><button id="next" type="button" class="secondary">Next</button></div>
-                    <p id="sharing" class="mt-4 text-xs text-teal-800"></p>
-                </section>
-                <section id="detail" hidden class="panel" aria-labelledby="detail-title">
-                    <div class="flex flex-wrap items-center justify-between gap-3"><h2 id="detail-title" class="text-lg font-semibold"></h2><button id="refresh-detail" type="button" class="secondary">Refresh details</button></div>
-                    <p id="detail-street" class="mt-2 text-xs text-slate-500"></p><p id="detail-state" class="my-4 font-semibold text-teal-800"></p>
-                    <form id="edit-form" class="space-y-4">
+                        <footer class="dialog-actions"><button type="button" class="secondary" data-close>Close</button><button type="submit" class="button">Save specification</button></footer></form></section></dialog>
+<dialog id="detail" class="record-dialog" aria-labelledby="detail-title"><header class="dialog-heading"><h2 id="detail-title">Streetlight details</h2><button type="button" class="dialog-close" data-close aria-label="Close streetlight details">&#215;</button></header><p id="detail-street" class="record-help"></p><div class="lighting-detail-state"><p id="detail-state"></p><button id="refresh-detail" type="button" class="secondary">Refresh details</button></div><form id="edit-form" class="record-form">
                         <div><label for="edit-label" class="label">Pole label</label><input id="edit-label" required maxlength="60" class="field"></div>
                         <div><label for="edit-location" class="label">Location on street</label><input id="edit-location" required maxlength="150" class="field"></div>
                         <div><label for="edit-spec" class="label">Lamp specification</label><select id="edit-spec" class="field" required></select></div>
-                        <label class="flex items-center gap-3 text-sm"><input id="power-on" type="checkbox"> Power command on</label>
-                        <label class="flex items-center gap-3 text-sm"><input id="fault" type="checkbox"> Fault reported</label>
+                        <label class="record-checkbox"><input id="power-on" type="checkbox"> Power command on</label>
+                        <label class="record-checkbox"><input id="fault" type="checkbox"> Fault reported</label>
                         <div id="fault-panel" hidden><label for="fault-note" class="label">Current fault note</label><textarea id="fault-note" maxlength="500" rows="3" class="field"></textarea></div>
-                        <p class="text-xs text-slate-500">Clearing the fault also clears its current note. Changes apply only to this light.</p>
-                        <button type="submit" class="button">Save light changes</button>
-                    </form>
-                </section>
-                <section class="panel" aria-labelledby="demo-heading">
-                    <h2 id="demo-heading" class="font-semibold">Explore specification sharing</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-600">Create temporary Java objects to compare shared specifications with one specification per light. This demonstration adds no streetlights to your city.</p>
-                    <form id="demo-form" class="mt-4 flex flex-wrap items-end gap-3"><div class="flex-1"><label for="demo-count" class="label">Demonstration size</label><select id="demo-count" class="field"><option value="10000">10,000 lights</option><option value="50000">50,000 lights</option><option value="100000">100,000 lights</option></select></div><button type="submit" class="button">Run sharing demonstration</button></form>
-                    <p id="demo-result" role="status" aria-live="polite" class="mt-4 whitespace-pre-line text-sm leading-7 text-teal-800"></p>
-                    <p class="mt-3 text-xs leading-5 text-slate-500">Counts refer only to specification objects. They do not measure total memory saved. Elapsed time is one local run, not a performance benchmark.</p>
-                </section>
-            </div>
-        </div>
-    </main>
+                        <p class="record-help">Clearing the fault also clears its current note. Changes apply only to this light.</p>
+                        <footer class="dialog-actions"><button type="button" class="secondary" data-close>Close</button><button type="submit" class="button">Save light changes</button></footer></form></dialog>
+<dialog id="demo-dialog" class="record-dialog" aria-labelledby="demo-dialog-heading"><header class="dialog-heading"><h2 id="demo-dialog-heading">Specification sharing</h2><button type="button" class="dialog-close" data-close aria-label="Close specification sharing">&#215;</button></header><section><p id="sharing" class="record-help"></p><p class="record-help">Compare temporary Java objects with and without shared specifications. This adds no streetlights to your city.</p><form id="demo-form" class="record-form"><div class="flex-1"><label for="demo-count" class="label">Demonstration size</label><select id="demo-count" class="field"><option value="10000">10,000 lights</option><option value="50000">50,000 lights</option><option value="100000">100,000 lights</option></select></div><footer class="dialog-actions"><button type="button" class="secondary" data-close>Close</button><button type="submit" class="button">Run sharing demonstration</button></footer></form><p id="demo-result" role="status" aria-live="polite"></p><p class="record-help">Counts cover specification objects, not total memory. Elapsed time is one local run, not a performance benchmark.</p></section></dialog>
+</main>
 </body>
 </html>
