@@ -1,5 +1,7 @@
 # 1. Introduction
 
+This chapter establishes the purpose and boundaries of SmartCity360 before presenting its design. It explains the management problem, the motivation for integrating five patterns, the project objectives and implemented scope, and the traceability from assessment questions A1-A3 through E1-E3 to the detailed answers and evidence later in the report.
+
 ## 1.1 Overview
 
 SmartCity360 is an integrated Java web application for managing selected city infrastructure, operational devices, public services and resident interactions. The application connects five compulsory Object Oriented Design Patterns II scenarios in one product. City teams can inspect a city hierarchy, process simulated energy-meter messages, route and work on resident complaints, manage streetlights, and evaluate city-policy rules written in a small domain-specific language. Residents can register, submit complaints and follow their own cases, while staff roles receive different operational permissions.
@@ -64,6 +66,8 @@ Physical sensors and municipal hardware are outside the project. A meter message
 
 # 2. Background and Technology Context
 
+This chapter supplies the domain and technical background needed to evaluate the later design decisions. It introduces smart-city information boundaries, summarizes the five object-oriented patterns, records the selected Java and Jakarta technology stack, explains why those technologies fit the project, and defines how sources and test evidence are represented honestly.
+
 ## 2.1 Smart-City Management Context
 
 A smart-city platform coordinates information from infrastructure, operational teams and residents. Even a small demonstration has several kinds of state: spatial ownership, equipment configuration, reported observations, service requests and user permissions. These concerns should not be placed in one large controller. SmartCity360 separates browser presentation, HTTP resources, application services, pattern classes and persistence mappings.
@@ -118,6 +122,8 @@ The assessment brief, supplied lecture notes, official platform documentation an
 Some test evidence was produced at earlier development checkpoints. The latest repository records 67 Java tests and additional checks, but it also states that not every older module HTTP suite was rerun after every later permission change. This report retains that distinction. The final acceptance chapter must be updated after the last combined run instead of converting historical evidence into an unsupported claim of current full regression.
 
 # 3. Requirements and Specification
+
+This chapter translates the assessment scenarios into explicit application requirements. It defines stakeholder roles and record-level boundaries, functional and non-functional requirements, the main use cases, validation ranges and deployment constraints. The status wording distinguishes implemented behavior, dated evidence, pending verification and future work so requirements are not marked complete without support.
 
 ## 3.1 Stakeholders and Roles
 
@@ -193,6 +199,8 @@ The application requires JDK 21, Maven, Payara Community compatible with Jakarta
 The current database scripts are additive and rerunnable but do not use a migration-history table. Future one-time data transformations need a migration runner before they can be considered safe. The local demonstration uses loopback HTTP; public deployment would require HTTPS, production secrets, backup procedures, monitoring and a full security review.
 
 # 4. System Design
+
+This chapter describes the structure that connects the five pattern implementations into one system. It explains the layered architecture, protected request flow, relational data responsibilities, package organization, access controls, complaint interaction sequence, user-interface approach and major tradeoffs. The diagrams and text distinguish pattern roles from REST, persistence and presentation support.
 
 ## 4.1 Layered Architecture
 
@@ -298,6 +306,8 @@ This chapter answers every marked question in the assessment. Each subsection id
 
 ## 5.1 Part A - Dynamic Security Wrappers for Data Streams
 
+Part A answers A1-A3 for optional energy-message processing. It identifies Decorator, explains runtime composition around the `MeterStream` interface, and evaluates combinations, reuse, recovery, key lifecycle and processing overhead. Authentication, compression and encryption are genuine software transformations, while the meter and network transport remain an academic simulation.
+
 ### 5.1.1 A1 - Pattern Identification and Justification
 
 The most suitable pattern is **Decorator**. The requirement asks for authentication, compression and encryption layers that can be added without altering the energy stream's core logic. In SmartCity360, every base or wrapped stream implements `MeterStream`, which exposes `encode(byte[], credential)` and `decode(byte[], credential)`. `PlainMeterStream` performs bounded defensive copying. `MeterStreamDecorator` holds another `MeterStream`. Each concrete decorator delegates to that wrapped component and contributes one responsibility.
@@ -355,6 +365,8 @@ The recorded evidence includes seven unit tests and 63 live meter HTTP checks at
 
 ## 5.2 Part B - Hierarchical Structure of Smart Zones
 
+Part B answers B1-B3 for the city hierarchy. It identifies Composite, explains the common component, composite groups and building leaves, and evaluates recursive usage reporting and simulated power operations as the hierarchy grows. Persistence and transactions support the pattern but do not replace the uniform `ZoneComponent` collaboration.
+
 ### 5.2.1 B1 - Pattern Identification and Justification
 
 The most appropriate pattern is **Composite**. The domain is a part-whole hierarchy: a city contains districts, each district contains streets and each street contains buildings. A building is a leaf. City, district and street are composites. All inherit the common `ZoneComponent` operations for usage, power, building counts and power-state reporting.
@@ -401,6 +413,8 @@ A recorded demonstration used Library at 12.125 kWh, Clinic at 7.875 kWh and Com
 The Part B checkpoint records five unit tests and 41 live HTTP checks, browser interaction and restart persistence. Later access-control work changed who can issue commands, so the final test pass should verify the same Composite behavior through every currently authorized role.
 
 ## 5.3 Part C - Escalation of Citizen Complaints
+
+Part C answers C1-C3 for complaint escalation. It identifies Chain of Responsibility, explains how the sender depends on the first handler and a common operation, and evaluates ordering, extension, failure handling and persistent traceability. Routing selects the responsible authority tier; assignment, staff work, replies and final resolution remain separate supporting workflows.
 
 ### 5.3.1 C1 - Pattern Identification and Justification
 
@@ -458,6 +472,8 @@ Resident messages, public staff replies and reopening review are supporting comp
 Overall, the chain provides flexible decoupled routing, while explicit persisted events counter its common traceability weakness. The price is order dependence and the need to coordinate supporting permissions and labels whenever handlers change.
 
 ## 5.4 Part D - Efficient Management of Smart Streetlights
+
+Part D answers D1-D3 for large streetlight inventories. It identifies Flyweight, separates immutable intrinsic lamp specification from each light's extrinsic identity and operating state, and evaluates the 100,000-context demonstration. The evidence proves object-identity reuse and independent state; it does not invent an exact heap-saving percentage or claim physical-device performance.
 
 ### 5.4.1 D1 - Pattern Identification and Justification
 
@@ -522,6 +538,8 @@ The elapsed observations are uncontrolled and include constructing both shared a
 
 ## 5.5 Part E - Interpreting City Policies Defined in a DSL
 
+Part E answers E1-E3 for editable city policies. It identifies Interpreter as the selected pattern, explains how the bounded parser constructs terminal and nonterminal expression objects, and evaluates runtime rule revision, validation, traceability, performance and grammar-growth costs. The implemented language is deliberately limited and does not execute arbitrary Java or external commands.
+
 ### 5.5.1 E1 - Pattern Identification and Justification
 
 The most appropriate pattern is **Interpreter**. The requirement defines a mini-language that must be parsed and evaluated dynamically. SmartCity360 represents each grammar element as an object implementing `Expression.interpret(PolicyContext)`. `ComparisonExpression` is a terminal expression. `AndExpression`, `OrExpression` and `NotExpression` are nonterminal expressions that combine child expressions.
@@ -575,6 +593,8 @@ The interpretation mechanism is:
 Interpreter is therefore suitable because the domain language is deliberately small and compositional. It allows meaningful rule updates without recompilation while keeping the implementation teachable. Its suitability decreases if SmartCity360 grows into a general-purpose policy engine.
 
 # 6. Implementation
+
+This chapter explains how the designs in Chapters 4 and 5 are realized as one deployable application. It covers the development environment, integrated role workflows, dashboards and reports, validation, transaction and concurrency safeguards, implementation challenges and source organization. Framework components support the five pattern collaborations without being counted as additional assessed patterns.
 
 ## 6.1 Development and Deployment Environment
 
@@ -632,6 +652,8 @@ The repository contains Java source, browser source, SQL scripts, verification h
 The current implementation includes 72 main Java source files, 9 Java test classes, 11 SQL scripts and multiple browser/verifier modules. Counts can change as development continues; the final report should regenerate its source inventory immediately before submission.
 
 # 7. Results and Evaluation
+
+This chapter evaluates SmartCity360 using multiple evidence layers rather than treating one test type as universal proof. It summarizes focused Java tests, dated HTTP and browser checkpoints, assessment coverage, usability observations and known limitations. Results are stated conservatively so simulated devices, historical checkpoints and pending final acceptance work are not misrepresented as production certification.
 
 ## 7.1 Test Strategy
 
@@ -722,6 +744,8 @@ The five compulsory design-pattern implementations are present and backed by cod
 
 # 8. Future Work
 
+This chapter separates remaining verification and product extensions from completed assessment evidence. The immediate work concerns a final clean build, current-role regression, restart persistence and native print inspection. Longer-term items cover municipal workflows, notifications, broader reporting, carefully justified additional patterns and the operational controls required before any public deployment.
+
 ## 8.1 Final Application Verification
 
 The immediate priority is a full acceptance run using the final permission model. Older scripts that submit complaints as an administrator must use a resident client. The run should build from a fresh extraction, apply all migrations, deploy, verify all five role journeys, rerun pattern behavior, restart services and compare persistent records. Native print preview and Save as PDF must be inspected across one-page and multipage complaint reports.
@@ -790,27 +814,39 @@ This appendix contains selected project-owned evidence. All records shown are de
 
 ## A.1 Authentication Themes
 
+The authentication evidence compares the same sign-in workflow in the supported light and dark themes. It demonstrates consistent branding, readable form controls, validation and theme behavior while keeping authentication decisions on the server. The images contain demonstration accounts only and do not change the security boundary described in Section 4.5.
+
 ![SmartCity360 sign-in page in the light theme](docs/evidence/signin-light.png){width=6.35}
 
 ![SmartCity360 sign-in page in the dark theme](docs/evidence/signin-dark.png){width=6.35}
 
 ## A.2 Dashboard Themes
 
+The dashboard evidence illustrates the dark-theme presentation of role-specific navigation and authorized summary data. Dashboard totals, complaint status information and recent cases are derived from protected endpoints rather than invented device statistics. The screenshot records one tested presentation state; exact totals depend on the demonstration data and signed-in role.
+
 ![Role dashboard in the dark theme](docs/evidence/dashboard-dark.png){width=6.35}
 
 ## A.3 Account Administration
+
+The account-administration evidence represents the system-administrator workspace for controlled staff provisioning and account maintenance. Search, role, status and city filters are applied with server-side scope and pagination. Sensitive credentials are never displayed as stored values, and safeguards prevent unsafe self-role or self-status changes.
 
 ![System-administrator account management workspace](docs/evidence/account-management.png){width=6.35}
 
 ## A.4 Complaint Resolution
 
+The complaint-resolution evidence shows how routing and the later work lifecycle appear to authorized users. It brings together the responsibility tier, current status, eligible assignment, public replies, private work notes, resolution and resident reopening review. Visibility remains role-appropriate, so a resident view intentionally omits internal staff-only information.
+
 ![Resolved complaint with role-appropriate controls](docs/report/evidence/complaint-resolved.png){width=6.35}
 
 ## A.5 Streetlight Operations
 
+The streetlight evidence focuses on the distinction between shared and unique state. The workspace presents paged light records with location, specification, power and fault information, while administrative controls demonstrate independent updates and the separate 100,000-context Flyweight exercise. The screenshot is evidence of the implemented interface, not a claim of physical lamp control.
+
 ![Streetlight inventory and individual controls](docs/report/evidence/streetlight-workspace.png){width=5.2}
 
 # Appendix B - Code, Test and Evidence Matrix
+
+This matrix provides a compact cross-reference between every assessed part, its core pattern classes, supporting integration classes, focused tests and recorded live or browser evidence. It should be read with the dated-evidence cautions in Chapter 7: checkpoint totals describe their recorded scope and are not combined into an unsupported current regression total.
 
 [[TABLE|Detailed assessment-to-evidence matrix]]
 | Part | Pattern classes | Integration classes | Focused tests | Recorded live/browser evidence |
@@ -822,6 +858,8 @@ This appendix contains selected project-owned evidence. All records shown are de
 | E | `Expression`, comparison/boolean nodes, `PolicyContext`, `PolicyParser` | `PolicyService`, `PolicyResource`, policy entities | 9 `PolicyParserTest` methods | 84-check checkpoint; revision-history screenshot |
 
 # Appendix C - Build and Demonstration Setup
+
+This appendix turns the repository into a repeatable build and demonstration procedure. It identifies the required Java, Maven, Payara and PostgreSQL environment, proposes an efficient demonstration sequence for all five assessed patterns, and supplies a final document and packaging checklist before portal submission.
 
 ## C.1 Build
 
@@ -857,6 +895,8 @@ This appendix contains selected project-owned evidence. All records shown are de
 - Package a clean source ZIP separately and verify the 10-15 minute MP4 before portal upload.
 
 # Appendix D - Viva Quick Reference
+
+This appendix provides concise speaking notes for the viva and demonstration. It restates each pattern in one sentence and answers common critical questions about suitability, limitations, simulation boundaries and extensibility. The notes are a revision aid rather than a replacement for the detailed analysis in Chapter 5.
 
 ## D.1 One-Sentence Pattern Explanations
 
