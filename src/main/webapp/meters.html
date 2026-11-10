@@ -3,77 +3,52 @@
 <head>
     <meta charset="UTF-8"><script src="assets/js/theme.js?v=profile1"></script><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SmartCity360 | Energy meters</title>
-    <link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=scene3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><script src="assets/js/feedback.js?v=green1" defer></script><script src="assets/js/shell.js?v=green1" defer></script><script src="assets/js/auth.js?v=green1" defer></script><script src="assets/js/meters.js?v=green1" defer></script>
+    <link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=scene3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><script src="assets/js/feedback.js?v=green1" defer></script><script src="assets/js/shell.js?v=green1" defer></script><script src="assets/js/auth.js?v=green1" defer></script><script src="assets/js/meters.js?v=meters1" defer></script>
+<link rel="stylesheet" href="assets/css/records.css?v=records3"><link rel="stylesheet" href="assets/css/meter-records.css?v=meters1">
 </head>
-<body class="workspace">
-
-
-    <main id="main-content" tabindex="-1" class="mx-auto max-w-7xl px-5 py-8">
-        <p class="mb-2 text-xs font-bold uppercase tracking-widest text-teal-700">Energy monitoring</p>
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900">One reading. Layers of protection.</h1>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Register a building meter, process its usage through optional layers, and inspect the saved result. Accepted readings update the city's usage totals.</p>
-        <p id="message" role="status" aria-live="polite" class="my-5 min-h-6 text-sm text-teal-800"></p>
-        <div class="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <aside class="space-y-5">
-                <section class="panel space-y-3">
-                    <div><label for="city-select" class="label">Choose a city</label><select id="city-select" class="field"></select></div>
-                    <div><label for="meter-select" class="label">Choose a meter</label><select id="meter-select" class="field"></select></div>
-                    <button id="refresh" type="button" class="secondary w-full">Refresh meters</button>
-                    <p class="text-xs leading-5 text-slate-500">Add buildings in <a href="./" class="underline">City zones</a> before registering meters.</p>
-                </section>
-                <section class="panel" aria-labelledby="register-heading">
-                    <h2 id="register-heading" class="mb-4 text-lg font-semibold">Register a meter</h2>
-                    <form id="meter-form" class="space-y-4">
+<body class="workspace records-page meter-records">
+<main id="main-content" tabindex="-1">
+<header class="records-heading"><div><h1>Energy meters</h1><p>Manage building meters and saved usage readings.</p></div><button id="new-meter" type="button" class="button" data-roles="SUPERVISOR CITY_MANAGER SYSTEM_ADMIN">+ Register meter</button></header>
+<p id="message" role="status" aria-live="polite"></p>
+<div class="meter-city"><div><label for="city-select" class="label">City</label><select id="city-select" class="field"></select></div><button id="refresh" type="button" class="secondary">Refresh</button><p class="record-help">City usage: <strong id="city-total">-</strong></p></div>
+<section id="inventory" aria-label="Registered meters">
+<div class="records-toolbar"><div class="records-search"><label for="meter-search" class="sr-only">Search meters and building locations</label><input id="meter-search" type="search" maxlength="150" class="field" placeholder="Search meters or buildings"><button id="clear-meter-search" type="button" class="secondary">Clear</button></div><p id="meter-count" class="record-help"></p></div>
+<div class="records-table-scroll" tabindex="0" role="region" aria-label="Meter inventory"><table class="records-table"><caption class="sr-only">Meters in the selected city</caption><thead><tr><th scope="col">Meter</th><th scope="col">Building and location</th><th scope="col">Current usage</th><th scope="col">Action</th></tr></thead><tbody id="meter-rows"></tbody></table></div>
+<footer class="records-pagination"><p id="meter-page" aria-live="polite"></p><div class="records-actions"><button id="meter-previous" type="button" class="secondary">Previous</button><button id="meter-next" type="button" class="secondary">Next</button></div></footer>
+</section>
+<section id="workspace" hidden aria-labelledby="meter-title">
+<button id="back-to-meters" type="button" class="record-edit meter-back">Back to meters</button>
+<div class="meter-heading"><div><h2 id="meter-title" tabindex="-1"></h2><p id="meter-location" class="record-help"></p><p class="record-help">Building usage: <strong id="building-total">-</strong></p></div><div class="records-actions"><button id="manage-credential" type="button" class="secondary" data-credential-open>Meter credential</button><button id="new-reading" type="button" class="button">+ Add reading</button></div></div>
+<h3 class="meter-history-heading">Saved readings</h3><p id="readings-hint" class="record-help" aria-live="polite"></p>
+<div class="records-table-scroll" tabindex="0" role="region" aria-label="Saved readings"><table class="records-table"><caption class="sr-only">Saved meter readings, newest first</caption><thead><tr><th scope="col">Reading</th><th scope="col">Usage</th><th scope="col">Received</th><th scope="col">Processing</th><th scope="col">Action</th></tr></thead><tbody id="readings"></tbody></table></div>
+<footer class="records-pagination"><p id="reading-page" aria-live="polite"></p><div class="records-actions"><button id="reading-previous" type="button" class="secondary">Previous</button><button id="reading-next" type="button" class="secondary">Next</button></div></footer>
+</section>
+<p class="record-help meter-footnote">Use the same reporting period for all buildings. An accepted reading replaces the building's current usage total; readings are not added together.</p>
+<dialog id="register-dialog" class="record-dialog" aria-labelledby="register-heading"><header class="dialog-heading"><h2 id="register-heading">Register meter</h2><button type="button" class="dialog-close" data-close aria-label="Close registration">&#215;</button></header><section><form id="meter-form" class="record-form">
                         <div><label for="building-select" class="label">Building without a meter</label><select id="building-select" class="field" required></select></div>
                         <div><label for="meter-name" class="label">Meter name</label><input id="meter-name" class="field" required maxlength="100" placeholder="e.g. Library energy meter"></div>
-                        <button type="submit" class="button w-full">Register meter</button>
-                    </form>
-                    <p id="register-hint" class="mt-3 text-xs leading-5 text-slate-500"></p>
-                </section>
-                <section class="panel" aria-labelledby="totals-heading">
-                    <h2 id="totals-heading" class="font-semibold">Current usage totals</h2>
-                    <p class="mt-4 text-xs text-slate-500">Selected building</p><p id="building-total" class="mt-1 text-xl font-semibold">-</p>
-                    <p class="mt-4 text-xs text-slate-500">Whole city</p><p id="city-total" class="mt-1 text-xl font-semibold">-</p>
-                    <p class="mt-3 text-xs leading-5 text-slate-500">Manual totals for a shared reporting period. A new accepted reading replaces its building's current total; readings are not added together.</p>
-                </section>
-            </aside>
-            <div class="min-w-0 space-y-5">
-                <div id="empty" class="panel py-12 text-center text-sm text-slate-500">Choose or register a meter to begin.</div>
-                <div id="workspace" hidden class="space-y-5">
-                    <section class="panel" aria-labelledby="meter-title">
-                        <h2 id="meter-title" class="break-words text-xl font-semibold"></h2><p id="meter-location" class="mt-1 break-words text-xs text-slate-500"></p>
-                        <div class="mt-5"><label for="credential" class="label">Meter credential</label><input id="credential" type="password" autocomplete="off" maxlength="200" class="field" placeholder="Required when authentication is selected"></div>
-                        <label class="mt-3 flex items-center gap-2 text-xs text-slate-600"><input id="show-credential" type="checkbox"> Show credential</label>
-                        <p id="credential-hint" class="mt-3 text-xs leading-5 text-slate-500">Credentials stay only in this tab. Save a newly issued credential privately before leaving; it cannot be retrieved later.</p>
-                        <details class="mt-3 text-xs text-slate-500"><summary class="cursor-pointer">Lost the credential?</summary><p class="my-3 leading-5">Replacing it immediately invalidates the old credential, including for earlier authenticated readings. Only authorized supervisors, city managers and system admins can replace credentials.</p><button id="replace-credential" type="button" class="secondary">Replace meter credential</button></details>
-                    </section>
-                    <section class="panel" aria-labelledby="reading-heading">
-                        <h2 id="reading-heading" class="font-semibold">Process a usage reading</h2>
-                        <form id="reading-form" class="mt-4 space-y-4">
+                        <footer class="dialog-actions"><button type="button" class="secondary" data-close>Cancel</button><button type="submit" class="button">Register meter</button></footer>
+                    </form><p id="register-hint" class="record-help"></p></section></dialog>
+<dialog id="credential-dialog" class="record-dialog" aria-labelledby="credential-heading"><header class="dialog-heading"><h2 id="credential-heading">Meter credential</h2><button type="button" class="dialog-close" data-close aria-label="Close meter credential">&#215;</button></header>
+<p class="record-help credential-meter-name"></p><div class="record-form"><div><label for="credential" class="label">Credential for this meter</label><input id="credential" type="password" autocomplete="off" maxlength="200" class="field" placeholder="Enter the issued meter credential"></div><label class="record-checkbox"><input id="show-credential" type="checkbox"> Show credential</label></div>
+<p class="record-help">Changes here are kept only in this tab and used for processing and recovery. Save newly issued credentials privately before leaving; the server cannot retrieve them later.</p>
+<details class="meter-replace" data-roles="SUPERVISOR CITY_MANAGER SYSTEM_ADMIN"><summary>Replace a lost credential</summary><p class="record-help">Replacement immediately invalidates the old credential, including for earlier authenticated readings.</p><button id="replace-credential" type="button" class="secondary">Replace meter credential</button></details>
+<footer class="dialog-actions"><button type="button" class="button" data-close>Done</button></footer></dialog>
+<dialog id="reading-dialog" class="record-dialog" aria-labelledby="reading-heading"><header class="dialog-heading"><h2 id="reading-heading">Add usage reading</h2><button type="button" class="dialog-close" data-close aria-label="Close new reading">&#215;</button></header><p class="record-help credential-meter-name"></p><div class="meter-credential-status"><p class="record-help" data-credential-status></p><button type="button" class="record-edit" data-credential-open>Set credential</button></div>
+<form id="reading-form" class="record-form">
                             <div><label for="usage" class="label">Building usage total (kWh)</label><input id="usage" type="number" required min="0" max="999999999.999" step="0.001" class="field"></div>
-                            <fieldset class="space-y-3 rounded-xl bg-slate-50 p-4"><legend class="px-1 text-sm font-medium">Optional processing layers</legend>
+                            <fieldset class="meter-layers"><legend class="px-1 text-sm font-medium">Optional processing layers</legend>
                                 <label class="flex items-start gap-3 text-sm"><input id="authentication" class="mt-1" type="checkbox" checked><span><strong>Authenticate meter</strong><span class="mt-1 block text-xs text-slate-500">Check the meter credential before processing.</span></span></label>
                                 <label class="flex items-start gap-3 text-sm"><input id="compression" class="mt-1" type="checkbox" checked><span><strong>Compress payload</strong><span class="mt-1 block text-xs text-slate-500">Use GZIP. Small messages can become larger.</span></span></label>
                                 <label class="flex items-start gap-3 text-sm"><input id="encryption" class="mt-1" type="checkbox" checked><span><strong>Encrypt payload</strong><span class="mt-1 block text-xs text-slate-500">Use AES-GCM with a fresh random nonce.</span></span></label>
                             </fieldset>
                             <p id="processing-order" class="text-xs leading-5 text-slate-600"></p>
-                            <p id="layer-warning" hidden class="rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900"></p>
-                            <button type="submit" class="button">Process and save reading</button>
-                        </form>
-                    </section>
-                    <section class="panel" aria-labelledby="history-heading"><h2 id="history-heading" class="font-semibold">Saved readings</h2><p class="mt-1 mb-4 text-xs text-slate-500">Select a reading to inspect its payload and verify recovery.</p><div id="readings" class="max-h-72 space-y-2 overflow-auto"></div></section>
-                    <section id="reading-detail" hidden class="panel" aria-labelledby="detail-title">
-                        <h2 id="detail-title" class="font-semibold"></h2><p id="detail-layers" class="mt-2 text-sm text-slate-600"></p><p id="detail-sizes" class="mt-2 text-sm text-slate-600"></p>
-                        <p class="mt-4 mb-2 text-xs font-medium text-slate-500">Encoded payload (Base64 display; Base64 itself is not encryption)</p>
-                        <pre id="payload" class="max-h-40 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-slate-900 p-4 text-xs leading-5 text-slate-100"></pre>
-                        <div class="mt-4 flex flex-wrap gap-3"><button id="recover" type="button" class="button">Recover and verify</button><button id="tamper" type="button" class="secondary">Test corrupted copy</button></div>
-                        <p class="mt-3 text-xs text-slate-500">Recovery uses this reading's saved layers. A corruption test alters a copy only; the saved reading stays intact.</p>
-                        <p id="recovery-status" role="status" aria-live="polite" class="mt-4 text-sm font-medium text-teal-800"></p><pre id="recovered" hidden class="mt-3 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-teal-50 p-4 text-xs leading-5 text-teal-900"></pre>
-                    </section>
-                </div>
-            </div>
-        </div>
-        <footer class="mt-8 border-t border-slate-200 pt-4 text-xs leading-5 text-slate-500">Local meter-message simulation. Payload encryption does not encrypt usage metadata or replace HTTPS, user login or access controls.</footer>
-    </main>
-</body>
-</html>
+                            <p id="layer-warning" hidden class="meter-warning"></p>
+                            <footer class="dialog-actions"><button type="button" class="secondary" data-close>Cancel</button><button type="submit" class="button">Process and save reading</button></footer>
+                        </form></dialog>
+<dialog id="reading-detail" class="record-dialog meter-payload-dialog" aria-labelledby="detail-title"><header class="dialog-heading"><h2 id="detail-title">Reading details</h2><button type="button" class="dialog-close" data-close aria-label="Close reading details">&#215;</button></header>
+<p id="detail-layers" class="record-help"></p><p id="detail-sizes" class="record-help"></p><p class="record-help meter-payload-label">Encoded payload (Base64 display; Base64 itself is not encryption)</p><pre id="payload" class="meter-payload"></pre>
+<div class="meter-credential-status"><p class="record-help" data-credential-status></p><button type="button" class="record-edit" data-credential-open>Set credential</button></div><div class="records-actions"><button id="recover" type="button" class="button">Recover and verify</button><button id="tamper" type="button" class="secondary">Test corrupted copy</button></div>
+<p class="record-help">Recovery uses the saved processing layers. Testing a corrupted copy leaves the stored reading unchanged.</p><p id="recovery-status" role="status" aria-live="polite"></p><pre id="recovered" hidden class="meter-payload"></pre><footer class="dialog-actions"><button type="button" class="secondary" data-close>Close</button></footer></dialog>
+<p class="record-help meter-footnote">Local meter-message simulation. Payload encryption does not encrypt usage metadata or replace HTTPS, user login or access controls.</p>
+</main></body></html>

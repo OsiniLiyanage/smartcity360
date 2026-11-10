@@ -1,0 +1,29 @@
+/* Meter records share the application's palette and typography. */
+.meter-city { display:flex; align-items:end; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
+.meter-city>div { width:min(380px,100%); min-width:0; }
+.meter-city>p { margin:0 0 10px auto; }
+.meter-heading { display:flex; justify-content:space-between; align-items:center; gap:24px; margin:18px 0 32px; }
+.meter-heading h2 { font-size:23px; margin:0; overflow-wrap:anywhere; }
+.meter-back { padding-left:0; margin-top:12px; }
+.meter-history-heading { font-size:17px; margin:0; }
+#readings-hint { margin:8px 0 18px; }
+.meter-footnote { margin-top:26px; }
+.meter-records .record-dialog section { margin-top:20px; }
+.meter-records .record-form { margin-top:20px; }
+.meter-credential-status { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0; }
+.meter-credential-status .record-help { margin:0; }
+.meter-replace { margin-top:24px; padding-top:16px; border-top:1px solid var(--line); }
+.meter-replace summary { cursor:pointer; font-size:14px; }
+.meter-replace .secondary { margin-top:16px; }
+.meter-layers { display:grid; gap:14px; padding:16px 0; border:0; border-top:1px solid var(--line); }
+.meter-layers legend { padding:0 12px 0 0; font-size:14px; }
+.meter-warning { color:var(--warning); font-size:12px; line-height:1.6; }
+.meter-payload-dialog { width:min(680px,calc(100vw - 28px)); }
+.meter-payload { padding:16px; margin:12px 0 20px; max-height:240px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font-size:12px; line-height:1.6; background:var(--surface-alt); color:var(--text); border:1px solid var(--line); border-radius:4px; }
+.meter-payload-label { margin-top:22px; }
+#recovery-status { font-size:14px; margin-top:16px; }
+@media(max-width:800px) {
+ .meter-city>p { flex-basis:100%; margin:0; }
+ .meter-heading { align-items:flex-start; flex-direction:column; gap:18px; }
+ .meter-credential-status { align-items:flex-start; flex-direction:column; gap:4px; }
+}

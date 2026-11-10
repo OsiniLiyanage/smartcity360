@@ -6,13 +6,52 @@ Open `http://localhost:9080/smartcity360/meters.html`, or choose **Energy meters
 
 1. Run the database helper's Setup action to apply `004_meters.sql`, then build/deploy normally.
 2. Create a city/district/street/building in City zones if needed. Register one meter for the building.
-3. Registration issues a random meter credential once and fills the password field. Save it privately if you need it after leaving the page. The server stores only its hash; the browser keeps credentials only in page memory.
-4. Enter a usage total and choose authentication, compression and encryption options. All three start selected.
+3. Registration opens the credential dialog with a random meter credential issued once. Save it privately if you need it after leaving the page. The server stores only its hash; the browser keeps credentials only in page memory.
+4. Open a meter, choose Add reading, enter a usage total and choose authentication, compression and encryption options. All three start selected. Set credential opens the credential dialog without losing the reading form.
 5. Process the reading. It is saved only after the transformed data recovers exactly; the building total is replaced and Composite city totals update.
 6. Select a saved reading and choose Recover and verify. Recovery rebuilds the reading's saved layer choices.
 7. Test corrupted copy flips one byte in an in-memory copy. It never changes the database payload. The original should still recover afterwards.
 
 The page displays raw byte sizes before Base64 encoding. Small messages may grow after compression/encryption; this is shown as an increase, not hidden. Use the same reporting period for all buildings' totals. Saved history is not added repeatedly into usage totals.
+
+## Records and separate dialogs
+
+The city inventory searches all loaded meters by name and building location,
+with 25 rows per page. Open shows a dedicated meter view with its building
+usage and saved-reading table. Back to meters returns to the inventory.
+Saved readings also display 25 rows at a time, newest first. Both lists still
+load fully from the existing API; this is display pagination, not server pagination.
+
+Registration, credentials, Add reading and payload inspection open in separate
+dialogs. Inspect supports recovery and corruption checks using the saved layer
+choices. Opening Set credential from another dialog returns to that dialog
+when closed. Closing the credential dialog masks its value again; credentials
+remain only in this tab's memory and are never written to browser storage.
+
+Registration and credential replacement remain restricted to supervisors,
+city managers and system admins. Local staff can process and recover readings
+within their permitted city. Residents have no access to this workspace.
+
+## Manual layout checklist
+
+The 10 November records revision has basic JavaScript syntax, HTML control
+reference and packaging checks. Browser interaction and write workflows have
+not been rechecked for this layout.
+
+1. Search meters by name/building, open one and use Back to meters. Check
+   pagination where there are more than 25 meters or readings.
+2. As an authorized account, open Register meter. Required fields and buildings
+   without meters should behave as before. A successful registration should
+   show its one-time credential; save that privately.
+3. Open Add reading. Use Set credential, then Done to return without losing
+   entered usage or layer choices. Missing authentication credentials should
+   show an actionable alert. Cancel should not create a reading.
+4. Save one valid reading. Its saved payload should open, and building/city
+   totals should update. Check Recover and verify and Test corrupted copy.
+   A corrupted copy must not alter the stored reading.
+5. Check Close/Escape, alerts, both themes and mobile table scrolling. Local
+   staff should not see registration or credential replacement. Avoid replacing
+   a credential solely for a visual check: it invalidates the previous value.
 
 ## API
 
