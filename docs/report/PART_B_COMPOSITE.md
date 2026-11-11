@@ -81,7 +81,7 @@ The web request follows this path:
 
 For larger deployments, measure the actual bottleneck before introducing subtree loading, lazy UI expansion, cached aggregate totals or asynchronous commands. Caching needs invalidation when readings change; asynchronous commands need progress/failure records and cannot claim immediate success. Real devices may be offline or fail mid-command, unlike the current transactional simulation. Composite provides the structure for delegation; it does not solve those operational issues itself.
 
-Readings currently represent manually entered totals for a common reporting period. The page states this assumption. Historical readings, reporting-period records, real meter ingestion and authentication are separate pending features. Group totals must not be described as live telemetry.
+Readings represent manually entered totals for a common reporting period. Saved meter-reading history and authentication are implemented. Explicit reporting-period records and physical meter ingestion remain outside the current implementation. Group totals must not be described as live telemetry or calculated by summing every historical reading.
 
 ## Implementation evidence and viva preparation
 

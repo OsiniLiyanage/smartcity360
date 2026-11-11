@@ -95,7 +95,7 @@ The live inventory loads bounded pages: 25 lights in the UI and at most 100 per 
 
 The application pool retains requested configurations until restart/redeployment and currently has no eviction. A large number of unique configurations therefore increases its memory use. Database uniqueness and immutable specifications preserve reuse; concurrency tests verify that simultaneous requests for one configuration obtain the same pooled identity. The demonstration is bounded and serialized to limit simultaneous temporary allocations.
 
-This implementation simulates power commands and fault state. It does not connect to physical lamps, estimate energy over time, retain maintenance history or demonstrate production access controls.
+This implementation simulates power commands and fault state. It does not connect to physical lamps, estimate energy over time or retain maintenance history. Current application role and city restrictions are enforced separately from Flyweight; this is not a production-security certification.
 
 ## Simple viva explanation
 

@@ -106,7 +106,7 @@ For a small grammar, the classes are easy to follow in a viva. As a language gro
 
 Parsing allocates an expression tree for each operation, and recursive interpretation visits relevant nodes. Boolean operators can short-circuit evaluation, but the application deliberately validates all required observations first. Parsing is currently repeated instead of cached. A future cache would need keys including policy revision and language version to avoid using outdated rules. No large-policy throughput benchmark has been performed.
 
-Resource limits keep this implementation bounded: 1,000 source characters, 200 tokens, 20 nested groups/negations and 20 characters per numeric literal. The language accepts only known numeric fields and explicit operators; it has no script execution, external calls or loops. These restrictions are part of making a small, explainable DSL, not proof of complete production security. Application access controls remain separate work.
+Resource limits keep this implementation bounded: 1,000 source characters, 200 tokens, 20 nested groups/negations and 20 characters per numeric literal. The language accepts only known numeric fields and explicit operators; it has no script execution, external calls or loops. These restrictions are part of making a small, explainable DSL, not proof of complete production security. Current application role and city access checks are implemented separately from the interpreter.
 
 The observations are manual demonstration data: noise 0–200 dB with up to three decimal places, whole hours 0–23, and whole parking minutes 0–10080. Overnight windows use an `OR` expression. The language does not handle minutes within an hour, time zones, calendars, holidays or continuous sensing. A result is recorded for one selected zone; it does not automatically switch devices, issue penalties or establish legal compliance.
 
@@ -114,7 +114,7 @@ History preserves evaluated revisions and their inputs, but is not a complete au
 
 ### Verified evidence
 
-- Nine Interpreter unit tests passed; the full project suite passed 33 tests with zero failures/errors.
+- Nine Interpreter unit tests passed; the historical full project suite at that checkpoint passed 33 tests with zero failures/errors. The current review passed 33 pattern-specific tests, and the latest full suite passed 67 tests; see ../ASSESSMENT_REVIEW.md.
 - Eighty-four HTTP checks passed: true/false noise and parking cases, boundaries, rule updates, unchanged history, duplicate names, city isolation, invalid input, pagination, inactive policies, stale versions and competing edits.
 - The browser created a policy, saved a true result, edited its threshold, saved a false result and displayed both original revisions. An incomplete `noise >` rule showed an error at character 8. Unsaved edits disabled evaluation.
 - Evidence image: `evidence/policy-history.png`. Restart verification and complete scope are recorded in `../VERIFICATION.md`.

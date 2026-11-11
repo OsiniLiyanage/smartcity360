@@ -78,7 +78,7 @@ The Part A question does not explicitly require a UML figure, but this diagram s
 
 **Keys and credentials have lifecycles.** The domain key survives application redeployment and server restart. Losing it prevents recovery of encrypted historical payloads, so private backups must include both the database and key. If encrypted records already exist and the key is missing, the service refuses to create a replacement silently. Meter credential replacement is separate: it invalidates the old credential and uses the new one for later checks, including recovery of earlier authenticated readings. Key rotation across multiple retained encryption keys is not implemented.
 
-**Security boundaries must remain clear.** Selecting authentication off intentionally skips that wrapper for the assignment demonstration. This is not an application authorization policy. The local app has no user login/role enforcement yet, and registration/credential replacement are local demo operations. Payload encryption does not hide stored usage metadata or protect the browser-to-server HTTP connection. A production deployment would need HTTPS, authenticated operators and permission checks independently of Decorator.
+**Security boundaries must remain clear.** Selecting authentication off intentionally skips that meter wrapper for the assignment demonstration. Application login, role restrictions and city scope are independently enforced by the current backend. Payload encryption does not hide stored usage metadata or protect the browser-to-server HTTP connection. Production transport would still require HTTPS; Decorator does not replace account authorization.
 
 **Integration without double counting.** An accepted message replaces the building's current usage total; the Composite then calculates district/city totals. Historical messages remain available for inspection and recovery but are not all summed. The current product assumes manually entered totals for a common reporting period. It is a local meter-message simulation, not a continuous connection to physical meters or a historical billing system.
 
@@ -86,7 +86,7 @@ The Part A question does not explicitly require a UML figure, but this diagram s
 
 - Pattern code: `src/main/java/lk/osini/smartcity360/pattern/decorator/`.
 - Integration: `MeterService`, `MeterKeyStore`, `MeterResource`, `Meter`, `MeterReading`, `database/004_meters.sql`.
-- Unit verification: seven Decorator tests; 18 total project tests.
+- Unit verification: seven Decorator tests. The current 67-test Java suite and the subsequent 33-test pattern-only review passed; see `../ASSESSMENT_REVIEW.md` for scope.
 - Live checks: `node scripts/verify-meters.mjs`; dated observed results are in `docs/VERIFICATION.md`.
 - Browser evidence: `evidence/meter-recovery.png`.
 
