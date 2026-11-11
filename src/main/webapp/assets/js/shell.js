@@ -21,10 +21,10 @@
         const close=element('button','sidebar-close');close.type='button';close.setAttribute('aria-label','Hide sidebar');close.append(icon('close'));
         const brandRow=element('div','sidebar-brand-row');brandRow.append(brand,close);sidebar.append(brandRow,element('p','nav-caption','WORKSPACE'));
         const nav=element('nav','sidebar-nav');nav.setAttribute('aria-label','Main navigation');
-        const links=[['home.html','Dashboard','dashboard'],['account.html','Profile','profile'],['complaints.html',role==='RESIDENT'?'My complaints':'Complaint queue','complaints']];
+        const links=[['home.html','Dashboard','dashboard'],['complaints.html',role==='RESIDENT'?'My complaints':'Complaint queue','complaints']];
         if(role!=='RESIDENT')links.push(['./','City zones','city'],['meters.html','Energy meters','meters'],['streetlights.html','Streetlights','lights'],['policies.html','City policies','policies']);
         if(role==='SYSTEM_ADMIN')links.push(['accounts.html','Manage users','users']);
-        links.push(['reports.html',role==='RESIDENT'?'My reports':'Reports','reports']);
+        links.push(['reports.html',role==='RESIDENT'?'My reports':'Reports','reports'],['account.html','Profile','profile']);
         for(const[href,label,key]of links){const a=element('a','sidebar-link');a.href=href;a.append(icon(key),element('span','',label));if((href==='./'?'index.html':href)===page)a.setAttribute('aria-current','page');nav.append(a);}
         sidebar.append(nav);
         const note=element('div','sidebar-note');note.append(element('span','status-dot'),element('span','','Your city. Connected.'),element('small','','Local demonstration workspace'));sidebar.append(note);

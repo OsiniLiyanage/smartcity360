@@ -1,11 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><script src="assets/js/theme.js?v=mint3"></script><meta name="viewport" content="width=device-width, initial-scale=1"><title>SmartCity360 | Profile</title><link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=mint3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><link rel="stylesheet" href="assets/css/profile.css?v=profile1"><script src="assets/js/feedback.js?v=quiet2" defer></script><script src="assets/js/shell.js?v=green1" defer></script><script src="assets/js/auth.js?v=session2" defer></script><script src="assets/js/account-pages.js?v=profile1" defer></script><script src="assets/js/profile.js?v=profile1" defer></script></head>
+<html lang="en"><head><meta charset="UTF-8"><script src="assets/js/theme.js?v=mint3"></script><meta name="viewport" content="width=device-width, initial-scale=1"><title>SmartCity360 | Profile</title><link rel="stylesheet" href="assets/css/app.css?v=green1"><link rel="stylesheet" href="assets/css/themes.css?v=mint3"><link rel="stylesheet" href="assets/css/design.css?v=green1"><link rel="stylesheet" href="assets/css/feedback.css?v=green1"><link rel="stylesheet" href="assets/css/profile.css?v=profile2"><script src="assets/js/feedback.js?v=quiet2" defer></script><script src="assets/js/shell.js?v=profile2" defer></script><script src="assets/js/auth.js?v=session2" defer></script><script src="assets/js/account-pages.js?v=profile1" defer></script><script src="assets/js/profile.js?v=profile2" defer></script></head>
 <body class="workspace profile-page"><main id="main-content" tabindex="-1">
     <header class="profile-title"><h1>Your profile</h1><p>Personal details and account preferences.</p></header>
     <p id="message" role="status" aria-live="polite"></p>
     <p id="password-required" hidden>Change your temporary password in Security before opening your workspace.</p>
     <section class="profile-overview" aria-label="Profile overview">
-        <div class="profile-identity"><h2 id="profile-name"></h2><p id="profile-role"></p><p class="profile-description">Your name and photo help your city team recognise you.</p></div>
         <div class="profile-portrait">
             <button type="button" id="choose-photo" class="photo-circle" aria-label="Upload profile photo">
                 <svg id="photo-placeholder" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><circle cx="50" cy="35" r="16"/><path d="M20 83v-8a30 30 0 0 1 60 0v8"/></svg>
@@ -13,13 +12,12 @@
                 <span class="photo-camera" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h4l2-3h6l2 3h4v13H3Z"/><circle cx="12" cy="13" r="4"/></svg></span>
             </button>
             <input id="profile-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Profile photo file" hidden>
-            <button type="button" id="upload-photo" class="secondary">Upload photo</button>
             <button type="button" id="remove-photo" class="photo-remove" hidden>Remove photo</button>
-            <p class="photo-help">JPG, PNG or WebP. Up to 5 MB.</p>
+            <p class="photo-help">Click the photo to choose a JPG, PNG or WebP up to 5 MB.</p>
             <p id="photo-state" class="photo-state" role="status"></p>
             <button type="submit" form="contact-profile" id="save-photo" class="button" hidden>Save photo and details</button>
         </div>
-        <dl class="profile-facts"><div><dt>Email</dt><dd id="profile-email"></dd></div><div><dt>Username</dt><dd id="saved-username"></dd></div><div><dt>Phone</dt><dd id="saved-phone"></dd></div></dl>
+        <div class="profile-identity"><h2 id="profile-name"></h2><p id="profile-role"></p><p class="profile-description">Your name and photo help your city team recognise you.</p><dl class="profile-facts"><div><dt>Email</dt><dd id="profile-email"></dd></div><div><dt>Username</dt><dd id="saved-username"></dd></div><div><dt>Phone</dt><dd id="saved-phone"></dd></div></dl></div>
     </section>
     <nav class="profile-sections" aria-label="Profile settings"><button type="button" data-profile-section="details" aria-controls="profile-details" aria-pressed="true">Details</button><button type="button" data-profile-section="security" aria-controls="profile-security" aria-pressed="false">Security</button><button type="button" data-profile-section="appearance" aria-controls="profile-appearance" aria-pressed="false">Appearance</button></nav>
     <section id="profile-details" class="profile-settings" aria-label="Personal details">

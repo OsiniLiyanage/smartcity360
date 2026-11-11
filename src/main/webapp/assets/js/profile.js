@@ -31,7 +31,6 @@
         function showPhoto() {
             preview.hidden=!photo; $('#photo-placeholder').toggleAttribute('hidden',!!photo);
             if(photo)preview.src=photo;else preview.removeAttribute('src');
-            $('#upload-photo').textContent=photo?'Change photo':'Upload photo';
             $('#choose-photo').setAttribute('aria-label',photo?'Change profile photo':'Upload profile photo');
             $('#remove-photo').hidden=!photo;
             const dirty=photo!==(auth.user.avatar||'');
@@ -39,7 +38,7 @@
             $('#photo-state').textContent=dirty?'Preview only. Save your photo to keep this change.':'';
         }
         function lock(value) {
-            for(const selector of ['#choose-photo','#upload-photo','#remove-photo','#profile-photo','#save-photo','#contact-profile button','#contact-profile input','#profile-form button'])document.querySelectorAll(selector).forEach(el=>el.disabled=value);
+            for(const selector of ['#choose-photo','#remove-photo','#profile-photo','#save-photo','#contact-profile button','#contact-profile input','#profile-form button'])document.querySelectorAll(selector).forEach(el=>el.disabled=value);
         }
         summary();showPhoto();
         $('#profile-username').value=auth.user.username||'';
@@ -47,7 +46,7 @@
         $('#password-required').hidden=!auth.user.passwordChangeRequired;
         if(auth.user.passwordChangeRequired)showSection('security');
         window.addEventListener('smartcity:profile-updated',summary);
-        for(const id of ['choose-photo','upload-photo'])$(`#${id}`).addEventListener('click',()=>input.click());
+        $('#choose-photo').addEventListener('click',()=>input.click());
         $('#remove-photo').addEventListener('click',()=>{if(reading||saving)return;photo='';input.value='';showPhoto();});
         input.addEventListener('change',async()=>{
             const file=input.files[0];if(!file||reading||saving)return;
