@@ -76,7 +76,7 @@ classDiagram
 
 **Visible decisions.** History records submission, each forwarded/accepted step, severity escalation, work updates and reopening. The page shows both the current team and the earlier route. When severity changes, the old events remain; they are not replaced with the latest route. This supports explanation during a viva and helps users understand why a team received the complaint.
 
-**Explicit failure handling.** A chain can end without a handler accepting the request. `ComplaintHandler` returns an UNHANDLED step with no assigned authority rather than silently dropping the request. The service can persist this as UNASSIGNED. The normal three-handler chain covers all three supported severities; the unhandled case is tested using a shortened chain. Repairing an intentionally incomplete chain or adding manual assignment remains an administrative extension, not an existing screen.
+**Explicit failure handling.** A chain can end without a handler accepting the request. `ComplaintHandler` returns an UNHANDLED step with no assigned authority rather than silently dropping the request. The service can persist this as UNASSIGNED. The normal three-handler chain covers all three supported severities; the unhandled case is tested using a shortened chain. Repairing an intentionally incomplete chain or adding manual authority assignment remains an administrative extension, not an existing screen.
 
 **Order dependence.** The first accepting handler wins. Placing the manager first would send every complaint to the manager and bypass local staff. A very broad acceptance rule could similarly hide later handlers. Tests for all three severities are therefore necessary after changing the chain.
 
@@ -86,7 +86,7 @@ classDiagram
 
 **Concurrent changes.** Mutations lock and refresh the complaint record and check the version supplied by the browser. A stale window receives HTTP 409 and must refresh. A live test with two concurrent updates showed one accepted change and one conflict, with only one work-history event. Complaint and history changes commit together, avoiding a status change with a missing explanation.
 
-The current system routes to authority roles rather than sending real notifications or allocating named staff members. It demonstrates the assessed chain and a functional local work lifecycle without claiming integration with a municipality.
+The chain selects an authority role. A separate, permission-checked service can allocate an eligible named employee. Real notification delivery is not implemented. The application demonstrates local complaint handling without claiming integration with a municipality.
 
 ## Evidence and viva explanation
 
