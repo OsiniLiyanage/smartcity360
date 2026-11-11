@@ -11,3 +11,11 @@ Checked deployed revision d953237 using the existing administrator account.
 Automated verification: 21 tests passed using `node --test scripts/verify-feedback.cjs scripts/verify-auth-session.cjs scripts/verify-report-model.cjs scripts/verify-city-explorer.cjs`.
 
 This is a focused layout and client-logic checkpoint. It does not claim full all-role journeys, every dialog, native print preview, Java regression or database permission verification. Those remain separate acceptance tasks.
+
+## Subsequent role and Java checks
+
+`node scripts/verify-current-roles.mjs` passed 105 live checks across the five existing roles. This uses the private local account configuration, without embedding credentials. Covered login/session/logout, visible city scope, complaint authority-tier filtering, resident denial for meters/lights/policies, staff cross-city denial, resident detail omission of employee-assignment fields and report totals/status filters. No business records were modified.
+
+Second-resident ownership isolation was explicitly skipped because every complaint in the selected active city belonged to the retained resident. The script reports that missing fixture rather than claiming coverage. Write journeys and other-resident isolation remain to be exercised separately.
+
+`mvn -B -o test` passed all 67 Java tests, with zero failures, errors or skips. This supersedes the earlier Java-regression limitation for this checkpoint, but mocked service tests do not replace live transaction and permission testing.
