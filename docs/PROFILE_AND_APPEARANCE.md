@@ -37,6 +37,6 @@ Demo account credentials, local seed/reset scripts and database backups are deli
 
 ## Profile workspace
 
-Profile has an overview with a circular photo area, display name, role and saved contact details. An empty photo uses a person icon. Upload/Change photo buttons open the file picker; the raw file field is hidden. Selected files preview immediately, but the explicit save is required to persist the photo. Removing an existing picture is also a pending change until saved. Choosing the same file again is supported.
+Profile has an overview with a large circular photo on the left and the display name, role and saved contact details on the right. An empty photo uses a person icon. Clicking the photo opens the file picker; the raw file field is hidden. There is no separate upload button. Selected files preview immediately, but the explicit save is required to persist the photo. Removing an existing picture is also a pending change until saved. Choosing the same file again is supported.
 
 Details, Security and Appearance controls show separate settings sections. Display name uses the existing profile endpoint; username, phone and photo use the existing profile-details endpoint. Successful saves update the overview and sidebar immediately. A required temporary-password change opens Security automatically. The frontend retains the existing JPEG/PNG/WebP size validation, square crop, JPEG conversion and server validation. `profile.css` and `profile.js` own this page; the shared refinement script supplies the configured font selector.
