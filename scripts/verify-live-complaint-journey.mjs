@@ -1,0 +1,63 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile} from 'node:fs/promises';
+import {AuthClient} from './auth-client.mjs';
+if(!process.argv.includes('--apply'))throw Error('This live test retains two complaints and a second resident account. Run with --apply.');
+const base='http://127.0.0.1:9080/smartcity360/api';
+const accounts=JSON.parse(await readFile('.local/simple-demo-accounts.json','utf8'));
+const clients=[],roles={};let checks=0;
+async function call(c,path,method='GET',body,status=200){const r=await c.call(path,method,body);assert.equal(r.status,status,`${method} ${path}: ${r.status}`);checks++;return r.value;}
+function check(value,message){assert.ok(value,message);checks++;}
+try{
+ for(const email of accounts.emails){const c=new AuthClient(base);clients.push(c);await c.login(email,accounts.password);roles[c.user.role]=c;}
+ const resident=roles.RESIDENT,staff=roles.LOCAL_STAFF,supervisor=roles.SUPERVISOR,admin=roles.SYSTEM_ADMIN;
+ check(resident&&staff&&supervisor&&admin,'Required role accounts exist');
+ check(staff.user.cityId===supervisor.user.cityId,'Staff and supervisor share a city');
+ const cityId=staff.user.cityId,prefix=`cities/${cityId}/complaints`;
+ const other=new AuthClient(base);clients.push(other);
+ const email='household.two@smartcity360.local';
+ await other.session();
+ const registration=await other.call('auth/register','POST',{email,displayName:'Kavindi Perera',password:accounts.password});
+ check([201,409].includes(registration.status),'Second resident created or already exists');
+ await other.login(email,accounts.password);
+ check(other.user.role==='RESIDENT'&&other.user.id!==resident.user.id,'Distinct resident identities');
+ const suffix=new Date().toISOString();
+ let row=await call(resident,prefix,'POST',{subject:`Flickering crossing light ${suffix}`,description:'The pedestrian crossing lamp flickers after sunset. Please inspect the connection.',severity:'LOW',zoneId:null},201);
+ const second=await call(other,prefix,'POST',{subject:`Loose park gate latch ${suffix}`,description:'The park entrance gate cannot be secured because the latch is loose.',severity:'LOW',zoneId:null},201);
+ const path=`${prefix}/${row.id}`,secondPath=`${prefix}/${second.id}`;
+ await writeFile('.local/latest-complaint-journey.json',JSON.stringify({cityId,firstComplaint:row.id,secondComplaint:second.id},null,2));
+ await call(other,path,'GET',undefined,404);await call(resident,secondPath,'GET',undefined,404);
+ check(!(await call(other,prefix)).some(c=>c.id===row.id),'Other resident queue excludes first case');
+ check(!(await call(resident,prefix)).some(c=>c.id===second.id),'First resident queue excludes second case');
+ await call(other,`${path}/messages`,'POST',{message:'Unauthorized message',version:row.version},404);
+ await call(other,`${path}/reopen-request`,'POST',{note:'Unauthorized request',version:row.version},404);
+ await call(resident,`${path}/status`,'PUT',{status:'IN_PROGRESS',note:'Not a staff member',version:row.version},403);
+ const candidates=await call(supervisor,`${path}/assignees`);check(candidates.some(c=>c.id===staff.user.id),'Eligible local employee available');
+ row=await call(supervisor,`${path}/assignment`,'PUT',{assignedUserId:staff.user.id,note:'Allocate crossing inspection to the local maintenance team.',version:row.version});
+ check(row.assignee.id===staff.user.id,'Employee allocation saved');
+ row=await call(resident,`${path}/messages`,'POST',{message:'The fault is most visible after 7 pm.',version:row.version});
+ const stale=row.version;
+ row=await call(staff,`${path}/messages`,'POST',{message:'We will inspect the crossing this evening.',version:row.version});
+ await call(resident,`${path}/messages`,'POST',{message:'Stale duplicate',version:stale},409);
+ const privateNote='Internal electrical checklist: inspect terminal block before replacing the lamp.';
+ row=await call(staff,`${path}/status`,'PUT',{status:'IN_PROGRESS',note:privateNote,version:row.version});
+ row=await call(staff,`${path}/status`,'PUT',{status:'RESOLVED',note:'Connection secured and lamp tested.',version:row.version});
+ const visible=await call(resident,path);
+ check(!JSON.stringify(visible).includes(privateNote),'Private staff note is absent from resident detail');
+ check(!Object.hasOwn(visible,'assignee'),'Employee details remain private');
+ check(visible.history.some(e=>e.message==='We will inspect the crossing this evening.'),'Public reply visible');
+ await call(other,`${path}/reopen-request`,'POST',{note:'Not the owner',version:row.version},404);
+ row=await call(resident,`${path}/reopen-request`,'POST',{note:'The lamp flickered again after the rain.',version:row.version});
+ check(row.reopenRequested&&row.status==='RESOLVED','Reopening waits for review');
+ await call(staff,`${path}/reopen-request`,'PUT',{approve:true,note:'Local staff cannot approve',version:row.version},403);
+ row=await call(supervisor,`${path}/reopen-request`,'PUT',{approve:false,note:'Please confirm whether this is the same crossing lamp.',version:row.version});
+ check(!row.reopenRequested&&row.status==='RESOLVED','Rejection preserves resolution');
+ row=await call(resident,`${path}/reopen-request`,'POST',{note:'Confirmed: it is the lamp immediately beside the crossing.',version:row.version});
+ row=await call(supervisor,`${path}/reopen-request`,'PUT',{approve:true,note:'A further inspection has been approved.',version:row.version});
+ check(row.status==='IN_PROGRESS'&&!row.reopenRequested,'Approval reopens work');
+ row=await call(staff,`${path}/status`,'PUT',{status:'RESOLVED',note:'Weather seal replaced; final inspection completed.',version:row.version});
+ row=await call(staff,`${path}/messages`,'POST',{message:'The weather seal has been replaced and the light checked again.',version:row.version});
+ await resident.call('auth/logout','POST');await resident.login(accounts.emails.find(e=>e.startsWith('resident@')),accounts.password);
+ check((await call(resident,path)).status==='RESOLVED','Resolution persists after a fresh login');
+ await call(other,path,'GET',undefined,404);
+ console.log(`PASS: ${checks} live checks. Cases ${row.id} and ${second.id} retained in city ${cityId}. Both resident ownership directions verified.`);
+}finally{for(const c of clients)await c.call('auth/logout','POST').catch(()=>{});}
