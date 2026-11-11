@@ -18,14 +18,20 @@ for(const name of ['Colombo','Kandy','Galle','Jaffna','Kurunegala']){
  const lights=await pages(`${prefix}/streetlights`),policies=await pages(`${prefix}/policies`);
  if(!apply){console.log(`${name}: ${zones.length} areas, ${lights.length} lights, ${policies.length} policies; inspect and fill missing operational examples.`);continue;}
  const spec=await call('lamp-specifications','POST',{model:'Civic LED 40',ratedWatts:40,colour:'WARM_WHITE'});
- for(const [index,location] of ['Library entrance','Pedestrian crossing','Clinic approach','Market junction'].entries()){
+ for(const [index,location] of ['Library entrance','Pedestrian crossing','Clinic approach','Market junction','School entrance','River bridge','Station forecourt','Sports centre gate','Park footpath','Market loading bay','Community hall entrance','Recycling centre approach'].entries()){
   const label=`${name.slice(0,3).toUpperCase()}-SL-${String(index+1).padStart(3,'0')}`;
   if(lights.some(l=>l.label===label))continue;
   let light=await call(`${prefix}/streetlights`,'POST',{label,location,streetId:streets[index%streets.length].id,specificationId:spec.id},201);
-  if(index>1)light=await call(`${prefix}/streetlights/${light.id}`,'PUT',{label,location,specificationId:spec.id,powerOn:index!==3,faulty:index===2,faultNote:index===2?'Lamp flickers intermittently; electrical inspection required.':'',version:light.version});
+  if(index>1)light=await call(`${prefix}/streetlights/${light.id}`,'PUT',{label,location,specificationId:spec.id,powerOn:index%4!==3,faulty:index%4===2,faultNote:index%4===2?'Lamp flickers intermittently; electrical inspection required.':'',version:light.version});
   console.log(`${name}: ${label} saved (${light.state}).`);
  }
  const rules=[{name:'Residential quiet hours',category:'NOISE',expression:'noise > 65 AND (hour >= 22 OR hour < 6)',trueMeaning:'VIOLATION',values:[{noise:72,hour:23},{noise:48,hour:23}]},{name:'Library short-stay parking',category:'PARKING',expression:'hour >= 8 AND hour < 18 AND parkingMinutes <= 120',trueMeaning:'PERMITTED',values:[{hour:10,parkingMinutes:45},{hour:10,parkingMinutes:150}]}];
+ rules.push(
+  {name:'School arrival noise limit',category:'NOISE',expression:'noise > 60 AND hour >= 7 AND hour < 9',trueMeaning:'VIOLATION',values:[{noise:68,hour:8},{noise:52,hour:8}]},
+  {name:'Clinic short-stay parking',category:'PARKING',expression:'parkingMinutes <= 60',trueMeaning:'PERMITTED',values:[{parkingMinutes:30},{parkingMinutes:90}]},
+  {name:'Market evening noise limit',category:'NOISE',expression:'noise > 70 AND hour >= 18',trueMeaning:'VIOLATION',values:[{noise:75,hour:20},{noise:55,hour:20}]},
+  {name:'Station pickup parking',category:'PARKING',expression:'parkingMinutes <= 20',trueMeaning:'PERMITTED',values:[{parkingMinutes:10},{parkingMinutes:35}]}
+ );
  for(const rule of rules){
   if(policies.some(p=>p.name===rule.name))continue;
   const {values,...body}=rule,policy=await call(`${prefix}/policies`,'POST',{...body,active:true},201);

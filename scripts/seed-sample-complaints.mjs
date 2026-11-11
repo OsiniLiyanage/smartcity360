@@ -22,7 +22,15 @@ const examples=[
     ['Uneven paving outside the library','A raised paving slab near the library entrance makes the walkway difficult to use.','LOW','ASSIGNED'],
     ['Blocked drain near the shopping street','Rainwater collects around the drain beside the shops and covers the pedestrian crossing.','MEDIUM','IN_PROGRESS'],
     ['Water supply interruption at the clinic','The clinic has reported repeated interruptions to its water supply during opening hours.','HIGH','ASSIGNED'],
-    ['Overflowing bins at the public library','The public bins beside the library entrance need collection and cleaning.','LOW','RESOLVED']
+    ['Overflowing bins at the public library','The public bins beside the library entrance need collection and cleaning.','LOW','RESOLVED'],
+    ['Damaged sign near the station','The direction sign beside the station entrance has come loose.','LOW','ASSIGNED'],
+    ['Poor lighting on the park footpath','Several lamps along the park walking route flicker after sunset.','LOW','IN_PROGRESS'],
+    ['Waste left beside the market','Waste bags remain near the market loading bay after collection.','MEDIUM','ASSIGNED'],
+    ['Noise outside the community hall','Amplified sound continues late in the evening near nearby houses.','MEDIUM','IN_PROGRESS'],
+    ['Unsafe railing on the river bridge','A section of pedestrian railing is loose and needs urgent inspection.','HIGH','ASSIGNED'],
+    ['Drainage overflow near the school','Water from the roadside drain reaches the school entrance after rain.','HIGH','IN_PROGRESS'],
+    ['Broken bench near the sports centre','A public bench has a damaged support and cannot be used safely.','LOW','ASSIGNED'],
+    ['Traffic obstruction beside the clinic','Vehicles waiting beside the clinic block pedestrian access.','MEDIUM','ASSIGNED']
 ];
 const cities=await call(admin,'cities');
 let created=0,kept=0;
@@ -38,7 +46,7 @@ for(const name of ['Colombo','Kandy','Galle','Jaffna','Kurunegala']){
         // Do not retry writes automatically. A partial case is retained for review.
         if(status!=='ASSIGNED')row=await call(admin,`${path}/status`,'PUT',{status:'IN_PROGRESS',note:'Inspection scheduled with the municipal service team.',version:row.version});
         if(status==='RESOLVED')row=await call(admin,`${path}/status`,'PUT',{status:'RESOLVED',note:'Collection completed and the surrounding pavement cleaned.',version:row.version});
-        const message=status==='RESOLVED'?'The bins have been emptied and the area cleaned. Please let us know if the problem returns.':status==='IN_PROGRESS'?'The drainage team is inspecting the blockage. We will post an update after clearing the drain.':'Your report has reached the responsible city team and is awaiting inspection.';
+        const message=status==='RESOLVED'?'The bins have been emptied and the area cleaned. Please let us know if the problem returns.':status==='IN_PROGRESS'?'The responsible team has started an inspection. We will post an update after the work is assessed.':'Your report has reached the responsible city team and is awaiting inspection.';
         await call(admin,`${path}/messages`,'POST',{message,version:row.version});
         const saved=await call(resident,path);
         if(saved.status!==status||!saved.history.some(event=>event.message===message))throw Error('Saved case verification failed.');

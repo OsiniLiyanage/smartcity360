@@ -21,3 +21,11 @@ The initial off-light update in Colombo rejected a null fault note; the loader n
 The five active city names had their `(demo)` suffix removed after a local database backup. Archived test records remain unchanged. No new sample record names contain that suffix.
 
 Exact database audit after setup: all 12 application tables are populated (including older retained records): 39 cities, 69 zones, 13 accounts, 33 account events, 54 complaints, 235 complaint events, nine lamp specifications, 28 streetlights, eight meters, 34 readings, 19 policies and 39 evaluations. Only five cities are active in the workspace. These counts document this local checkpoint, not a guarantee for another installation.
+
+## Expanded inventory checkpoint
+
+The subsequent expansion added 40 buildings across ten new districts and 20 streets, 45 meters with 135 readings, 40 streetlights, 20 policies with 40 evaluations and 40 complaints with public replies. Existing records were preserved. Each active city now has ten buildings, ten meters, twelve streetlights, at least six policies and twelve sample complaints in addition to its earlier cases. Colombo retains one additional earlier policy.
+
+Run `node scripts/expand-city-inventory.mjs` to preview the infrastructure expansion and add `--apply` to save. Then run the operations and complaint loaders described above. All three were rerun successfully without creating duplicate matching examples. Meter credentials remain in the ignored private file. New meters receive three varied current-time readings; their latest value updates the associated building's energy summary. These readings do not represent historical daily or monthly measurements.
+
+The inventory loader skips existing meters that already have readings. An interruption before all initial readings are saved therefore requires manual review, not automatic replay. Do not run loaders concurrently. Existing accounts, passwords and staff permissions are unchanged.
