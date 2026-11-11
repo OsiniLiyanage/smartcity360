@@ -1,108 +1,229 @@
 # SmartCity360
 
-Java web assignment project. Current stage: meter processing using **Decorator (Part A)**, a city hierarchy using **Composite (Part B)**, complaints using **Chain of Responsibility (Part C)**, streetlights using **Flyweight (Part D)** and city policies using **Interpreter (Part E)**, with Jakarta REST, PostgreSQL/JPA and Tailwind CSS.
+SmartCity360 is a Java web application for managing city infrastructure and resident service requests. Residents report problems and follow their cases; city teams manage complaints, city zones, energy meters, streetlights and policy rules according to their permissions.
 
-Create city hierarchies, process meter readings with optional authentication/compression/encryption, and inspect usage totals. Route complaints by severity and record work through resolution. Register streetlights, control individual power/fault states and demonstrate specification sharing for 100,000 temporary lights. Save/edit noise and parking rules, evaluate zone observations and retain the original rule with each result. The latest recorded checkpoint passed 67 Java tests, six alert lifecycle tests, six report model tests, 40 live profile/demo checks and 62 live report checks. Earlier full-module and restart checks remain dated evidence; they have not all been repeated after the latest permission changes. See [verification evidence](docs/VERIFICATION.md) for scope and limits.
+Built with **Java 21, Jakarta EE 11, Jakarta REST, JPA, PostgreSQL, Tailwind CSS and plain JavaScript**, and deployed as a Maven WAR on **Payara Community 7**. This project does not use Spring Boot or a standalone Java `main` method.
+
+## Application preview
+
+Screenshots show the local application with sample records captured on 11 November 2026. Records and counts can change as the application is used.
+
+### Sign in
+
+![Sign-in page with city background](docs/screenshots/sign-in.png)
+
+### Dashboard
+
+![Administrator dashboard with complaint totals, recent cases and status chart](docs/screenshots/dashboard.png)
+
+### Energy meters
+
+![Energy meter inventory and saved city usage](docs/screenshots/energy-meters.png)
+
+## Features
+
+| Module | Available functionality |
+| --- | --- |
+| Accounts | Resident signup, sign-in/out, five roles, administrator provisioning, account status and activity |
+| Profile | Photo upload/removal, display name, username, phone, password changes and font preference |
+| Dashboard | Accessible complaint totals, current status chart, recent cases and role-specific shortcuts |
+| Complaints | Resident submission, severity routing, employee assignment, public messages, private staff notes, resolution and reviewed reopening |
+| City zones | City/district/street/building hierarchy, folder navigation, usage totals and simulated subtree power commands |
+| Energy meters | Building-linked registration, saved readings, optional authentication/compression/encryption and payload recovery checks |
+| Streetlights | Reusable lamp configurations, individual power/fault states, filters and an isolated object-sharing demonstration |
+| City policies | Boolean rule language, syntax validation, saved revisions, observations and evaluation snapshots |
+| Reports | Complaint filters, totals, monthly submission chart, matching records and browser printing |
+| Appearance | Remembered light/dark themes, collapsible desktop sidebar, mobile drawer and configurable colors/fonts |
+
+Profile is the last navigation entry for every role. Forms and record details open separately where applicable. Server-side permission checks apply even when a user bypasses the interface.
+
+## Roles
+
+| Role | Main access |
+| --- | --- |
+| Resident | Own complaints, public replies, reopening requests, own reports and profile |
+| Local staff | Assigned-city operations and complaints within the local authority tier |
+| Supervisor | Assigned-city operations, eligible employee assignment and complaints within permitted tiers |
+| City manager | All complaint tiers in the assigned city, policy management and hierarchy power commands |
+| System administrator | Cross-city administration, user management, city creation and shared configuration management |
+
+Only residents submit complaints. Administrators and staff work with existing cases. Every role has Dashboard and Profile; other navigation depends on permissions. See [the complete permission matrix](docs/ACCOUNTS.md).
+
+## Five design patterns
+
+| Assessment part | Pattern | Application responsibility | Source package |
+| --- | --- | --- | --- |
+| A | Decorator | Add optional authentication, compression and encryption to meter messages | `pattern/decorator` |
+| B | Composite | Apply usage and power operations through the city hierarchy | `pattern/composite` |
+| C | Chain of Responsibility | Route complaints through local staff, supervisor and city-manager authorities | `pattern/chain` |
+| D | Flyweight | Share immutable lamp configurations between individual streetlights | `pattern/flyweight` |
+| E | Interpreter | Parse and evaluate city policy expressions | `pattern/interpreter` |
+
+These packages are under `src/main/java/lk/osini/smartcity360`. REST resources handle HTTP requests; services enforce access and transactions; entities map saved records to PostgreSQL. Builder and Visitor are not implemented.
 
 ## Requirements
 
-For the one-command IntelliJ workflow and deployment repair, see
-[Run from IntelliJ](docs/INTELLIJ_RUN.md).
+- JDK 21, selected for both the IntelliJ project SDK and Maven runner.
+- Maven 3.9 or later, available in the terminal.
+- Payara Community 7 with Jakarta EE 11 support.
+- PostgreSQL Windows binaries. The existing local setup uses PostgreSQL 18 on port **5433**.
+- IntelliJ IDEA Ultimate or another Java IDE.
+- Node.js and npm only for rebuilding Tailwind styles or running JavaScript checks.
 
-- JDK 21
-- Maven
-- Payara Community 7, compatible with Jakarta EE 11
+The checked-in CSS allows Maven to package the application without an npm build. The helper scripts below target Windows PowerShell. Internet access is needed for the first Maven dependency download.
 
-PostgreSQL 18.6 and JPA are configured locally. See [database setup](docs/DATABASE.md). All five assessed pattern features are implemented. Resident registration, sign-in, five roles, account administration and complaint privacy are implemented. Named staff assignment, resident follow-up/reopening, role dashboards and configurable light/dark themes are integrated. Filtered complaint reports, profile photos/contact details and action alerts are implemented. The [assessment review](docs/ASSESSMENT_REVIEW.md) records requirement coverage and its verification limits. Native print verification and broader operational reports remain pending. Builder and Visitor are planned extensions, not implemented patterns. Review the final assignment document before submission; source packaging and the recorded demonstration are separate deliverables. The optional meter credential wrapper is distinct from application user authentication. This is a local demonstration, not a production deployment.
+Expected local folder arrangement:
 
-## Build
+```text
+OODP2/
+  smartcity360/          # This repository
+  tools/
+    payara7/            # Payara installation
+    pgsql/              # PostgreSQL binaries, including bin/psql.exe
+```
 
-Set the project SDK and Maven runner JDK to Java 21 in IntelliJ, reload the Maven project, then run the Maven `package` lifecycle goal (or `mvn package`).
+Payara and PostgreSQL installations are not included in the repository. The scripts default to Java at `C:\Program Files\Java\jdk-21`; the daily launcher defaults to Maven at `C:\maven\apache-maven-3.9.14`. Adjust the parameters if your installations differ. The bootstrap helper expects the PostgreSQL folder arrangement shown above.
 
-Output: `target/smartcity360.war`.
+## First-time setup
 
-The compiled Tailwind CSS is committed, so a fresh checkout can build the WAR with Maven alone. After changing styles or utility classes, run `npm ci` once, then `npm run build:css` before Maven packaging. Node is a build tool only; Payara runs the application. See the [official Tailwind CLI workflow](https://tailwindcss.com/docs/installation/tailwind-cli).
+Open `pom.xml` as a project in IntelliJ, select JDK 21 and reload Maven. Run these commands from the project root in IntelliJ's PowerShell terminal. Finish each step successfully before proceeding.
 
-## First deployment check
+### 1. Build and create the local services
 
-Follow [Local development in IntelliJ](docs/LOCAL_DEVELOPMENT.md) to configure and run Payara 7. Our separate `smartcity360` domain uses HTTP port 9080 and administration port 9048. Deploy the WAR with application context `/smartcity360`:
+```powershell
+mvn package
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Setup
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\database.ps1 -Action Setup
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Start
+```
 
-- Sign in: `http://localhost:9080/smartcity360/login.html`
-- Personal workspace: `http://localhost:9080/smartcity360/home.html`
-- City workspace: `http://localhost:9080/smartcity360/`
-- Complaints: `http://localhost:9080/smartcity360/complaints.html`
-- Energy meters: `http://localhost:9080/smartcity360/meters.html`
-- Streetlights: `http://localhost:9080/smartcity360/streetlights.html`
-- City policies: `http://localhost:9080/smartcity360/policies.html`
-- REST check: `http://localhost:9080/smartcity360/api/health`
-- Saved city records: `http://localhost:9080/smartcity360/api/cities`
+Database setup creates the local database/application role and applies all numbered SQL files in `database/` in filename order, currently `001` through `011`. This includes complaint assignment, follow-up and profile changes. Apply the complete schema before deploying the current application.
 
-Expected REST response: `{"application":"SmartCity360","status":"UP"}`.
+### 2. Configure the datasource and deploy
 
-Apply the account migration and bootstrap the first admin using the [account setup guide](docs/ACCOUNTS.md). All application data endpoints now require sign-in.
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\database.ps1 -Action ConfigurePayara
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Stop
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Start
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Deploy
+```
 
-The health endpoint confirms Java responds; listing cities also checks the database path. Start PostgreSQL before Payara in later development sessions.
+The configuration installs the PostgreSQL JDBC driver and creates `jdbc/SmartCity360DS`. The restart loads that driver. The deployed file is `target/smartcity360.war`, with application context `/smartcity360`.
 
-## Understand these files
+### 3. Create the first administrator
 
-- `pom.xml`: Java version, Jakarta EE dependency and WAR packaging. `provided` means the server supplies the Jakarta implementation.
-- `RestApplication.java`: establishes `/api` as the REST base path.
-- `HealthResource.java`: handles `GET /api/health` and returns JSON.
-- `src/main/webapp/index.html` and `assets/js/cities.js`: Tailwind workspace and plain JavaScript REST client.
-- `pattern/composite/`: common component, zone group and building leaf.
-- `ZoneService.java`: constructs the Composite from stored rows and saves command results.
-- `docs/report/PART_B_COMPOSITE.md`: report draft with explanation and UML source. Documentation is separate from the deployed app.
-- `pattern/chain/`: complaint handlers and their accept-or-forward algorithm.
-- `ComplaintService.java`: stores routing history and validates work transitions/escalation.
-- `docs/report/PART_C_CHAIN_OF_RESPONSIBILITY.md`: separate C1–C3 report draft.
-- `pattern/decorator/`: common meter stream, base component and three wrappers.
-- `MeterService.java`: processes/recover-checks readings before updating building usage; `MeterKeyStore` keeps the private encryption key outside the repository.
-- `pattern/flyweight/`: immutable lamp specifications, the shared pool and independent light contexts.
-- `StreetlightService.java`: saves inventory and reconstructs paginated contexts using shared specifications.
-- `FlyweightDemonstration.java`: isolated object-identity comparison without database writes.
-- `pattern/interpreter/`: terminal comparisons, boolean expression nodes, observation context and bounded rule parser.
-- `PolicyService.java`: validates saved revisions and stores evaluations with original rule snapshots.
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\bootstrap-admin.ps1
+```
 
-## Try the hierarchy
+Read the initial login privately from `.local/bootstrap-admin.json`, sign in and change the temporary password in **Profile > Security**. There is no public default password in this repository. Bootstrap is for a new installation; it does not reset an existing administrator.
 
-1. Sign in as system admin, open City zones, expand **Create a city**, enter a name and save.
-2. Add a district. Select it in **City structure**, then add a street.
-3. Select the street and add a building. Select the building to save usage in kWh.
-4. Select the city or district to see the sum of its buildings' readings.
-5. Switch a district off and inspect the city: another powered district produces a **Mixed** state. Recorded usage stays unchanged.
+Use **Manage users** to create staff accounts and assign their city. Residents use **Create account** on the sign-in page. See [account setup](docs/ACCOUNTS.md), [database details](docs/DATABASE.md) and [server configuration](docs/LOCAL_DEVELOPMENT.md).
 
-Use the same reporting period for all manual readings. These are saved values, not live meter telemetry. Empty groups have no buildings to control.
+## Run an already configured installation
 
-## Verify
+From the project root:
 
-Most live scripts use an administrator fixture; report verification uses retained accounts across roles. The helpers read ignored local credentials or explicit private environment credentials. Older scripts that submit complaints as admin must be adapted to use a resident before rerunning them. Data-generating suites retain extra demo cities; avoid running them against the five-city demonstration just to view the app.
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-local.ps1
+```
 
-- `mvn test`: 67 tests: 33 core pattern tests, five account-security, seven assignment, 17 follow-up and five profile/permission tests.
-- `node scripts/verify-feedback.cjs`: six notification lifecycle tests using a minimal DOM and clock.
-- `node scripts/verify-report-model.cjs`: six report calculation tests.
-- `node scripts/verify-reports.mjs`: 62 read-only checks with retained local accounts; no new demo cities.
-- `node scripts/verify-accounts.mjs`: checks all five roles and privacy boundaries; retains labelled test users/cities and private local credentials.
-- [Account setup and permissions](docs/ACCOUNTS.md): bootstrap, sign-in, password changes and role boundaries.
-- `node scripts/verify-zones.mjs`: live API checks with Payara/PostgreSQL running; creates and retains two labelled demo cities per run.
-- `node scripts/verify-complaints.mjs`: live complaint checks; creates two labelled demo cities and four complaints per successful run.
-- `node scripts/verify-meters.mjs`: live meter checks; creates two labelled demo cities, a meter and nine accepted readings per successful run. Generated credentials stay in ignored `.local`.
-- `node scripts/verify-streetlights.mjs`: live streetlight checks; creates two labelled demo cities, three saved lights and test specifications. The separate 100,000-light demonstration creates no database rows.
-- `node scripts/verify-policies.mjs`: live policy checks; retains two labelled demo cities, three policies and eight evaluation results on a successful run.
-- [Part B report draft](docs/report/PART_B_COMPOSITE.md): class roles, UML source, tradeoffs and viva explanation.
-- [Complaint workflow guide](docs/COMPLAINTS.md): UI steps, API, data model and limitations.
-- [Part C report draft](docs/report/PART_C_CHAIN_OF_RESPONSIBILITY.md): assessment answers and supporting UML source.
-- [Meter workflow guide](docs/METERS.md): registration, layer choices, recovery, key backup and limitations.
-- [Part A report draft](docs/report/PART_A_DECORATOR.md): A1–A3 answers, UML source and standard-library references.
-- [Streetlight workflow guide](docs/STREETLIGHTS.md): registration, individual controls, API and sharing demonstration limits.
-- [Part D report draft](docs/report/PART_D_FLYWEIGHT.md): D1–D3 answers, UML source and evidence for object sharing.
+This builds using cached Maven dependencies, skips tests, starts the existing database/server if needed and redeploys the application. Run `mvn package` online first on a new computer to fill the dependency cache. Services continue running after the launcher finishes.
 
-- [Policy workflow guide](docs/POLICIES.md): language grammar, saved revisions, observations, API and limitations.
-- [Part E report draft](docs/report/PART_E_INTERPRETER.md): E1–E3 answers, required UML source and critical assessment.
+For different Java/Maven paths:
 
-The five report sections are source material for one final document; they are not separate submission reports or a finished PDF.
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-local.ps1 -JavaHome 'C:\path\to\jdk-21' -MavenHome 'C:\path\to\apache-maven'
+```
 
-There is no Spring Boot dependency or standalone `main` method: Payara runs this web application.
+Open [SmartCity360 sign in](http://localhost:9080/smartcity360/login.html). After a frontend deployment, press **Ctrl+F5** if the previous interface remains cached. [Add the launcher to IntelliJ's Tools menu](docs/INTELLIJ_RUN.md).
 
-## Interface and workflow checkpoint
+| Local endpoint | Purpose |
+| --- | --- |
+| `http://localhost:9080/smartcity360/login.html` | Sign in or register |
+| `http://localhost:9080/smartcity360/home.html` | Role dashboard |
+| `http://localhost:9080/smartcity360/api/health` | Application health |
+| `http://localhost:9048/` | Local Payara administration |
+| `127.0.0.1:5433` | PostgreSQL database connection |
 
-See [interface design and theme configuration](docs/DESIGN.md) for the central color file and responsive sidebar. Every role has Dashboard and Profile; other sections follow API permissions. [Complaint controls](docs/COMPLAINTS.md) now cover named employee assignment, public messages and reopening review. Profiles now include validated username, phone and photo fields. See [action alerts](docs/ACTION_FEEDBACK.md) and [complaint reports](docs/REPORTS.md). Final browser and native print checks remain outstanding.
+Health returns `{"application":"SmartCity360","status":"UP"}`. It checks that the application responds, not that every database workflow works. Sign in and load the city selector to exercise database access.
+
+To stop services, stop Payara first, then PostgreSQL:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\server.ps1 -Action Stop
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\database.ps1 -Action Stop
+```
+
+## Data and credentials
+
+The existing local installation has sample records across Colombo, Kandy, Galle, Jaffna and Kurunegala. A GitHub clone or source ZIP does **not** contain that running database or its accounts. New installations require account provisioning and data setup.
+
+[Sample-data helpers](docs/SAMPLE_DATA.md) can populate the prepared local environment. They require the documented private account configuration and existing cities; they are not a one-command fresh-database installer. Preview their work before using `--apply`.
+
+Keep `.local/`, database passwords, account credentials and the Payara encryption key private. Do not delete `.local/` as a cleanup step: it holds the local database files. Back up the database and meter encryption key together to preserve recovery of encrypted readings.
+
+## Build, test and customize
+
+```powershell
+mvn test
+mvn package
+node --test scripts/verify-feedback.cjs scripts/verify-auth-session.cjs scripts/verify-report-model.cjs scripts/verify-city-explorer.cjs
+```
+
+Recorded verification on 11 November 2026: **67 Java tests**, including **33 pattern tests**; **21 client checks**; **106 live role checks**; and **42 live complaint write/isolation checks**. These suites overlap and their totals should not be added together. They are recorded results, not tests rerun whenever this README changes.
+
+Live scripts need the running services and private account fixtures. The live complaint journey requires `--apply` and retains cases. Some older feature scripts create extra test cities or assume previous permissions; consult [verification scope](docs/VERIFICATION.md) and [the later checkpoint](docs/UI_CHECKPOINT.md) before running them.
+
+To rebuild Tailwind after changing utility classes:
+
+```powershell
+npm ci
+npm run build:css
+mvn package
+```
+
+- Colors and font stacks: `src/main/webapp/assets/css/themes.css`.
+- Shared layout refinements: `src/main/webapp/assets/css/refinements.css`.
+- Profile layout: `src/main/webapp/assets/css/profile.css`.
+- Navigation: `src/main/webapp/assets/js/shell.js`.
+
+Rebuild and redeploy after changes. See [theme configuration](docs/DESIGN.md).
+
+## Troubleshooting
+
+| Problem | What to check |
+| --- | --- |
+| No Java main class to run | Use Maven packaging and Payara deployment; this is a WAR application. |
+| Offline Maven cannot resolve a dependency | Run `mvn package` with internet access before using the offline launcher. |
+| Database connection fails | Check PostgreSQL on port 5433, datasource setup and the server log. |
+| Missing tables or columns | Apply all numbered database scripts using the setup helper before deploying current code. |
+| Old interface after deployment | Press Ctrl+F5 and confirm the latest WAR was deployed. |
+| Profile is the only accessible page | Change the account's temporary password in Profile > Security. |
+| Missing operational tabs | Residents cannot access staff modules; staff scope also depends on their assigned city. |
+| Incomplete application registration | Follow the explicit repair steps in the IntelliJ run guide. |
+
+## Project structure and guides
+
+```text
+src/main/java/lk/osini/smartcity360/
+  pattern/     Five design-pattern implementations
+  resource/    Jakarta REST endpoints
+  service/     Business operations and transactions
+  entity/      JPA database mappings
+  security/    Authentication, authorization and validation
+src/main/webapp/   HTML, CSS, JavaScript and images
+src/test/         Java tests and test resources
+database/         Ordered SQL migrations
+scripts/          Setup, deployment, sample-data and verification helpers
+docs/             Feature guides, screenshots and report material
+```
+
+- [Complaints](docs/COMPLAINTS.md), [city zones](docs/CITY_ZONES.md), [energy meters](docs/METERS.md).
+- [Streetlights](docs/STREETLIGHTS.md), [city policies](docs/POLICIES.md), [reports](docs/REPORTS.md).
+- [Profiles and appearance](docs/PROFILE_AND_APPEARANCE.md), [action feedback](docs/ACTION_FEEDBACK.md).
+- [Assessment coverage](docs/ASSESSMENT_REVIEW.md) and [report source sections](docs/report/).
+
+## Scope and limitations
+
+Power commands, meter inputs and policy observations are simulated application records, not live municipal hardware connections. Email delivery, password recovery, saved notifications and complete maintenance history are not implemented. Report printing opens the browser's print workflow; full native print/PDF acceptance remains pending. Fresh setup on another computer and an exhaustive visual walkthrough of every role/dialog remain separate verification tasks.
